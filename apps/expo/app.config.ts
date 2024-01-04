@@ -10,10 +10,10 @@ if (
 }
 
 const defineConfig = (): ExpoConfig => ({
-  name: "expo",
-  slug: "expo",
-  scheme: "expo",
-  version: "2.0.0",
+  name: "vettee",
+  slug: "vettee",
+  scheme: "vettee",
+  version: "0.0.1",
   orientation: "portrait",
   icon: "./assets/icon.png",
   userInterfaceStyle: "dark",
@@ -27,12 +27,12 @@ const defineConfig = (): ExpoConfig => ({
   },
   assetBundlePatterns: ["**/*"],
   ios: {
-    bundleIdentifier: "your.bundle.identifier",
+    bundleIdentifier: "vettee.deeplift.com",
     supportsTablet: true,
     usesAppleSignIn: true,
   },
   android: {
-    package: "your.bundle.identifier",
+    package: "vettee.deeplift.com",
     adaptiveIcon: {
       foregroundImage: "./assets/icon.png",
       backgroundColor: "#18181A",
@@ -42,11 +42,11 @@ const defineConfig = (): ExpoConfig => ({
     tsconfigPaths: true,
     typedRoutes: true,
   },
-  // extra: {
-  //   eas: {
-  //     projectId: "your-project-id",
-  //   },
-  // },
+  extra: {
+    eas: {
+      projectId: "964e7859-5c41-476d-9808-68aedc62a278",
+    },
+  },
   plugins: [
     "./expo-plugins/with-modify-gradle.js",
     "expo-apple-authentication",
