@@ -3,6 +3,7 @@
 interface DefaultTheme {
   colors: {
     primary: string;
+    secondary: string;
     text: string;
   };
 }
@@ -10,6 +11,7 @@ interface DefaultTheme {
 export const theme: DefaultTheme = {
   colors: {
     primary: "#8EFF79",
+    secondary: "#2613FF",
     text: "#1E1E1E",
   },
 };

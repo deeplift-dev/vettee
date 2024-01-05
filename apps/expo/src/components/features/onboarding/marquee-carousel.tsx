@@ -9,6 +9,7 @@ import Animated, {
 import Carousel from "react-native-reanimated-carousel";
 import { Text, View } from "@gluestack-ui/themed";
 
+import { theme } from "~/styles";
 import AnimalDash from "./cards/animal-dash";
 import AnimalsCard from "./cards/animals-card";
 import ChatCard from "./cards/chat-card";
@@ -80,7 +81,7 @@ function ParallaxCarousel() {
           {cards.map((backgroundColor, index) => {
             return (
               <PaginationItem
-                backgroundColor="#6366f1"
+                backgroundColor={theme.colors.secondary}
                 animValue={progressValue}
                 index={index}
                 key={index}
