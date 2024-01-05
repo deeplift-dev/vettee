@@ -1,8 +1,10 @@
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { config } from "@gluestack-ui/config"; // Optional if you want to use default theme
+import { GluestackUIProvider } from "@gluestack-ui/themed";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { SessionContextProvider } from "@supabase/auth-helpers-react";
 
-import { HeaderBackButton, HeaderTitle } from "../components/header";
 import { TRPCProvider } from "../utils/api";
 import { supabase } from "../utils/supabase";
 
@@ -19,32 +21,18 @@ export default function RootLayout() {
   return (
     <SessionContextProvider supabaseClient={supabase}>
       <TRPCProvider>
-        {/*
-         * The Stack component displays the current page.
-         * It also allows you to configure your screens
-         */}
-        <Stack
-          screenOptions={{
-            headerLeft: HeaderBackButton,
-            headerTitle: HeaderTitle,
-            headerStyle: {
-              backgroundColor: "#18181A",
-            },
-          }}
-        >
-          {/*
-           * Present the profile screen as a modal
-           * @see https://expo.github.io/router/docs/guides/modals
-           */}
-          <Stack.Screen
-            name="profile"
-            options={{
-              presentation: "modal",
-              headerTitle: () => <></>,
-            }}
-          />
-        </Stack>
-        <StatusBar />
+        <BottomSheetModalProvider>
+          <GluestackUIProvider config={config}>
+            <Stack initialRouteName="(tabs)">
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="onboarding"
+                options={{ headerShown: false }}
+              />
+            </Stack>
+            <StatusBar />
+          </GluestackUIProvider>
+        </BottomSheetModalProvider>
       </TRPCProvider>
     </SessionContextProvider>
   );

@@ -1,13 +1,13 @@
 import type { ExpoConfig } from "@expo/config";
 
-if (
-  !process.env.EXPO_PUBLIC_SUPABASE_URL ||
-  !process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY
-) {
-  throw new Error(
-    "Please provide SUPABASE_URL and SUPABASE_ANON_KEY in your .env file",
-  );
-}
+// if (
+//   !process.env.EXPO_PUBLIC_SUPABASE_URL ||
+//   !process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY
+// ) {
+//   throw new Error(
+//     "Please provide SUPABASE_URL and SUPABASE_ANON_KEY in your .env file",
+//   );
+// }
 
 const defineConfig = (): ExpoConfig => ({
   name: "vettee",
@@ -44,10 +44,11 @@ const defineConfig = (): ExpoConfig => ({
   },
   extra: {
     eas: {
-      projectId: "964e7859-5c41-476d-9808-68aedc62a278",
+      projectId: "abaabb10-5b91-4094-9b26-627e411dd851",
     },
   },
   plugins: [
+    "expo-router",
     "./expo-plugins/with-modify-gradle.js",
     "expo-apple-authentication",
   ],

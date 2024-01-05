@@ -8,7 +8,9 @@ export function AuthAvatar() {
   const router = useRouter();
   // const profileImage = user?.user_metadata.avatar_url as string | undefined;
 
-  return <Button title="Sign In" onPress={() => router.push("/profile")} />;
+  return (
+    <Button title="Sign In" onPress={() => router.push("/auth/profile")} />
+  );
 
   /**
    * FIXME: Something is wrong when rendering anything but a Button here...

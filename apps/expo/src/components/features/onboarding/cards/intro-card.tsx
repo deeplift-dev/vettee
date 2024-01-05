@@ -1,0 +1,100 @@
+import React from "react";
+import { Image } from "expo-image";
+import { Link } from "expo-router";
+import { Marquee } from "@animatereactnative/marquee";
+import {
+  Box,
+  Button,
+  ButtonText,
+  Center,
+  HStack,
+  KeyboardAvoidingView,
+  Text,
+  View,
+  VStack,
+} from "@gluestack-ui/themed";
+
+import { PageContainer } from "~/components/ui/page-container";
+import Spacer from "~/components/ui/spacer";
+
+const images = [
+  require("../../../../../assets/images/animals/animals-one.jpg"),
+  require("../../../../../assets/images/animals/animals-nine.jpg"),
+  require("../../../../../assets/images/animals/animals-seven.jpg"),
+  require("../../../../../assets/images/animals/animals-two.jpg"),
+  require("../../../../../assets/images/animals/animals-three.jpg"),
+  require("../../../../../assets/images/animals/animals-four.jpg"),
+  require("../../../../../assets/images/animals/animals-five.jpg"),
+  require("../../../../../assets/images/animals/animals-six.jpg"),
+  require("../../../../../assets/images/animals/animals-eight.jpg"),
+];
+
+const IntroCard = () => {
+  return (
+    <VStack height="$full">
+      <Center height="$2/3">
+        <Marquee spacing={20} speed={0.05}>
+          <HStack space="lg">
+            {images.map((image, index) => (
+              <Box
+                key={index}
+                width="$96"
+                height="$96"
+                rounded="$3xl"
+                overflow="hidden"
+                borderColor="$backgroundLight400"
+                borderWidth={1}
+              >
+                <Image
+                  source={image}
+                  resizeMode="cover"
+                  style={{ width: "100%", height: "100%" }}
+                />
+              </Box>
+            ))}
+          </HStack>
+        </Marquee>
+        <View height="$3.5" />
+        <Marquee spacing={20} speed={0.1}>
+          <HStack space="lg">
+            {images.map((image, index) => (
+              <Box
+                key={index}
+                width="$40"
+                height="$40"
+                rounded="$3xl"
+                overflow="hidden"
+                borderColor="$backgroundLight400"
+                borderWidth={1}
+              >
+                <Image
+                  source={image}
+                  resizeMode="cover"
+                  style={{ width: "100%", height: "100%" }}
+                />
+              </Box>
+            ))}
+          </HStack>
+        </Marquee>
+      </Center>
+      <View height="$1/3" mt={60}>
+        <VStack space="lg" px={60}>
+          <Text
+            textAlign="center"
+            size="3xl"
+            fontWeight="$medium"
+            color="$black"
+          >
+            Welcome to Vettee
+          </Text>
+          <Text textAlign="center" color="$slate800" mb={30}>
+            The ultimate companion for your companion. Access a unique, high
+            quality pet care experience from the comfort of your home.
+          </Text>
+        </VStack>
+      </View>
+    </VStack>
+  );
+};
+
+export default IntroCard;

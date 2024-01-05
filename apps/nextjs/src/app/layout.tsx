@@ -14,18 +14,18 @@ const fontSans = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "T3 Turbo x Supabase",
-  description: "Simple monorepo with shared backend for web & mobile apps",
+  title: "Vettee",
+  description: "The ultimate companion for your companions.",
   openGraph: {
-    title: "T3 Turbo x Supabase",
-    description: "Simple monorepo with shared backend for web & mobile apps",
-    url: "https://github.com/supabase-community/create-t3-turbo",
-    siteName: "T3 Turbo x Supabase",
+    title: "Vettee",
+    description: "The ultimate companion for your companions.",
+    url: "https://vettee.vet",
+    siteName: "Vettee",
   },
   twitter: {
     card: "summary_large_image",
-    site: "@jullerino",
-    creator: "@jullerino",
+    site: "@vettee",
+    creator: "@vettee",
   },
 };
 
