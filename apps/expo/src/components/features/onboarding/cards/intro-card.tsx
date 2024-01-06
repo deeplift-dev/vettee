@@ -32,7 +32,7 @@ const images = [
 const IntroCard = () => {
   return (
     <VStack height="$full">
-      <Center height="$2/3">
+      <Center height="$3/6">
         <Marquee spacing={20} speed={0.05}>
           <HStack space="lg">
             {images.map((image, index) => (
@@ -77,7 +77,7 @@ const IntroCard = () => {
           </HStack>
         </Marquee>
       </Center>
-      <View height="$1/3" mt={60}>
+      <View height="$3/6" mt={120}>
         <VStack space="lg" px={60}>
           <Text
             textAlign="center"

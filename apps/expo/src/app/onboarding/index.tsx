@@ -1,4 +1,3 @@
-import React from "react";
 import { Link } from "expo-router";
 import { Button, ButtonText, View, VStack } from "@gluestack-ui/themed";
 

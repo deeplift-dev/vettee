@@ -53,7 +53,7 @@ function ParallaxCarousel() {
         }}
         data={cards}
         renderItem={({ index }) => {
-          return <CarouselItems activeCard={cards[index] ?? "intro"} />;
+          return <CarouselItems activeCard={cards[index] ?? "chat"} />;
         }}
       />
       {!!progressValue && (
@@ -167,8 +167,8 @@ const CarouselItems = ({ activeCard }: CarouselItemsProps) => {
       return <IntroCard />;
     case "chat":
       return <ChatCard />;
-    case "vet":
-      return <VetCard />;
+    // case "vet":
+    //   return <VetCard />;
     case "animals":
       return <AnimalsCard />;
     case "animal-dash":
