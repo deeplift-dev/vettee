@@ -10,9 +10,6 @@ module.exports = function (api) {
     plugins: [
       require.resolve("expo-router/babel"),
       require.resolve("react-native-reanimated/plugin"),
-      require.resolve("babel-plugin-inline-import", {
-        extensions: [".svg"],
-      }),
     ],
   };
 };

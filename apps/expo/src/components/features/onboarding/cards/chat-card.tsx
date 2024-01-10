@@ -11,7 +11,7 @@ const ChatCard = () => {
       <Center height="$2/3">
         {isIOS ? (
           <AnimatedLottieView
-            style={{ width: 500, height: 500, marginTop: 20 }}
+            style={{ width: 400, height: 400, marginTop: 20 }}
             source={require("../../../../../assets/animations/smart-chat-animation.json")}
             autoPlay
             loop
@@ -26,17 +26,17 @@ const ChatCard = () => {
         )}
         <View height="$3.5" />
       </Center>
-      <View height="$1/3" mt={60}>
+      <View height="$1/3" mt={40}>
         <VStack space="lg" px={60}>
           <Text
             textAlign="center"
-            size="3xl"
+            size="2xl"
             fontWeight="$medium"
             color="$black"
           >
             Instant super-powered chat{" "}
           </Text>
-          <Text textAlign="center" color="$slate800" mb={30}>
+          <Text textAlign="center" mb={30}>
             Get helpful, targeted advice about your animal. Our specifically
             trained AI model will help you triage issues your animal might have.
           </Text>

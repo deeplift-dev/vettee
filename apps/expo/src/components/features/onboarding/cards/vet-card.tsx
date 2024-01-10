@@ -12,7 +12,7 @@ const VetCard = () => {
       <Center height="$2/3">
         {isIOS ? (
           <AnimatedLottieView
-            style={{ width: 500, height: 500, marginTop: 20 }}
+            style={{ width: 400, height: 400, marginTop: 20 }}
             source={require("../../../../../assets/animations/vet-chat-animation.json")}
             autoPlay
             loop
@@ -27,17 +27,17 @@ const VetCard = () => {
         )}
         <View height="$3.5" />
       </Center>
-      <View height="$1/3" mt={60}>
+      <View height="$1/3" mt={40}>
         <VStack space="lg" px={60}>
           <Text
             textAlign="center"
-            size="3xl"
+            size="2xl"
             fontWeight="$medium"
             color="$black"
           >
             Connect effortlessly with your local vet{" "}
           </Text>
-          <Text textAlign="center" color="$slate800" mb={30}>
+          <Text textAlign="center" mb={30}>
             Vettee takes the pain out of visits to the vet, even the late night
             visits you didn’t plan for.
           </Text>

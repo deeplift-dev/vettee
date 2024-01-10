@@ -67,12 +67,16 @@ const IntroCard = () => {
         <VStack space="lg" px={60}>
           <Text
             textAlign="center"
-            size="3xl"
+            size="2xl"
             fontWeight="$medium"
             color="$black"
           >
-            Welcome to Vettee
+            Welcome to{"\n"}
+            <Text fontFamily="$heading" color="$black" size="2xl">
+              Vettee
+            </Text>
           </Text>
+
           <Text textAlign="center" mb={30}>
             The ultimate companion for your companion. Access a unique, high
             quality pet care experience from the comfort of your home.

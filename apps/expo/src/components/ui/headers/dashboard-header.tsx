@@ -8,12 +8,7 @@ export function HomeHeader() {
       exiting={FadeOut}
       className="flex w-full flex-row"
     >
-      <Text
-        style={{ fontFamily: "Unbounded_500Medium" }}
-        className="text-2xl text-gray-800"
-      >
-        Vettee
-      </Text>
+      <Text>Vettee</Text>
     </Animated.View>
   );
 }

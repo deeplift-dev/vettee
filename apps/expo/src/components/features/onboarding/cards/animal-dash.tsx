@@ -26,19 +26,19 @@ const AnimalDash = () => {
         )}
         <View height="$3.5" />
       </Center>
-      <View height="$1/3" mt={60}>
+      <View height="$1/3" mt={40}>
         <VStack space="lg" px={60}>
           <Text
             textAlign="center"
-            size="3xl"
+            size="2xl"
             fontWeight="$medium"
             color="$black"
           >
             Your pet’s care, personalised{" "}
           </Text>
-          <Text textAlign="center" color="$slate800" mb={30}>
-            Vettee takes the pain out of visits to the vet, even the ones you
-            didn’t plan for.
+          <Text textAlign="center" mb={30}>
+            We'll help you keep track of your pet's health and wellbeing, so you
+            can focus on what matters most.
           </Text>
         </VStack>
       </View>
