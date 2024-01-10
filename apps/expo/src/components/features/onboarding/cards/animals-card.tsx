@@ -1,44 +1,30 @@
 import React from "react";
+import { Platform } from "react-native";
+import { SvgUri } from "react-native-svg";
 import { Image } from "expo-image";
-import { Link } from "expo-router";
-import { Marquee } from "@animatereactnative/marquee";
-import {
-  Button,
-  ButtonText,
-  Center,
-  HStack,
-  KeyboardAvoidingView,
-  Text,
-  View,
-  VStack,
-} from "@gluestack-ui/themed";
+import { Center, Text, View, VStack } from "@gluestack-ui/themed";
 import AnimatedLottieView from "lottie-react-native";
 
-import { PageContainer } from "~/components/ui/page-container";
-import Spacer from "~/components/ui/spacer";
-
-const images = [
-  require("../../../../../assets/images/animals/animals-one.jpg"),
-  require("../../../../../assets/images/animals/animals-nine.jpg"),
-  require("../../../../../assets/images/animals/animals-seven.jpg"),
-  require("../../../../../assets/images/animals/animals-two.jpg"),
-  require("../../../../../assets/images/animals/animals-three.jpg"),
-  require("../../../../../assets/images/animals/animals-four.jpg"),
-  require("../../../../../assets/images/animals/animals-five.jpg"),
-  require("../../../../../assets/images/animals/animals-six.jpg"),
-  require("../../../../../assets/images/animals/animals-eight.jpg"),
-];
-
 const AnimalsCard = () => {
+  const isIOS = Platform.OS === "ios";
   return (
     <VStack height="$full" width="$full">
       <Center height="$2/3">
-        <AnimatedLottieView
-          style={{ width: 500, height: 500, marginTop: 20 }}
-          source={require("../../../../../assets/animations/all-animals-animation.json")}
-          autoPlay
-          loop
-        />
+        {isIOS ? (
+          <AnimatedLottieView
+            style={{ width: 500, height: 500, marginTop: 20 }}
+            source={require("../../../../../assets/animations/all-animals-animation.json")}
+            autoPlay
+            loop
+          />
+        ) : (
+          <Image
+            source="https://jtgxffbpsnibgzbhaewx.supabase.co/storage/v1/object/public/assets/all-animals.png?t=2024-01-08T13%3A26%3A48.748Z"
+            contentFit="cover"
+            transition={1000}
+            style={{ width: 400, height: 500, marginTop: 20 }}
+          />
+        )}
         <View height="$3.5" />
       </Center>
       <View height="$1/3" mt={60}>

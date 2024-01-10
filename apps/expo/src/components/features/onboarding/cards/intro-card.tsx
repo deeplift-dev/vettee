@@ -1,21 +1,7 @@
 import React from "react";
 import { Image } from "expo-image";
-import { Link } from "expo-router";
 import { Marquee } from "@animatereactnative/marquee";
-import {
-  Box,
-  Button,
-  ButtonText,
-  Center,
-  HStack,
-  KeyboardAvoidingView,
-  Text,
-  View,
-  VStack,
-} from "@gluestack-ui/themed";
-
-import { PageContainer } from "~/components/ui/page-container";
-import Spacer from "~/components/ui/spacer";
+import { Box, Center, HStack, Text, View, VStack } from "@gluestack-ui/themed";
 
 const images = [
   require("../../../../../assets/images/animals/animals-one.jpg"),
@@ -87,7 +73,7 @@ const IntroCard = () => {
           >
             Welcome to Vettee
           </Text>
-          <Text textAlign="center" color="$slate800" mb={30}>
+          <Text textAlign="center" mb={30}>
             The ultimate companion for your companion. Access a unique, high
             quality pet care experience from the comfort of your home.
           </Text>

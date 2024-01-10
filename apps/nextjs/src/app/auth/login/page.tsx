@@ -33,7 +33,6 @@ export default function LoginPage() {
               const password = formData.get("password") as string;
 
               const res = await signInWithPassword(email, password);
-              console.log("Sign in response", res);
               router.push("/");
             }}
           >

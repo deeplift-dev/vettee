@@ -7,7 +7,7 @@ import Animated, {
   useSharedValue,
 } from "react-native-reanimated";
 import Carousel from "react-native-reanimated-carousel";
-import { Text, View } from "@gluestack-ui/themed";
+import { View } from "@gluestack-ui/themed";
 
 import { theme } from "~/styles";
 import AnimalDash from "./cards/animal-dash";
@@ -21,9 +21,13 @@ type Cards = "intro" | "chat" | "vet" | "animals" | "animal-dash";
 const PAGE_WIDTH = Dimensions.get("window").width;
 const PAGE_HEIGHT = Dimensions.get("window").height;
 
-function ParallaxCarousel() {
+interface ParallaxCarouselProps {
+  // Used to determine if the carousel should autoplay or not.
+  autoPlay?: boolean;
+}
+
+function ParallaxCarousel({ autoPlay = true }: ParallaxCarouselProps) {
   const [isVertical, setIsVertical] = React.useState(false);
-  const [autoPlay, setAutoPlay] = React.useState(true);
   const [pagingEnabled, setPagingEnabled] = React.useState<boolean>(true);
   const [snapEnabled, setSnapEnabled] = React.useState<boolean>(true);
   const progressValue = useSharedValue<number>(0);
@@ -53,7 +57,7 @@ function ParallaxCarousel() {
         }}
         data={cards}
         renderItem={({ index }) => {
-          return <CarouselItems activeCard={cards[index] ?? "chat"} />;
+          return <CarouselItems activeCard={cards[index] ?? "intro"} />;
         }}
       />
       {!!progressValue && (
@@ -167,8 +171,8 @@ const CarouselItems = ({ activeCard }: CarouselItemsProps) => {
       return <IntroCard />;
     case "chat":
       return <ChatCard />;
-    // case "vet":
-    //   return <VetCard />;
+    case "vet":
+      return <VetCard />;
     case "animals":
       return <AnimalsCard />;
     case "animal-dash":

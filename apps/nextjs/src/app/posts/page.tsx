@@ -15,7 +15,6 @@ export default async function HomePage() {
   // If you don't want the Suspense loading state, you could pass these
   // posts as props as use as initialData in the query.
   const posts = await api.post.all.query();
-  console.log("RSC Posts:", posts);
 
   return (
     <main className="flex h-screen flex-col items-center bg-zinc-900 text-zinc-200">

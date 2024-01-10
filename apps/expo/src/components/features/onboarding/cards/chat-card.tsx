@@ -1,44 +1,29 @@
 import React from "react";
-import { Image } from "expo-image";
-import { Link } from "expo-router";
-import { Marquee } from "@animatereactnative/marquee";
-import {
-  Button,
-  ButtonText,
-  Center,
-  HStack,
-  KeyboardAvoidingView,
-  Text,
-  View,
-  VStack,
-} from "@gluestack-ui/themed";
+import { Platform } from "react-native";
+import { SvgUri, SvgXml } from "react-native-svg";
+import { Center, Text, View, VStack } from "@gluestack-ui/themed";
 import AnimatedLottieView from "lottie-react-native";
 
-import { PageContainer } from "~/components/ui/page-container";
-import Spacer from "~/components/ui/spacer";
-
-const images = [
-  require("../../../../../assets/images/animals/animals-one.jpg"),
-  require("../../../../../assets/images/animals/animals-nine.jpg"),
-  require("../../../../../assets/images/animals/animals-seven.jpg"),
-  require("../../../../../assets/images/animals/animals-two.jpg"),
-  require("../../../../../assets/images/animals/animals-three.jpg"),
-  require("../../../../../assets/images/animals/animals-four.jpg"),
-  require("../../../../../assets/images/animals/animals-five.jpg"),
-  require("../../../../../assets/images/animals/animals-six.jpg"),
-  require("../../../../../assets/images/animals/animals-eight.jpg"),
-];
-
 const ChatCard = () => {
+  const isIOS = Platform.OS === "ios";
   return (
     <VStack height="$full" width="$full">
       <Center height="$2/3">
-        <AnimatedLottieView
-          style={{ width: 500, height: 500, marginTop: 20 }}
-          source={require("../../../../../assets/animations/smart-chat-animation.json")}
-          autoPlay
-          loop
-        />
+        {isIOS ? (
+          <AnimatedLottieView
+            style={{ width: 500, height: 500, marginTop: 20 }}
+            source={require("../../../../../assets/animations/smart-chat-animation.json")}
+            autoPlay
+            loop
+          />
+        ) : (
+          <SvgUri
+            uri="https://jtgxffbpsnibgzbhaewx.supabase.co/storage/v1/object/public/assets/vet-chat.svg?t=2024-01-08T13%3A14%3A28.689Z"
+            width={500}
+            height={500}
+            style={{ marginTop: 20 }}
+          />
+        )}
         <View height="$3.5" />
       </Center>
       <View height="$1/3" mt={60}>

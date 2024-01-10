@@ -4,12 +4,24 @@ import {
   Fontisto,
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
+import { useSessionContext, useUser } from "@supabase/auth-helpers-react";
 
 export default function Layout() {
-  const hasOnboarded = false;
+  const { session, isLoading, error } = useSessionContext();
+  const hasOnboarded = true;
+
+  if (isLoading) {
+    return;
+  }
+
+  const isAuthed = session?.user;
+
+  if (!isAuthed) {
+    return <Redirect href="/onboarding" />;
+  }
 
   if (!hasOnboarded) {
-    return <Redirect href="/onboarding/" />;
+    return <Redirect href="/onboarding/account" />;
   }
 
   return (
