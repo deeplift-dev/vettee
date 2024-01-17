@@ -3,16 +3,19 @@ import { Image } from "expo-image";
 import { Marquee } from "@animatereactnative/marquee";
 import { Box, Center, HStack, Text, View, VStack } from "@gluestack-ui/themed";
 
-const images = [
+const firstImages = [
   require("../../../../../assets/images/animals/animals-one.jpg"),
   require("../../../../../assets/images/animals/animals-nine.jpg"),
   require("../../../../../assets/images/animals/animals-seven.jpg"),
   require("../../../../../assets/images/animals/animals-two.jpg"),
+  require("../../../../../assets/images/animals/animals-six.jpg"),
+  require("../../../../../assets/images/animals/animals-eight.jpg"),
+];
+
+const secondImages = [
   require("../../../../../assets/images/animals/animals-three.jpg"),
   require("../../../../../assets/images/animals/animals-four.jpg"),
   require("../../../../../assets/images/animals/animals-five.jpg"),
-  require("../../../../../assets/images/animals/animals-six.jpg"),
-  require("../../../../../assets/images/animals/animals-eight.jpg"),
 ];
 
 const IntroCard = () => {
@@ -21,7 +24,7 @@ const IntroCard = () => {
       <Center height="$3/6">
         <Marquee spacing={20} speed={0.05}>
           <HStack space="lg">
-            {images.map((image, index) => (
+            {secondImages.map((image, index) => (
               <Box
                 key={index}
                 width="$96"
@@ -43,7 +46,7 @@ const IntroCard = () => {
         <View height="$3.5" />
         <Marquee spacing={20} speed={0.1}>
           <HStack space="lg">
-            {images.map((image, index) => (
+            {firstImages.map((image, index) => (
               <Box
                 key={index}
                 width="$40"

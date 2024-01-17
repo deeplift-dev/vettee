@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { makeRedirectUri } from "expo-auth-session";
-import { router } from "expo-router";
+import * as QueryParams from "expo-auth-session/build/QueryParams";
+import { Redirect, router } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { AntDesign, Entypo, Ionicons } from "@expo/vector-icons";
 import {
@@ -20,6 +21,7 @@ import {
   VStack,
 } from "@gluestack-ui/themed";
 
+import { api } from "~/utils/api";
 import { supabase } from "~/utils/supabase";
 import LoginFrom from "../forms/login-form";
 
@@ -88,33 +90,40 @@ const AuthButton = ({
 
 const IntroCard = ({ nextStep }: { nextStep: (step: AuthStep) => void }) => {
   const signInWithFacebook = async () => {
-    WebBrowser.maybeCompleteAuthSession(); // required for web only
     const redirectTo = makeRedirectUri();
 
     const createSessionFromUrl = async (url: string) => {
       const { params, errorCode } = QueryParams.getQueryParams(url);
 
+      console.log("params", params, errorCode);
+
       if (errorCode) throw new Error(errorCode);
-      const { access_token, refresh_token } = params;
+      const { code } = params;
 
-      if (!access_token) return;
+      console.log("code", code);
 
-      const { data, error } = await supabase.auth.setSession({
-        access_token,
-        refresh_token,
-      });
+      if (!code) return;
+
+      const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+
       if (error) throw error;
-      return data.session;
+
+      router.replace("/(tabs)");
     };
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "facebook",
     });
 
+    console.log("data step one", data, error);
+    console.log("redirect to", redirectTo);
+
     const res = await WebBrowser.openAuthSessionAsync(
       data?.url ?? "",
       redirectTo,
     );
+
+    console.log("res step two", res);
 
     if (res.type === "success") {
       const { url } = res;
@@ -131,7 +140,7 @@ const IntroCard = ({ nextStep }: { nextStep: (step: AuthStep) => void }) => {
         <Text textAlign="left" mb={20}>
           Sign in to your account to continue. Or create a new account.
         </Text>
-        <HStack justifyContent="space-between" px="$10">
+        <HStack justifyContent="space-between">
           <AuthButton onPress={() => router.replace("/(tabs)")}>
             <AntDesign name="apple1" size={24} color="white" />
           </AuthButton>

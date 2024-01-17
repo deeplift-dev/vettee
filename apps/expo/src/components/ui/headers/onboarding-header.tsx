@@ -1,6 +1,5 @@
 import Animated, { FadeInUp, FadeOut } from "react-native-reanimated";
-
-import Text from "../text";
+import { Text } from "@gluestack-ui/themed";
 
 export function OnboardingHeader({ canSkip = true }: { canSkip: boolean }) {
   return (
@@ -9,11 +8,7 @@ export function OnboardingHeader({ canSkip = true }: { canSkip: boolean }) {
       exiting={FadeOut}
       className="flex w-full flex-row items-center justify-between"
     >
-      <Text
-        fontWeight="logo"
-        fontSize={20}
-        className="text-left text-2xl text-gray-800"
-      >
+      <Text fontFamily="$heading" fontSize={20}>
         Vettee
       </Text>
       {canSkip && (

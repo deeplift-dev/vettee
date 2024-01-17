@@ -18,6 +18,7 @@ import {
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
 
 import { theme } from "~/styles";
+import { api } from "~/utils/api";
 
 export default function LoginForm() {
   const supabase = useSupabaseClient();
@@ -28,6 +29,7 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGeneratingProfile, setIsGeneratingProfile] = useState(false);
 
   const signInWithPassword = async () => {
     setIsLoading(true);
@@ -46,6 +48,31 @@ export default function LoginForm() {
       setIsSignUp(false);
     }
     setIsLoading(false);
+    setIsGeneratingProfile(true);
+
+    console.log("made it to before call");
+    const { data: profile } = await api.profile.byId.useQuery({
+      id: data?.user?.id,
+    });
+
+    console.log("made it to after call");
+    console.log("profile", profile);
+
+    if (!profile) {
+      const { error: profileError } = await api.profile.create.useMutation({
+        id: data?.user?.id,
+        input: {
+          id: data?.user?.id,
+          username: data?.user?.email,
+          avatar: data?.user?.avatar_url,
+        },
+      });
+      if (profileError) {
+        Alert.alert("There was an issue creating your profile", error.message);
+      }
+    }
+
+    setIsGeneratingProfile(false);
 
     if (data?.user) {
       router.replace("/(tabs)");
@@ -66,6 +93,7 @@ export default function LoginForm() {
               autoComplete="off"
               type="text"
               onChangeText={setEmail}
+              lineHeight="$lg"
             />
           </Input>
         </VStack>
@@ -75,6 +103,7 @@ export default function LoginForm() {
             <InputField
               type={showPassword ? "text" : "password"}
               onChangeText={setPassword}
+              lineHeight="$lg"
             />
             <InputSlot pr="$3" onPress={handleState}>
               <InputIcon

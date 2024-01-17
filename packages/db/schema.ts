@@ -19,9 +19,12 @@ export const postRelations = relations(post, ({ one }) => ({
 
 export const profile = pgTable("profile", {
   id: varchar("id", { length: 256 }).primaryKey(),
-  name: varchar("name", { length: 256 }).notNull(),
+  firstName: varchar("first_name", { length: 256 }),
+  lastName: varchar("last_name", { length: 256 }),
   image: varchar("image", { length: 256 }),
   email: varchar("email", { length: 256 }),
+  mobileNumber: varchar("mobile_number", { length: 256 }),
+  onboardedAt: timestamp("onboarded_at"),
 });
 
 export const profileRelations = relations(profile, ({ many }) => ({

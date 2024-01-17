@@ -1,4 +1,4 @@
-import { Redirect, Tabs } from "expo-router";
+import { Redirect, Stack, Tabs } from "expo-router";
 import {
   FontAwesome5,
   Fontisto,
@@ -6,35 +6,44 @@ import {
 } from "@expo/vector-icons";
 import { useSessionContext, useUser } from "@supabase/auth-helpers-react";
 
+import LoadingFullscreen from "~/components/ui/loading-fullscreen";
+import { api } from "~/utils/api";
+
 export default function Layout() {
   const { session, isLoading, error } = useSessionContext();
-  const hasOnboarded = true;
 
   if (isLoading) {
-    return;
+    return <LoadingFullscreen />;
   }
 
+  /**
+   * If the user is not authenticated, redirect them to the onboarding flow.
+   */
   const isAuthed = session?.user;
 
   if (!isAuthed) {
-    return <Redirect href="/onboarding" />;
+    return <Redirect href="/auth/" />;
   }
+
+  /**
+   * If the user is authenticated, but has not onboarded, redirect them to the onboarding flow.
+   */
+  const { data: profile, isLoading: loadingProfile } =
+    api.profile.byId.useQuery({ id: session.user.id });
+
+  if (loadingProfile) {
+    return <LoadingFullscreen />;
+  }
+
+  const hasOnboarded = profile?.[0]?.onboardedAt;
 
   if (!hasOnboarded) {
     return <Redirect href="/onboarding/account" />;
   }
 
   return (
-    <Tabs
-      screenOptions={{
-        tabBarStyle: {
-          position: "absolute",
-          backgroundColor: "transparent",
-          borderTopWidth: 0,
-        },
-      }}
-    >
-      <Tabs.Screen
+    <Stack>
+      <Stack.Screen
         // Name of the route to hide.
         name="index"
         options={{
@@ -48,7 +57,7 @@ export default function Layout() {
         //   href: null,
         // }}
       />
-      <Tabs.Screen
+      <Stack.Screen
         // Name of the route to hide.
         name="camera"
         options={{
@@ -62,7 +71,7 @@ export default function Layout() {
         //   href: null,
         // }}
       />
-      <Tabs.Screen
+      <Stack.Screen
         // Name of the route to hide.
         name="settings"
         options={{
@@ -76,6 +85,13 @@ export default function Layout() {
         //   href: null,
         // }}
       />
-    </Tabs>
+      <Stack.Screen
+        name="modal"
+        options={{
+          // Set the presentation mode to modal for our modal route.
+          presentation: "modal",
+        }}
+      />
+    </Stack>
   );
 }

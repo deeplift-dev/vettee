@@ -1,9 +1,9 @@
 import React from "react";
-import { View } from "react-native";
+import { SafeAreaView, View } from "react-native";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { Stack } from "expo-router";
-import { Button, ButtonText } from "@gluestack-ui/themed";
+import { Box, Button, ButtonText, Center, Text } from "@gluestack-ui/themed";
 import { useUser } from "@supabase/auth-helpers-react";
 
 import { HomeHeader } from "~/components/ui/headers/dashboard-header";
@@ -15,34 +15,28 @@ const Index = () => {
   const user = useUser();
 
   return (
-    <PageContainer>
+    <View h="$full" w="$full">
       <LinearGradient
         // Background Linear Gradient
-        colors={["rgba(0,0,100,0.4)", "transparent"]}
+        colors={["#AAD6E1", "#DECAEC", "#9BB8EF"]}
         style={{ width: "100%", height: "100%", position: "absolute" }}
       />
-      {/* Changes page title visible on the header */}
-      <Stack.Screen options={{ title: "Home", headerShown: false }} />
-      <View className="h-full w-full px-4">
+      <SafeAreaView>
+        {/* Changes page title visible on the header */}
+        <Stack.Screen options={{ title: "Home", headerShown: false }} />
         <HomeHeader />
-        <View className="my-4" />
-        <View className="relative h-40 overflow-hidden rounded-lg">
-          <BlurView
-            style={{
-              width: "100%",
-              height: "100%",
-            }}
-            intensity={25}
-          />
-          <Button
-            className="absolute bottom-4 left-4"
-            onPress={() => supabase.auth.signOut()}
-          >
+        <Center h="$full" w="$full">
+          <Box w="$full" px="$10">
+            <Box bg="$white" w="$full" p="$4" borderRadius="$lg">
+              <Text>Add your first animal to get started</Text>
+            </Box>
+          </Box>
+          <Button onPress={() => supabase.auth.signOut()}>
             <ButtonText>Sign Out</ButtonText>
           </Button>
-        </View>
-      </View>
-    </PageContainer>
+        </Center>
+      </SafeAreaView>
+    </View>
   );
 };
 

@@ -27,7 +27,7 @@ export function PageContainer({
         colors={formattedBackgroundColors}
         style={{ width: "100%", height: "200%", position: "absolute" }}
       />
-      <SafeAreaView height="$full">{children}</SafeAreaView>
+      <SafeAreaView>{children}</SafeAreaView>
     </>
   );
 }

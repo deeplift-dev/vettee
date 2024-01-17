@@ -7,7 +7,8 @@ const config = createConfig({
     ...defaultConfig.tokens,
     fonts: {
       body: "Outfit_400Regular",
-      heading: "DelaGothicOne_400Regular",
+      heading: "Oddval-Medium",
+      mono: "Outfit_600SemiBold",
     },
   },
 });
