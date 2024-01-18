@@ -3,6 +3,8 @@ import { Image } from "expo-image";
 import { Marquee } from "@animatereactnative/marquee";
 import { Box, Center, HStack, Text, View, VStack } from "@gluestack-ui/themed";
 
+import LogoText from "~/components/ui/logo/logo-text";
+
 const firstImages = [
   require("../../../../../assets/images/animals/animals-one.jpg"),
   require("../../../../../assets/images/animals/animals-nine.jpg"),
@@ -75,9 +77,7 @@ const IntroCard = () => {
             color="$black"
           >
             Welcome to{"\n"}
-            <Text fontFamily="$heading" color="$black" size="2xl">
-              Vettee
-            </Text>
+            <LogoText />
           </Text>
 
           <Text textAlign="center" mb={30}>

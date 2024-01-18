@@ -88,6 +88,7 @@ export default function Layout() {
       <Stack.Screen
         name="modal"
         options={{
+          headerShown: false,
           // Set the presentation mode to modal for our modal route.
           presentation: "modal",
         }}
