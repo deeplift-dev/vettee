@@ -6,9 +6,9 @@ const config = createConfig({
   tokens: {
     ...defaultConfig.tokens,
     fonts: {
-      body: "Outfit_400Regular",
+      body: "Saans-Regular",
       heading: "Oddval-Medium",
-      mono: "Outfit_600SemiBold",
+      mono: "Saans-Medium",
     },
   },
 });

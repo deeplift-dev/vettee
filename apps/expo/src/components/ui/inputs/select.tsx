@@ -1,4 +1,5 @@
-import { View } from "react-native";
+import { SafeAreaView } from "react-native";
+import { TouchableOpacity } from "react-native-gesture-handler";
 import {
   AlertCircleIcon,
   Box,
@@ -10,6 +11,7 @@ import {
   FormControlHelperText,
   FormControlLabel,
   FormControlLabelText,
+  ScrollView,
   Select,
   SelectBackdrop,
   SelectContent,
@@ -19,7 +21,9 @@ import {
   SelectItem,
   SelectPortal,
   SelectTrigger,
+  View,
 } from "@gluestack-ui/themed";
+import { FlashList } from "@shopify/flash-list";
 
 interface SelectProps {
   value: string;
@@ -47,11 +51,11 @@ export default function BaseSelect(props: SelectProps) {
         isRequired={props.required}
       >
         <FormControlLabel mb="$2" px={2}>
-          <FormControlLabelText fontWeight="bold" fontSize="$lg">
+          <FormControlLabelText fontFamily="$mono" fontSize="$lg">
             {props.label}
           </FormControlLabelText>
         </FormControlLabel>
-        <Select>
+        <Select onValueChange={props.onValueChange}>
           <Box borderWidth={1} borderColor="$blue100" borderRadius={10}>
             <SelectTrigger
               variant="outline"
@@ -61,18 +65,34 @@ export default function BaseSelect(props: SelectProps) {
               backgroundColor="white"
               py={0}
             >
-              <SelectInput fontSize={18} placeholder="Select option" />
+              <SelectInput
+                fontFamily="$mono"
+                fontSize={18}
+                placeholder={
+                  props.placeholder ? props.placeholder : "Select option"
+                }
+              />
             </SelectTrigger>
           </Box>
-          <SelectPortal>
+          <SelectPortal style={{ zIndex: 100000 }}>
             <SelectBackdrop />
-            <SelectContent>
+            <SelectContent style={{ zIndex: 1000 }}>
               <SelectDragIndicatorWrapper>
                 <SelectDragIndicator />
               </SelectDragIndicatorWrapper>
-              {props.items.map((item) => (
-                <SelectItem label={item.label} value={item.value} />
-              ))}
+              <View w="$full" h="$full" pb="$4">
+                <FlashList
+                  estimatedItemSize={20}
+                  data={props.items}
+                  keyExtractor={(item, index) => `${item.value}-${index}`}
+                  renderItem={(item) => (
+                    <SelectItem
+                      label={item.item.label}
+                      value={item.item.value}
+                    />
+                  )}
+                />
+              </View>
             </SelectContent>
           </SelectPortal>
         </Select>

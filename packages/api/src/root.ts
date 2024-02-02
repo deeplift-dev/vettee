@@ -1,3 +1,4 @@
+import { assistantRouter } from "./router/assistant";
 import { authRouter } from "./router/auth";
 import { postRouter } from "./router/post";
 import { profileRouter } from "./router/profile";
@@ -7,6 +8,7 @@ export const appRouter = createTRPCRouter({
   auth: authRouter,
   post: postRouter,
   profile: profileRouter,
+  assistant: assistantRouter,
 });
 
 // export type definition of API

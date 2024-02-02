@@ -19,19 +19,25 @@ cssInterop(SafeAreaView, { className: "style" });
 // This is the main layout of the app
 // It wraps your pages with the providers they need
 export default function RootLayout() {
-  const [fontsLoaded] = useFonts({
+  const [logoFontLoaded] = useFonts({
     "Oddval-Medium": require("../../assets/fonts/Oddval/Oddval-Medium.ttf"),
   });
 
-  if (!fontsLoaded) {
+  const [bodyFontLoaded] = useFonts({
+    "Saans-Regular": require("../../assets/fonts/Saans/Saans-Regular.ttf"),
+    "Saans-Light": require("../../assets/fonts/Saans/Saans-Light.ttf"),
+    "Saans-Medium": require("../../assets/fonts/Saans/Saans-Medium.ttf"),
+  });
+
+  if (!logoFontLoaded || !bodyFontLoaded) {
     return null;
   }
 
   return (
     <SessionContextProvider supabaseClient={supabase}>
       <TRPCProvider>
-        <BottomSheetModalProvider>
-          <GluestackUIProvider config={config}>
+        <GluestackUIProvider config={config}>
+          <BottomSheetModalProvider>
             <Stack initialRouteName="(tabs)">
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="auth" options={{ headerShown: false }} />
@@ -41,8 +47,8 @@ export default function RootLayout() {
               />
             </Stack>
             <StatusBar />
-          </GluestackUIProvider>
-        </BottomSheetModalProvider>
+          </BottomSheetModalProvider>
+        </GluestackUIProvider>
       </TRPCProvider>
     </SessionContextProvider>
   );

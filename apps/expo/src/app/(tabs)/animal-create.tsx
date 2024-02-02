@@ -2,12 +2,23 @@ import type BottomSheet from "@gorhom/bottom-sheet/lib/typescript/components/bot
 import type { ChatCompletion } from "openai/resources";
 import type { Control, FieldErrors, UseFormWatch } from "react-hook-form";
 import React, { useCallback, useState } from "react";
-import { Pressable, View } from "react-native";
+import { Pressable } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { Image } from "expo-image";
 import { Redirect } from "expo-router";
 import { AntDesign } from "@expo/vector-icons";
+import {
+  Box,
+  Button,
+  ButtonText,
+  HStack,
+  SelectInput,
+  SelectTrigger,
+  Text,
+  View,
+  VStack,
+} from "@gluestack-ui/themed";
 import AnimatedLottieView from "lottie-react-native";
 import { Controller, set, useForm } from "react-hook-form";
 
@@ -16,19 +27,20 @@ import CustomBottomSheet from "~/components/ui/bottom-sheet";
 import { BaseButton } from "~/components/ui/buttons/base-button";
 import { OnboardingHeader } from "~/components/ui/headers/onboarding-header";
 import Input from "~/components/ui/inputs/input";
-import Select from "~/components/ui/inputs/select";
+import BaseInput from "~/components/ui/inputs/input";
+import BaseSelect from "~/components/ui/inputs/select";
 import { PageContainer, useStore } from "~/components/ui/page-container";
 import MainSpinner from "~/components/ui/spinners/main-spinner";
-import Text from "~/components/ui/text";
 import { api } from "~/utils/api";
 import formatToJson from "~/utils/assistant/format-content";
 import { animalSpecies } from "~/utils/data/animal-species";
+import getYears from "~/utils/data/get-years";
 
 const Animals = () => {
   return (
     <PageContainer>
       <View className="flex h-full w-full flex-col justify-between px-4">
-        <OnboardingHeader canSkip={false} />
+        <OnboardingHeader canClose={true} />
         <View className="py-2" />
         <CarouselBody />
       </View>
@@ -42,7 +54,7 @@ interface animalAttributes {
   weight: string;
   color: string;
   other: string;
-  rarity: string;
+  ailments: string;
 }
 
 interface FormData {
@@ -148,7 +160,7 @@ const CarouselBody = () => {
   }
 
   return (
-    <View className="flex h-full flex-col items-center justify-between">
+    <View className="flex h-full flex-row items-center justify-center">
       {carouselItems[activeIndex]?.component}
     </View>
   );
@@ -162,17 +174,16 @@ const IntroCard = ({ navigateToSlide }: IntroCardProps) => {
   return (
     <Animated.View
       entering={FadeInDown.duration(500)}
-      className="mr-2 flex h-full flex-col justify-between rounded-t-2xl bg-white px-6 shadow-2xl"
+      className="flex h-full flex-col justify-between rounded-t-2xl bg-white px-6 py-6 shadow-2xl"
     >
       <View>
-        <View className="py-6" />
         <View>
-          <Text fontSize={20} fontWeight="700" className="pb-6">
-            First, let's get to know your pets.
+          <Text fontFamily="$mono" fontSize="$2xl" pb="$4" lineHeight="$2xl">
+            Let's get to know your pet.
           </Text>
-          <Text fontSize={20} className="leading-normal text-black">
-            We'll get some basic details about your animals. Their name, photo,
-            age and some other basic details.
+          <Text fontFamily="$body">
+            We'll ask for some basic details about your animal. Their name,
+            photo, age and some other basic details.{" "}
           </Text>
         </View>
         <View className="py-12" />
@@ -189,7 +200,7 @@ const IntroCard = ({ navigateToSlide }: IntroCardProps) => {
           />
         </View>
       </View>
-      <View className="align-center w-full pb-12">
+      <View className="pb-12">
         <NavigationControls
           canProgress={true}
           canGoBack={false}
@@ -217,68 +228,65 @@ const BasicAnimalInfoCard = ({
     console.log("handleSheetChanges", index);
   }, []);
 
+  console.log("is valid", isValid);
+  console.log("values", getValues());
+
   return (
     <Animated.View
       entering={FadeInDown.duration(500)}
-      className="flex h-full w-full flex-col justify-between rounded-t-2xl bg-white px-6 shadow-2xl"
+      className="flex h-full w-full flex-col justify-between rounded-t-2xl bg-white px-6 py-6 shadow-2xl"
     >
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* <DismissKeyboard> */}
-        <View className="py-6" />
         <View>
-          <Text fontSize={20} fontWeight="700" className="pb-4">
+          <Text fontFamily="$mono" fontSize="$2xl" lineHeight="$2xl">
             Let's start with the easy stuff.
           </Text>
         </View>
-        <View className="pb-4">
-          <View></View>
-          <Text fontSize={20} className="w-full pb-4 text-left">
-            What's your pet's name?
-          </Text>
+        <VStack className="py-4">
           <Controller
             control={control}
             rules={{
               required: true,
             }}
             render={({ field: { onChange, onBlur, value } }) => (
-              <Input
+              <BaseInput
+                label="What's your pet's name?"
                 placeholder="Fido"
-                onBlur={onBlur}
-                autoFocus={true}
+                onChangeText={(value) => {
+                  console.log("value--animal", value);
+                  setValue("animalName", value);
+                }}
                 value={value}
-                onChangeText={onChange}
+                onBlur={onBlur}
+                errorText={errors?.animalName?.message}
               />
             )}
             name="animalName"
           />
-          <Text className="pt-2 text-red-600">
-            {errors?.animalName ? "This is a required field" : ""}
-          </Text>
-        </View>
+          <Controller
+            control={control}
+            rules={{
+              required: true,
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <BaseSelect
+                label="What kind of animal do you have?"
+                placeholder="Select species"
+                items={animalSpecies}
+                onValueChange={(value) => {
+                  console.log("value--animal", value);
+                  onChange(value);
+                  setValue("animalType", value);
+                }}
+                value={value}
+                errorText={errors?.animalType?.message}
+              />
+            )}
+            name="animalType"
+          />
+        </VStack>
         <View className="pb-4">
-          <Text fontSize={20} className="w-full pb-4 text-left">
-            What kind of animal do you have?
-          </Text>
-          <View
-            style={{ paddingHorizontal: 12 }}
-            className="rounded-lg border border-gray-200 px-2 py-2"
-          >
-            <Pressable
-              className="flex w-full flex-row items-center justify-between"
-              onPress={() => bottomSheetRef?.current?.expand()}
-            >
-              <Text fontSize={20} className="text-gray-700">
-                {watch().animalType.charAt(0).toUpperCase() +
-                  watch().animalType.slice(1)}
-              </Text>
-              <AntDesign name="down" size={20} color="black" />
-            </Pressable>
-          </View>
-        </View>
-        <View className="pb-4">
-          <Text fontSize={20} className="w-full pb-4 text-left">
-            How old is your pet?
-          </Text>
           <Controller
             control={control}
             rules={{
@@ -286,18 +294,20 @@ const BasicAnimalInfoCard = ({
               min: 1,
             }}
             render={({ field: { onChange, onBlur, value } }) => (
-              <Input
-                inputMode="numeric"
+              <BaseSelect
+                label="What year was your animal born?"
+                placeholder="2010"
+                items={getYears()}
+                onValueChange={(value) => {
+                  onChange(value);
+                  setValue("animalAge", value);
+                }}
                 value={value}
-                onBlur={onBlur}
-                onChangeText={onChange}
+                errorText={errors?.animalAge?.message}
               />
             )}
             name="animalAge"
           />
-          <Text className="pt-2 text-red-600">
-            {errors?.animalAge ? "This is a required field" : ""}
-          </Text>
         </View>
         {/* </DismissKeyboard> */}
         <View className="align-center w-full pb-12">
@@ -308,47 +318,19 @@ const BasicAnimalInfoCard = ({
           />
         </View>
       </ScrollView>
-      <Controller
-        control={control}
-        rules={{
-          required: true,
-        }}
-        render={({ field: { onChange, onBlur, value } }) => (
-          <CustomBottomSheet
-            handleSheetChanges={handleSheetChanges}
-            ref={bottomSheetRef}
-            snapPoints={["45%"]}
-          >
-            <View>
-              <Select
-                onValueChange={onChange}
-                value={value}
-                items={animalSpecies}
-              />
-              <Text className="pt-2 text-red-600">
-                {errors?.animalType ? "This is a required field" : ""}
-              </Text>
-            </View>
-            <BaseButton
-              onPress={() => {
-                onBlur();
-                bottomSheetRef?.current?.close();
-              }}
-              variant="default"
-            >
-              <Text
-                className="text-center text-white"
-                fontSize={20}
-                fontWeight="700"
-              >
-                Select
-              </Text>
-            </BaseButton>
-          </CustomBottomSheet>
-        )}
-        name="animalType"
-      />
     </Animated.View>
+  );
+};
+
+const SpeciesOption = ({ onPress, children }) => {
+  return (
+    <Pressable onPress={onPress}>
+      <View px="$4" py="$4" bg="$blueGray200" w="$full">
+        <Text w="$full" fontFamily="$mono">
+          Logout
+        </Text>
+      </View>
+    </Pressable>
   );
 };
 
@@ -422,16 +404,15 @@ const CheckAnimalType = ({
   return (
     <Animated.View
       entering={FadeInDown.duration(500)}
-      className="flex h-full w-full flex-col justify-between rounded-t-2xl bg-white px-6 shadow-2xl"
+      className="flex h-full w-full flex-col justify-between rounded-t-2xl bg-white px-6 py-4 shadow-2xl"
     >
       <View>
-        <View className="py-6" />
         <View>
-          <Text fontSize={30} fontWeight="500" className="pb-6">
+          <Text fontSize="$2xl" fontFamily="$mono" lineHeight="$2xl">
             Say cheese!
           </Text>
         </View>
-        <Text fontSize={20} className="text-left font-medium text-black">
+        <Text fontFamily="$body">
           Let's grab a nice, clear picture of {getValues().animalName} the{" "}
           {getValues().animalType}, we'll use it for their profile picture.
           We'll also use it to gather some more basic details about{" "}
@@ -501,21 +482,31 @@ const ReviewAnimalDetails = ({
         <View className="py-4" />
         <View className="flex flex-col justify-between">
           <View className="flex w-full flex-col px-4">
-            <Text fontSize={30} fontWeight="500">
-              {getValues().animalName}
-            </Text>
+            <HStack justifyContent="space-between">
+              <Text fontSize={24} fontFamily="$mono" lineHeight="$2xl">
+                {getValues().animalName}
+              </Text>
+              {/* <Button
+                size="xs"
+                borderRadius="$full"
+                variant="outline"
+                borderColor="$grey800"
+              >
+                <ButtonText fontSize="$sm" fontFamily="$mono" color="$black">
+                  Edit
+                </ButtonText>
+              </Button> */}
+            </HStack>
             <View className="flex flex-row items-center space-x-2 pb-4">
               <Text fontSize={20} className="mr-4 font-medium text-black">
                 {getValues().animalBreed}
               </Text>
-              <ConfidenceBadge confidence="High" />
             </View>
             <Text fontSize={16} className="font-medium text-black">
               {getValues().animalAttributes?.map((attribute) => {
                 return attribute.other;
               })}
             </Text>
-            <View className="py-4" />
             <Text fontSize={20} className="font-medium text-black">
               {getValues().animalAttributes?.map((attribute) => {
                 return (
@@ -524,15 +515,11 @@ const ReviewAnimalDetails = ({
                       <AnimalStat label="Age" value={getValues().animalAge} />
                       <AnimalStat
                         label="Approx. weight"
-                        value={`${attribute.weight / 1000} KG`}
+                        value={`${Number(attribute.weight) / 1000} KG`}
                       />
                     </View>
                     <View className="flex w-full flex-row justify-between">
-                      <AnimalStat label="Color" value={attribute.color} />
-                      <AnimalStat
-                        label="Rarity"
-                        value={`${attribute.rarity} / 10`}
-                      />
+                      <Text>{attribute.ailments}</Text>
                     </View>
                   </View>
                 );
@@ -582,32 +569,31 @@ const NavigationControls = ({
   };
 
   return (
-    <View
-      className={`flex w-full flex-row justify-center ${
-        currentIndex !== 0 && "justify-between"
-      }`}
-    >
+    <VStack>
+      <Button
+        rounded="$full"
+        size="xl"
+        bg="$black"
+        w="$full"
+        isDisabled={!canProgress}
+        onPress={() => nextSlide()}
+      >
+        <ButtonText fontFamily="$mono">Continue</ButtonText>
+      </Button>
       {currentIndex !== 0 && (
-        <Pressable disabled={!canGoBack} onPress={() => previousSlide()}>
-          <View
-            className={`flex h-16 w-16 flex-row items-center justify-center rounded-full border border-gray-300 bg-white ${
-              !canGoBack && "bg-gray-400"
-            }`}
-          >
-            <AntDesign name="arrowleft" size={28} color="#9ca3af" />
-          </View>
-        </Pressable>
-      )}
-      <Pressable disabled={!canProgress} onPress={() => nextSlide()}>
-        <View
-          className={`flex h-16 w-16 flex-row items-center justify-center rounded-full bg-black ${
-            !canProgress && "bg-gray-400"
-          }`}
+        <Button
+          w="$full"
+          size="xl"
+          bg="$white"
+          isDisabled={!canGoBack}
+          onPress={() => previousSlide()}
         >
-          <AntDesign name="arrowright" size={28} color="white" />
-        </View>
-      </Pressable>
-    </View>
+          <ButtonText color="$black" fontFamily="$mono">
+            Back
+          </ButtonText>
+        </Button>
+      )}
+    </VStack>
   );
 };
 

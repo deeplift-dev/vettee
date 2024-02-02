@@ -8,6 +8,7 @@ export const profileRouter = createTRPCRouter({
   byId: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(({ ctx, input }) => {
+      console.log("made it here", input);
       return ctx.db
         .select()
         .from(schema.profile)
@@ -22,6 +23,24 @@ export const profileRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      const [existingProfile] = await ctx.db
+        .select()
+        .from(schema.profile)
+        .where(eq(schema.profile.id, ctx.user.id));
+
+      if (existingProfile) {
+        await ctx.db
+          .update(schema.profile)
+          .set({
+            firstName: input.first_name,
+            lastName: input.last_name,
+            onboardedAt: new Date(),
+          })
+          .where(eq(schema.profile.id, ctx.user.id));
+
+        return existingProfile.id;
+      }
+
       const [newProfile] = await ctx.db
         .insert(schema.profile)
         .values({

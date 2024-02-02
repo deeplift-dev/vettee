@@ -1,10 +1,5 @@
-import { Redirect, Stack, Tabs } from "expo-router";
-import {
-  FontAwesome5,
-  Fontisto,
-  MaterialCommunityIcons,
-} from "@expo/vector-icons";
-import { useSessionContext, useUser } from "@supabase/auth-helpers-react";
+import { Redirect, Stack } from "expo-router";
+import { useSessionContext } from "@supabase/auth-helpers-react";
 
 import LoadingFullscreen from "~/components/ui/loading-fullscreen";
 import { api } from "~/utils/api";
@@ -21,6 +16,10 @@ export default function Layout() {
    */
   const isAuthed = session?.user;
 
+  console.log("is authed", isAuthed);
+
+  console.log("user id", session?.user.id);
+
   if (!isAuthed) {
     return <Redirect href="/auth/" />;
   }
@@ -28,14 +27,34 @@ export default function Layout() {
   /**
    * If the user is authenticated, but has not onboarded, redirect them to the onboarding flow.
    */
-  const { data: profile, isLoading: loadingProfile } =
-    api.profile.byId.useQuery({ id: session.user.id });
+  const {
+    data: profile,
+    isLoading: loadingProfile,
+    isPending,
+    isSuccess,
+    isError,
+    error: profileError,
+  } = api.profile.byId.useQuery({ id: session.user.id });
 
-  if (loadingProfile) {
+  console.log(
+    "loading profile",
+    loadingProfile,
+    isPending,
+    isSuccess,
+    session.user.id,
+  );
+
+  console.log("profile error", profileError);
+
+  if (loadingProfile || isPending || !isSuccess) {
     return <LoadingFullscreen />;
   }
 
+  console.log("profile", profile);
+
   const hasOnboarded = profile?.[0]?.onboardedAt;
+
+  console.log("has onboarded", hasOnboarded);
 
   if (!hasOnboarded) {
     return <Redirect href="/onboarding/account" />;
@@ -43,54 +62,18 @@ export default function Layout() {
 
   return (
     <Stack>
-      <Stack.Screen
-        // Name of the route to hide.
-        name="index"
-        options={{
-          tabBarShowLabel: false,
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="cards" size={30} color={color} />
-          ),
-        }}
-        // options={{
-        //   // This tab will no longer show up in the tab bar.
-        //   href: null,
-        // }}
-      />
-      <Stack.Screen
-        // Name of the route to hide.
-        name="camera"
-        options={{
-          tabBarShowLabel: false,
-          tabBarIcon: ({ color }) => (
-            <Fontisto name="camera" size={35} color={color} />
-          ),
-        }}
-        // options={{
-        //   // This tab will no longer show up in the tab bar.
-        //   href: null,
-        // }}
-      />
-      <Stack.Screen
-        // Name of the route to hide.
-        name="settings"
-        options={{
-          tabBarShowLabel: false,
-          tabBarIcon: ({ color }) => (
-            <FontAwesome5 name="user-circle" size={30} color={color} />
-          ),
-        }}
-        // options={{
-        //   // This tab will no longer show up in the tab bar.
-        //   href: null,
-        // }}
-      />
+      <Stack.Screen name="index" />
       <Stack.Screen
         name="modal"
         options={{
           headerShown: false,
-          // Set the presentation mode to modal for our modal route.
           presentation: "modal",
+        }}
+      />
+      <Stack.Screen
+        name="animal-create"
+        options={{
+          headerShown: false,
         }}
       />
     </Stack>

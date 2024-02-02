@@ -52,18 +52,18 @@ const SettingsMenus = () => {
           bg="$blueGray200"
           w="$full"
         >
-          <Text w="$full" fontWeight="$bold">
+          <Text w="$full" fontFamily="$mono">
             Account
           </Text>
         </View>
         <View mb="$2" px="$4" py="$4" bg="$blueGray200" w="$full">
-          <Text w="$full" fontWeight="bold">
+          <Text w="$full" fontFamily="$mono">
             Security & Privacy
           </Text>
         </View>
         <TouchableOpacity onPress={() => supabase.auth.signOut()}>
           <View px="$4" py="$4" bg="$blueGray200" w="$full">
-            <Text w="$full" fontWeight="bold">
+            <Text w="$full" fontFamily="$mono">
               Logout
             </Text>
           </View>
@@ -84,7 +84,7 @@ interface ModalHeadingProps {
 
 const ModalHeading = ({ children }: ModalHeadingProps) => {
   return (
-    <Text mb="$6" size="3xl" color="$black" fontWeight="$bold">
+    <Text mb="$6" size="3xl" color="$black" fontFamily="$mono">
       {children}
     </Text>
   );

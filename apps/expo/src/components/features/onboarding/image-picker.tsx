@@ -3,11 +3,11 @@ import { Button, Image, Pressable, StyleSheet, View } from "react-native";
 // import * as Clipboard from "expo-clipboard";
 import Constants from "expo-constants";
 import * as ExpoImagePicker from "expo-image-picker";
+import { Text } from "@gluestack-ui/themed";
 import { Amplify } from "aws-amplify";
 import { getUrl, uploadData } from "aws-amplify/storage";
 
 import { BaseButton } from "~/components/ui/buttons/base-button";
-import Text from "~/components/ui/text";
 import { api } from "~/utils/api";
 import amplifyconfig from "../../../amplifyconfiguration.json";
 
@@ -142,27 +142,30 @@ export default function ImagePicker({
           <Text style={styles.info}>Long press to copy the image url</Text>
         </View>
       )}
-
-      <View className="rounded-2xl border-4 border-gray-100 p-1 shadow">
+      <View className="rounded-2xl border-2 border-gray-100 bg-white p-1">
         <Pressable onPress={pickImage}>
           <View className="flex w-full flex-row items-center rounded-lg border border-gray-200 px-4 py-4">
             <Image
               className="h-10 w-10"
               source={require("../../../../assets/illustrations/album.png")}
             />
-            <Text className="pl-4">Pick image from camera roll</Text>
+            <Text pl="$2" fontFamily="$mono">
+              Pick image from camera roll
+            </Text>
           </View>
         </Pressable>
       </View>
       <View className="py-2" />
-      <View className="rounded-2xl border-4 border-gray-100 p-1 shadow">
+      <View className="rounded-2xl border-2 border-gray-100 bg-white p-1">
         <Pressable onPress={takePhoto}>
           <View className="flex w-full flex-row items-center rounded-lg border border-gray-200 px-4 py-4">
             <Image
               className="h-10 w-10"
               source={require("../../../../assets/illustrations/camera.png")}
             />
-            <Text className="pl-4">Take a photo</Text>
+            <Text pl="$2" fontFamily="$mono">
+              Take a photo
+            </Text>
           </View>
         </Pressable>
       </View>

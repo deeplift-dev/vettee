@@ -15,13 +15,13 @@ export default async function HomePage() {
             The ultimate companion for your companion.
           </div>
           <div>
-            <div className="text-2xl font-light text-slate-700">
+            <div className="mb-6 text-2xl font-light text-slate-700">
               Access a unique, high quality pet care experience from the comfort
               of your home.
             </div>
           </div>
           <div>
-            <div className="flex w-48 cursor-pointer items-center justify-center space-x-2 rounded-full border border-gray-200 bg-slate-50 px-2.5 py-1 text-lg font-light text-slate-900 shadow-sm transition-all duration-300 hover:bg-slate-900 hover:text-slate-50 hover:shadow-none">
+            <div className="flex w-48 cursor-pointer items-center justify-center space-x-2 rounded-full border border-gray-300 bg-slate-50 px-2.5 py-1 text-lg font-light text-slate-900 shadow-sm transition-all duration-300 hover:border-slate-700 hover:bg-gray-900 hover:text-slate-50 hover:shadow-none">
               <div>Request an invite</div>
               <div>
                 <MoveRight />

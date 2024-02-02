@@ -1,20 +1,36 @@
 import Animated, { FadeInUp, FadeOut } from "react-native-reanimated";
+import { Link } from "expo-router";
 import { Text } from "@gluestack-ui/themed";
 
-export function OnboardingHeader({ canSkip = true }: { canSkip: boolean }) {
+import LogoText from "../logo/logo-text";
+
+export function OnboardingHeader({
+  canSkip = false,
+  canClose = false,
+}: {
+  canSkip?: boolean;
+  canClose?: boolean;
+}) {
   return (
     <Animated.View
       entering={FadeInUp}
       exiting={FadeOut}
       className="flex w-full flex-row items-center justify-between"
     >
-      <Text fontFamily="$heading" fontSize={20}>
-        Vettee
-      </Text>
+      <LogoText />
       {canSkip && (
-        <Text fontSize={20} className="font-bold text-gray-900">
-          Skip Intro
-        </Text>
+        <Link href="../">
+          <Text size="lg" color="$black" fontFamily="$mono">
+            Skip intro
+          </Text>
+        </Link>
+      )}
+      {canClose && (
+        <Link href="../">
+          <Text size="lg" color="$black" fontFamily="$mono">
+            Close
+          </Text>
+        </Link>
       )}
     </Animated.View>
   );

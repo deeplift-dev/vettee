@@ -142,7 +142,7 @@ const IntroCard = ({ navigateToSlide }: IntroCardProps) => {
   };
 
   return (
-    <VStack w="$full">
+    <VStack w="$full" px="$2">
       <CardHeader
         title="Hi! What should we call you?"
         subtitle="We need to know your name to get started."
@@ -243,7 +243,9 @@ const NavigationControls = ({
           disabled={!canGoBack}
           onPress={() => previousSlide()}
         >
-          <ButtonText color="$black">Continue</ButtonText>
+          <ButtonText fontFamily="$mono" color="$black">
+            Continue
+          </ButtonText>
         </Button>
       )}
       <Button
@@ -259,7 +261,9 @@ const NavigationControls = ({
         {isLoading ? (
           <ButtonSpinner mr="$1" />
         ) : (
-          <ButtonText color="$black">Continue</ButtonText>
+          <ButtonText fontFamily="$mono" color="$black">
+            Continue
+          </ButtonText>
         )}
       </Button>
     </View>
@@ -274,7 +278,7 @@ const CardHeader = ({
   subtitle: string;
 }) => {
   return (
-    <VStack mb="$6">
+    <VStack my="$6">
       <Text lineHeight={30} fontSize={30} fontFamily="$mono" mb="$4">
         {title}
       </Text>

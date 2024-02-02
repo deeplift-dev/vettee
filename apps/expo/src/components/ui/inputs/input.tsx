@@ -41,17 +41,18 @@ export default function BaseInput(props: BaseInputProps) {
         isRequired={props.required}
       >
         <FormControlLabel mb="$2" px={2}>
-          <FormControlLabelText fontWeight="bold" fontSize="$lg">
+          <FormControlLabelText fontFamily="$mono" fontSize="$lg">
             {props.label}
           </FormControlLabelText>
         </FormControlLabel>
         <Box borderWidth={1} borderColor="$blue100" borderRadius={10}>
-          <Input size="xl" borderRadius={10} backgroundColor="white" py={0}>
+          <Input size="lg" borderRadius={10} backgroundColor="white" py={0}>
             <InputField
               onBlur={props.onBlur}
               lineHeight="$md"
               fontSize="$lg"
               type="text"
+              fontFamily="$mono"
               placeholder={props.placeholder}
               onChangeText={props.onChangeText}
             />
