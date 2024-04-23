@@ -27,43 +27,16 @@ export const animalRouter = createTRPCRouter({
   create: protectedProcedure
     .input(
       z.object({
-        title: z.string().min(1),
-        content: z.string().min(1),
+        name: z.string().min(1),
+        species: z.string().min(1),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      function getNameFromUser() {
-        const meta = ctx.user.user_metadata;
-        if (typeof meta.name === "string") return meta.name;
-        if (typeof meta.full_name === "string") return meta.full_name;
-        if (typeof meta.user_name === "string") return meta.user_name;
-        return "[redacted]";
-      }
-
-      const authorId = await ctx.db.query.profile
-        .findFirst({
-          where: eq(schema.profile.id, ctx.user.id),
-        })
-        .then(async (profile) => {
-          if (profile) return profile.id;
-          const [newProfile] = await ctx.db
-            .insert(schema.profile)
-            .values({
-              id: ctx.user.id,
-              name: getNameFromUser(),
-              image: ctx.user.user_metadata.avatar_url as string | undefined,
-              email: ctx.user.email,
-            })
-            .returning();
-
-          return newProfile!.id;
-        });
-
-      return ctx.db.insert(schema.post).values({
+      return ctx.db.insert(schema.animal).values({
         id: nanoid(),
-        authorId,
-        title: input.title,
-        content: input.content,
+        name: input.name,
+        species: input.species,
+        ownerId: ctx.user.id,
       });
     }),
 

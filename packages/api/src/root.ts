@@ -1,3 +1,5 @@
+import { animal } from "./../../db/schema";
+import { animalRouter } from "./router/animal";
 import { assistantRouter } from "./router/assistant";
 import { authRouter } from "./router/auth";
 import { postRouter } from "./router/post";
@@ -9,6 +11,7 @@ export const appRouter = createTRPCRouter({
   post: postRouter,
   profile: profileRouter,
   assistant: assistantRouter,
+  animal: animalRouter,
 });
 
 // export type definition of API

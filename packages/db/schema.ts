@@ -1,5 +1,5 @@
 import { relations, sql } from "drizzle-orm";
-import { pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
+import { numeric, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
 
 export const post = pgTable("post", {
   id: varchar("id", { length: 256 }).primaryKey(),
@@ -29,4 +29,21 @@ export const profile = pgTable("profile", {
 
 export const profileRelations = relations(profile, ({ many }) => ({
   posts: many(post),
+  animals: many(animal),
+}));
+
+export const animal = pgTable("animal", {
+  id: varchar("id", { length: 256 }).primaryKey(),
+  name: varchar("name", { length: 256 }).notNull(),
+  species: varchar("species", { length: 256 }),
+  weight: numeric("weight"),
+  yearOfBirth: numeric("year_of_birth"),
+  ownerId: varchar("owner_id", { length: 256 }),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+});
+
+export const animalRelations = relations(animal, ({ one }) => ({
+  owner: one(profile, { fields: [animal.ownerId], references: [profile.id] }),
 }));

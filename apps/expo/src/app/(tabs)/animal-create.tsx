@@ -2,7 +2,7 @@ import type BottomSheet from "@gorhom/bottom-sheet/lib/typescript/components/bot
 import type { ChatCompletion } from "openai/resources";
 import type { Control, FieldErrors, UseFormWatch } from "react-hook-form";
 import React, { useCallback, useState } from "react";
-import { Pressable } from "react-native";
+import { Alert, Keyboard, Pressable } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { Image } from "expo-image";
@@ -106,6 +106,17 @@ const CarouselBody = () => {
     },
   });
 
+  const { mutate: createAnimal, error } = api.animal.create.useMutation({
+    onSuccess: async () => {
+      Keyboard.dismiss();
+      // await utils.post.all.invalidate();
+    },
+    onError: (error) => {
+      if (error.data?.code === "UNAUTHORIZED")
+        Alert.alert("Error", "You must be logged in to create a post");
+    },
+  });
+
   const carouselItems = [
     {
       id: 0,
@@ -147,7 +158,13 @@ const CarouselBody = () => {
       name: "animal-summary",
       component: (
         <ReviewAnimalDetails
-          navigateToSlide={(index) => setActiveIndex(index)}
+          navigateToSlide={() => {
+            console.log("create animal");
+            createAnimal({
+              name: getValues().animalName,
+              species: getValues().animalType,
+            });
+          }}
           getValues={getValues}
           errors={errors}
         />
@@ -561,10 +578,6 @@ const NavigationControls = ({
   };
 
   const nextSlide = () => {
-    if (currentIndex === 3) {
-      return;
-    }
-
     navigateToSlide(currentIndex + 1);
   };
 
