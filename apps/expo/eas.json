@@ -23,12 +23,16 @@
       "ios": {
         "simulator": true
       }
-    },
-    "production": {
-      "extends": "base"
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "extends": "base",
+        "appleId": "hello@deeplift.dev",
+        "companyName": "Deeplift",
+        "appName": "Vettee"
+      }
+    }
   }
 }
