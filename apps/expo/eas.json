@@ -28,7 +28,6 @@
   "submit": {
     "production": {
       "ios": {
-        "extends": "base",
         "appleId": "hello@deeplift.dev",
         "companyName": "Deeplift",
         "appName": "Vettee"
