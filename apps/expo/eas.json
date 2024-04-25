@@ -23,6 +23,13 @@
       "ios": {
         "simulator": true
       }
+    },
+    "production": {
+      "extends": "base",
+      "distribution": "store",
+      "ios": {
+        "simulator": false
+      }
     }
   },
   "submit": {
