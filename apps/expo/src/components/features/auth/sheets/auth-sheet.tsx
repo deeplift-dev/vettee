@@ -13,7 +13,6 @@ import {
   ActionsheetDragIndicatorWrapper,
   Box,
   Button,
-  ButtonText,
   Divider,
   HStack,
   Text,
@@ -75,15 +74,13 @@ const AuthButton = ({
     <Button
       bg={bg ?? "$black"}
       size="xl"
-      height={65}
-      rounded="$lg"
+      height={55}
+      rounded="$2xl"
       borderWidth={1}
       borderColor="$backgroundLight300"
       onPress={onPress}
     >
-      <ButtonText color={textColor ?? "$white"} fontWeight="medium">
-        {children}
-      </ButtonText>
+      {children}
     </Button>
   );
 };
@@ -140,28 +137,39 @@ const IntroCard = ({ nextStep }: { nextStep: (step: AuthStep) => void }) => {
         <Text textAlign="left" mb={20}>
           Sign in to your account to continue. Or create a new account.
         </Text>
-        <HStack justifyContent="space-between">
-          <AuthButton onPress={() => router.replace("/(tabs)")}>
-            <AntDesign name="apple1" size={24} color="white" />
+        <VStack space="sm" justifyContent="space-between">
+          {/* <AuthButton onPress={() => router.replace("/(tabs)")}>
+            <HStack
+              space="md"
+              alignItems="center"
+              justifyContent="center"
+              width="100%"
+              height="100%" // Added to center vertically
+            >
+              <AntDesign name="apple1" size={24} color="white" />
+              <Text color="$white">Continue with Apple</Text>
+            </HStack>
+          </AuthButton> */}
+          <AuthButton onPress={signInWithFacebook}>
+            <HStack space="md" alignItems="center" justifyContent="center">
+              <Entypo name="facebook-with-circle" size={24} color="white" />
+              <Text color="$white">Continue with Facebook</Text>
+            </HStack>
           </AuthButton>
-          <AuthButton
-            bg="$blue700"
-            textColor="$white"
-            onPress={signInWithFacebook}
-          >
-            <Entypo name="facebook-with-circle" size={24} color="white" />
-          </AuthButton>
-          <AuthButton bg="$white" textColor="$white">
-            <AntDesign name="google" size={24} color="black" />
-          </AuthButton>
-        </HStack>
+          {/* <AuthButton onPress={() => router.replace("/(tabs)")}>
+            <HStack space="md" alignItems="center" justifyContent="center">
+              <AntDesign name="google" size={24} color="white" />
+              <Text color="$white">Continue with Google</Text>
+            </HStack>
+          </AuthButton> */}
+        </VStack>
         <Divider my="$0.5" />
         <AuthButton
           onPress={() => nextStep("email")}
           bg="$white"
           textColor="$black"
         >
-          Continue with Email
+          <Text color="$black">Continue with Email</Text>
         </AuthButton>
       </VStack>
     </View>

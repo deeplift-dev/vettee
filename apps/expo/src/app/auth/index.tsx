@@ -12,6 +12,7 @@ import create from "zustand";
 import AuthSheet from "~/components/features/auth/sheets/auth-sheet";
 import MarqueeCarousel from "~/components/features/onboarding/marquee-carousel";
 import { PageContainer } from "~/components/ui/page-container";
+import Text from "~/components/ui/text";
 import { theme } from "~/styles";
 
 interface Store {
@@ -65,11 +66,10 @@ const GetStarted = ({ openSheet }: GetStartedProps) => {
             onPress={() => openSheet()}
             size="xl"
             height={55}
-            rounded="$full"
+            rounded="$2xl"
             boxShadow="lg"
-            shadowColor="$indigo700"
           >
-            <ButtonText color="$black">Get started</ButtonText>
+            <Text>Get started</Text>
           </Button>
         </View>
       }

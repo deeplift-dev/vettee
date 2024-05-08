@@ -142,7 +142,7 @@ export default function ImagePicker({
           <Text style={styles.info}>Long press to copy the image url</Text>
         </View>
       )}
-      <View className="rounded-2xl border-2 border-gray-100 bg-white p-1">
+      <View className="rounded-xl border-2 border-gray-100 bg-white p-1 shadow-sm">
         <Pressable onPress={pickImage}>
           <View className="flex w-full flex-row items-center rounded-lg border border-gray-200 px-4 py-4">
             <Image
@@ -156,7 +156,7 @@ export default function ImagePicker({
         </Pressable>
       </View>
       <View className="py-2" />
-      <View className="rounded-2xl border-2 border-gray-100 bg-white p-1">
+      <View className="rounded-xl border-2 border-gray-100 bg-white p-1 shadow-sm">
         <Pressable onPress={takePhoto}>
           <View className="flex w-full flex-row items-center rounded-lg border border-gray-200 px-4 py-4">
             <Image

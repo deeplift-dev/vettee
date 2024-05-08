@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   Keyboard,
   KeyboardAvoidingView,
@@ -97,7 +98,6 @@ interface IntroCardProps {
 }
 
 const IntroCard = ({ navigateToSlide }: IntroCardProps) => {
-  const user = api.auth.me.useQuery();
   const router = useRouter();
 
   const {
@@ -107,17 +107,16 @@ const IntroCard = ({ navigateToSlide }: IntroCardProps) => {
   } = api.profile.create.useMutation({
     onSuccess: async () => {
       Keyboard.dismiss();
-      router.push("/");
+      router.push({ pathname: "/", params: { onboardingSuccess: "true" } });
     },
     onError: (error) => {
       if (error.data?.code === "UNAUTHORIZED")
-        Alert.alert("Error", "You must be logged in to create a post");
+        Alert.alert("Error", "You must be signed in to continue.");
     },
   });
-
   const schema = yup.object().shape({
-    firstName: yup.string().required(),
-    lastName: yup.string().required(),
+    firstName: yup.string().required("First name is required."),
+    lastName: yup.string().required("Last name is required."),
   });
 
   type SchemaType = yup.InferType<typeof schema>;
@@ -144,8 +143,8 @@ const IntroCard = ({ navigateToSlide }: IntroCardProps) => {
   return (
     <VStack w="$full" px="$2">
       <CardHeader
-        title="Hi! What should we call you?"
-        subtitle="We need to know your name to get started."
+        title="Hello! What's your name?"
+        subtitle="Enter your full legal name to streamline communication with your local veterinary services."
       />
       <Controller
         control={control}
@@ -235,37 +234,39 @@ const NavigationControls = ({
         currentIndex !== 0 && "justify-between"
       }`}
     >
-      {currentIndex !== 0 && (
-        <Button
-          size="xl"
-          bg={theme.colors.primary}
-          width="$full"
-          disabled={!canGoBack}
-          onPress={() => previousSlide()}
-        >
-          <ButtonText fontFamily="$mono" color="$black">
-            Continue
-          </ButtonText>
-        </Button>
+      {isLoading ? (
+        <ButtonSpinner />
+      ) : (
+        <>
+          {currentIndex !== 0 && (
+            <Button
+              size="xl"
+              bg={theme.colors.primary}
+              width="$full"
+              disabled={!canGoBack}
+              onPress={() => previousSlide()}
+            >
+              <ButtonText fontFamily="$mono" color="$black">
+                Back
+              </ButtonText>
+            </Button>
+          )}
+          <Button
+            rounded="$2xl"
+            size="xl"
+            bg="$black"
+            w="$full"
+            isDisabled={!canProgress}
+            onPress={() => {
+              onSubmit ? onSubmit() : nextSlide();
+            }}
+          >
+            <Text fontFamily="$mono" color="white">
+              Continue
+            </Text>
+          </Button>
+        </>
       )}
-      <Button
-        width="$full"
-        bg={canProgress ? theme.colors.primary : "$green300"}
-        size="xl"
-        disabled={!canProgress}
-        isLoading={true}
-        onPress={() => {
-          onSubmit ? onSubmit() : nextSlide();
-        }}
-      >
-        {isLoading ? (
-          <ButtonSpinner mr="$1" />
-        ) : (
-          <ButtonText fontFamily="$mono" color="$black">
-            Continue
-          </ButtonText>
-        )}
-      </Button>
     </View>
   );
 };
@@ -278,13 +279,20 @@ const CardHeader = ({
   subtitle: string;
 }) => {
   return (
-    <VStack my="$6">
-      <Text lineHeight={30} fontSize={30} fontFamily="$mono" mb="$4">
+    <View>
+      <Text
+        fontFamily="$mono"
+        fontSize="$2xl"
+        pb="$4"
+        lineHeight="$2xl"
+        textAlign="center"
+      >
         {title}
       </Text>
-      <Text fontSize={16} color="$coolGray500">
+      <Text fontFamily="$body" textAlign="center">
         {subtitle}
       </Text>
-    </VStack>
+      <View className="py-6" />
+    </View>
   );
 };

@@ -14,6 +14,12 @@ export const profileRouter = createTRPCRouter({
         .from(schema.profile)
         .where(eq(schema.profile.id, input.id));
     }),
+  getCurrentUserProfile: protectedProcedure.query(({ ctx }) => {
+    return ctx.db
+      .select()
+      .from(schema.profile)
+      .where(eq(schema.profile.id, ctx.user.id));
+  }),
 
   create: protectedProcedure
     .input(

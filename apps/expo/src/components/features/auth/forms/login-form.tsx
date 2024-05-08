@@ -118,11 +118,15 @@ export default function LoginForm() {
           bg={theme.colors.primary}
           size="xl"
           height={55}
-          rounded="$full"
+          rounded="$2xl"
           isDisabled={isLoading}
           boxShadow="lg"
         >
-          <ButtonText color="$black">Login</ButtonText>
+          {isLoading ? (
+            <ButtonText color="$black">Loading...</ButtonText>
+          ) : (
+            <ButtonText color="$black">Login</ButtonText>
+          )}
         </Button>
       </VStack>
     </KeyboardAvoidingView>

@@ -25,7 +25,7 @@ const getBaseUrl = () => {
    * In production, it uses the API_URL from the environment variables.
    */
 
-  if (process.env.NODE_ENV === "production") {
+  if (process.env.NODE_ENV === "development") {
     return process.env.EXPO_PUBLIC_API_URL;
   } else {
     const debuggerHost = Constants.expoConfig?.hostUri;

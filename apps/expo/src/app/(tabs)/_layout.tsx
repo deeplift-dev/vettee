@@ -1,11 +1,12 @@
-import { Redirect, Stack } from "expo-router";
+import { Redirect, Stack, useLocalSearchParams } from "expo-router";
 import { useSessionContext } from "@supabase/auth-helpers-react";
 
 import LoadingFullscreen from "~/components/ui/loading-fullscreen";
 import { api } from "~/utils/api";
 
 export default function Layout() {
-  const { session, isLoading, error } = useSessionContext();
+  const { session, isLoading } = useSessionContext();
+  const searchParams = useLocalSearchParams();
 
   if (isLoading) {
     return <LoadingFullscreen />;
@@ -15,10 +16,6 @@ export default function Layout() {
    * If the user is not authenticated, redirect them to the onboarding flow.
    */
   const isAuthed = session?.user;
-
-  console.log("is authed", isAuthed);
-
-  console.log("user id", session?.user.id);
 
   if (!isAuthed) {
     return <Redirect href="/auth/" />;
@@ -32,29 +29,16 @@ export default function Layout() {
     isLoading: loadingProfile,
     isPending,
     isSuccess,
-    isError,
-    error: profileError,
   } = api.profile.byId.useQuery({ id: session.user.id });
-
-  console.log(
-    "loading profile",
-    loadingProfile,
-    isPending,
-    isSuccess,
-    session.user.id,
-  );
-
-  console.log("profile error", profileError);
 
   if (loadingProfile || isPending || !isSuccess) {
     return <LoadingFullscreen />;
   }
 
-  console.log("profile", profile);
-
-  const hasOnboarded = profile?.[0]?.onboardedAt;
-
-  console.log("has onboarded", hasOnboarded);
+  const hasOnboarded =
+    profile?.[0]?.onboardedAt ||
+    (searchParams?.params?.onboardingSuccess === "true" &&
+      searchParams?.screen === "index");
 
   if (!hasOnboarded) {
     return <Redirect href="/onboarding/account" />;

@@ -1,6 +1,5 @@
 import React from "react";
 import { SafeAreaView } from "react-native";
-import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link, Stack } from "expo-router";
 import {
@@ -12,17 +11,10 @@ import {
   View,
   VStack,
 } from "@gluestack-ui/themed";
-import { useUser } from "@supabase/auth-helpers-react";
 
 import { HomeHeader } from "~/components/ui/headers/dashboard-header";
-import { PageContainer } from "~/components/ui/page-container";
-import { theme } from "~/styles";
-import { api } from "~/utils/api";
-import { supabase } from "~/utils/supabase";
 
 const Index = () => {
-  const user = useUser();
-
   return (
     <View h="$full" w="$full">
       <LinearGradient
@@ -44,12 +36,12 @@ const Index = () => {
                 <Text mb="$8">Add an animal to get started with Vettee</Text>
                 <Link asChild href="/animal-create">
                   <Button
-                    width="$32"
                     size="md"
-                    borderRadius="$full"
-                    bgColor={theme.colors.primary}
+                    borderRadius="$xl"
+                    backgroundColor="$black"
+                    softShadow="1"
                   >
-                    <ButtonText fontFamily="$mono" color="$backgroundDark950">
+                    <ButtonText fontFamily="$mono" color="$white">
                       Add animal
                     </ButtonText>
                   </Button>

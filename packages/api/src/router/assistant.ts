@@ -25,7 +25,7 @@ export const assistantRouter = createTRPCRouter({
                 {
                   type: "text",
                   text: `I'm going to provide you with the image of a ${input.species}. I'd like you to tell me the specific breed or type of ${input.species}.
-              Do not include any explanations, only provide a RFC8259 compliant JSON response following this format without deviation. Please keep in mind that the user who is providing this image is from the Northern Rivers region in Australia, but please remember that the ${input.species} might not originate from that region so use your best judgement.
+              Do not include any explanations, only provide a RFC8259 compliant JSON response following this format without deviation. Please keep in mind that the user who is providing this image is from Australia, but please remember that the ${input.species} might not originate from that region so use your best judgement.
                 [{
                   "type": "the breed or type of ${input.species} in the image provided.",
                   "confidence": "your confidence in your answer",
@@ -68,6 +68,39 @@ export const assistantRouter = createTRPCRouter({
           //     ),
           //   }
           // ]
+        });
+
+        console.log("response -- ", response);
+        return response;
+      } catch (error) {
+        console.log(error);
+      }
+    }),
+
+  getBasicSpeciesFacts: publicProcedure
+    .input(
+      z.object({
+        species: z.string().min(1),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      try {
+        const response = await openai.chat.completions.create({
+          stream: false,
+          model: "gpt-4",
+          max_tokens: 300,
+          messages: [
+            {
+              role: "user",
+              content: [
+                {
+                  type: "text",
+                  text: `I'd like to know some basic facts about a ${input.species}.`,
+                },
+              ],
+            },
+          ],
         });
 
         console.log("response -- ", response);

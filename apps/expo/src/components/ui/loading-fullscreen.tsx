@@ -3,6 +3,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Box, Center, View, VStack } from "@gluestack-ui/themed";
 import AnimatedLottieView from "lottie-react-native";
 
+import LogoText from "./logo/logo-text";
+
 export default function LoadingFullscreen() {
   return (
     <View w="$full" h="$full">
@@ -11,12 +13,7 @@ export default function LoadingFullscreen() {
         style={{ width: "100%", height: "100%", position: "absolute" }}
       />
       <Center w="$full" h="$full">
-        <AnimatedLottieView
-          style={{ width: "30%" }}
-          source={require("../../../assets/animations/loading-animation.json")}
-          autoPlay
-          loop
-        />
+        <LogoText />
       </Center>
     </View>
   );

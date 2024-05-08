@@ -1,5 +1,4 @@
 import type BottomSheet from "@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet";
-import type { ChatCompletion } from "openai/resources";
 import type { Control, FieldErrors, UseFormWatch } from "react-hook-form";
 import React, { useCallback, useState } from "react";
 import { Alert, Keyboard, Pressable } from "react-native";
@@ -7,32 +6,23 @@ import { ScrollView } from "react-native-gesture-handler";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { Image } from "expo-image";
 import { Redirect } from "expo-router";
-import { AntDesign } from "@expo/vector-icons";
 import {
-  Box,
   Button,
   ButtonText,
   HStack,
-  SelectInput,
-  SelectTrigger,
   Text,
   View,
   VStack,
 } from "@gluestack-ui/themed";
 import AnimatedLottieView from "lottie-react-native";
-import { Controller, set, useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 
 import ImagePicker from "~/components/features/onboarding/image-picker";
-import CustomBottomSheet from "~/components/ui/bottom-sheet";
-import { BaseButton } from "~/components/ui/buttons/base-button";
 import { OnboardingHeader } from "~/components/ui/headers/onboarding-header";
-import Input from "~/components/ui/inputs/input";
 import BaseInput from "~/components/ui/inputs/input";
 import BaseSelect from "~/components/ui/inputs/select";
 import { PageContainer, useStore } from "~/components/ui/page-container";
-import MainSpinner from "~/components/ui/spinners/main-spinner";
 import { api } from "~/utils/api";
-import formatToJson from "~/utils/assistant/format-content";
 import { animalSpecies } from "~/utils/data/animal-species";
 import getYears from "~/utils/data/get-years";
 
@@ -153,23 +143,24 @@ const CarouselBody = () => {
         />
       ),
     },
-    {
-      id: 3,
-      name: "animal-summary",
-      component: (
-        <ReviewAnimalDetails
-          navigateToSlide={() => {
-            console.log("create animal");
-            createAnimal({
-              name: getValues().animalName,
-              species: getValues().animalType,
-            });
-          }}
-          getValues={getValues}
-          errors={errors}
-        />
-      ),
-    },
+    // May be used in the future
+    // {
+    //   id: 3,
+    //   name: "animal-summary",
+    //   component: (
+    //     <ReviewAnimalDetails
+    //       navigateToSlide={() => {
+    //         console.log("create animal");
+    //         createAnimal({
+    //           name: getValues().animalName,
+    //           species: getValues().animalType,
+    //         });
+    //       }}
+    //       getValues={getValues}
+    //       errors={errors}
+    //     />
+    //   ),
+    // },
   ];
 
   if (!carouselItems[activeIndex]) {
@@ -191,14 +182,20 @@ const IntroCard = ({ navigateToSlide }: IntroCardProps) => {
   return (
     <Animated.View
       entering={FadeInDown.duration(500)}
-      className="flex h-full flex-col justify-between rounded-t-2xl bg-white px-6 py-6 shadow-2xl"
+      className="flex h-full flex-col justify-between rounded-t-2xl px-6 py-6"
     >
       <View>
         <View>
-          <Text fontFamily="$mono" fontSize="$2xl" pb="$4" lineHeight="$2xl">
-            Let's get to know your pet.
+          <Text
+            fontFamily="$mono"
+            fontSize="$2xl"
+            pb="$4"
+            lineHeight="$2xl"
+            textAlign="center"
+          >
+            Let's get to know your pet
           </Text>
-          <Text fontFamily="$body">
+          <Text fontFamily="$body" textAlign="center">
             We'll ask for some basic details about your animal. Their name,
             photo, age and some other basic details.{" "}
           </Text>
@@ -238,29 +235,25 @@ const BasicAnimalInfoCard = ({
   setValue,
   watch,
 }: CarouselItemProps) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const bottomSheetRef = React.useRef<BottomSheet>(null);
-
-  const handleSheetChanges = useCallback((index: number) => {
-    console.log("handleSheetChanges", index);
-  }, []);
-
-  console.log("is valid", isValid);
-  console.log("values", getValues());
-
   return (
     <Animated.View
       entering={FadeInDown.duration(500)}
-      className="flex h-full w-full flex-col justify-between rounded-t-2xl bg-white px-6 py-6 shadow-2xl"
+      className="flex h-full w-full flex-col justify-between px-0 py-6"
     >
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* <DismissKeyboard> */}
         <View>
-          <Text fontFamily="$mono" fontSize="$2xl" lineHeight="$2xl">
-            Let's start with the easy stuff.
+          <Text
+            fontFamily="$mono"
+            fontSize="$2xl"
+            pb="$4"
+            lineHeight="$2xl"
+            textAlign="center"
+          >
+            Starting with the easy stuff
           </Text>
         </View>
-        <VStack className="py-4">
+        <VStack className="rounded-lg bg-white p-4">
           <Controller
             control={control}
             rules={{
@@ -271,7 +264,6 @@ const BasicAnimalInfoCard = ({
                 label="What's your pet's name?"
                 placeholder="Fido"
                 onChangeText={(value) => {
-                  console.log("value--animal", value);
                   setValue("animalName", value);
                 }}
                 value={value}
@@ -302,8 +294,6 @@ const BasicAnimalInfoCard = ({
             )}
             name="animalType"
           />
-        </VStack>
-        <View className="pb-4">
           <Controller
             control={control}
             rules={{
@@ -325,9 +315,9 @@ const BasicAnimalInfoCard = ({
             )}
             name="animalAge"
           />
-        </View>
+        </VStack>
         {/* </DismissKeyboard> */}
-        <View className="align-center w-full pb-12">
+        <View className="align-center w-full py-12">
           <NavigationControls
             currentIndex={1}
             canProgress={isValid}
@@ -339,32 +329,32 @@ const BasicAnimalInfoCard = ({
   );
 };
 
-const SpeciesOption = ({ onPress, children }) => {
-  return (
-    <Pressable onPress={onPress}>
-      <View px="$4" py="$4" bg="$blueGray200" w="$full">
-        <Text w="$full" fontFamily="$mono">
-          Logout
-        </Text>
-      </View>
-    </Pressable>
-  );
-};
+// const SpeciesOption = ({ onPress, children }) => {
+//   return (
+//     <Pressable onPress={onPress}>
+//       <View px="$4" py="$4" bg="$blueGray200" w="$full">
+//         <Text w="$full" fontFamily="$mono">
+//           Logout
+//         </Text>
+//       </View>
+//     </Pressable>
+//   );
+// };
 
-interface Attributes {
-  weight: string;
-  dimensions: string;
-  color: string;
-  other: string;
-}
+// interface Attributes {
+//   weight: string;
+//   dimensions: string;
+//   color: string;
+//   other: string;
+// }
 
-interface Prediction {
-  type: string;
-  confidence: string;
-  comment: string;
-  attributes: Attributes[];
-  background_colors: string[];
-}
+// interface Prediction {
+//   type: string;
+//   confidence: string;
+//   comment: string;
+//   attributes: Attributes[];
+//   background_colors: string[];
+// }
 
 const CheckAnimalType = ({
   navigateToSlide,
@@ -374,6 +364,8 @@ const CheckAnimalType = ({
   const setBackground = useStore((state) => state.updateBackgroundColors);
   const [isLoading, setIsLoading] = useState(false);
   const [isPredicting, setIsPredicting] = useState(false);
+  const [animalPhoto, setAnimalPhoto] = useState<string | null>(null);
+  const [shouldShowControls, setShouldShowControls] = useState(false);
   const [showField, setShowField] = useState(false);
   const { mutateAsync: checkAnimal, error } =
     api.assistant.checkAnimal.useMutation({
@@ -381,85 +373,118 @@ const CheckAnimalType = ({
     });
 
   const handleSuccessfulUpload = async (uri: string) => {
-    try {
-      setIsPredicting(true);
-      setValue("animalPhoto", uri);
-      const result: ChatCompletion | undefined = await checkAnimal({
-        species: getValues().animalType,
-        presignedUrl: uri,
-      });
+    // try {
+    //   setIsPredicting(true);
+    //   setValue("animalPhoto", uri);
+    //   setAnimalPhoto(uri);
+    //   const result: ChatCompletion | undefined = await checkAnimal({
+    //     species: getValues().animalType,
+    //     presignedUrl: uri,
+    //   });
 
-      if (!result) {
-        throw new Error("Failed to identify animal");
-      }
+    //   if (!result) {
+    //     throw new Error("Failed to identify animal");
+    //   }
 
-      const prediction: Prediction[] = formatToJson(result);
+    //   const prediction: Prediction[] = formatToJson(result);
 
-      if (!prediction[0]?.type) {
-        throw new Error("Failed to identify animal");
-      }
+    //   if (!prediction[0]?.type) {
+    //     throw new Error("Failed to identify animal");
+    //   }
 
-      const { attributes, type, background_colors, confidence } = prediction[0];
+    //   const { attributes, type, background_colors, confidence } = prediction[0];
 
-      if (
-        prediction[0].type.toLowerCase() !==
-        getValues().animalType.toLowerCase()
-      ) {
-        setBackground(background_colors);
-        setValue("animalBreed", type);
-        setValue("animalAttributes", attributes);
-        setValue("confidence", confidence);
-        return navigateToSlide(3);
-      }
-    } catch (error) {
-      console.log("Error : ", error);
-    } finally {
-      setIsPredicting(false);
-    }
+    //   if (
+    //     prediction[0].type.toLowerCase() !==
+    //     getValues().animalType.toLowerCase()
+    //   ) {
+    //     setBackground(background_colors);
+    //     setValue("animalBreed", type);
+    //     setValue("animalAttributes", attributes);
+    //     setValue("confidence", confidence);
+    //     // return navigateToSlide(3);
+    //   }
+    // } catch (error) {
+    //   console.log("Error : ", error);
+    // } finally {
+    //   setIsPredicting(false);
+    // }
+
   };
 
   return (
     <Animated.View
       entering={FadeInDown.duration(500)}
-      className="flex h-full w-full flex-col justify-between rounded-t-2xl bg-white px-6 py-4 shadow-2xl"
+      className="flex h-full w-full flex-col justify-between rounded-t-2xl px-6 py-4"
     >
       <View>
         <View>
-          <Text fontSize="$2xl" fontFamily="$mono" lineHeight="$2xl">
+          <Text
+            fontFamily="$mono"
+            fontSize="$2xl"
+            pb="$4"
+            lineHeight="$2xl"
+            textAlign="center"
+          >
             Say cheese!
           </Text>
         </View>
-        <Text fontFamily="$body">
-          Let's grab a nice, clear picture of {getValues().animalName} the{" "}
+        <Text fontFamily="$body" textAlign="center">
+          Let's grab a clear picture of {getValues().animalName} the{" "}
           {getValues().animalType}, we'll use it for their profile picture.
-          We'll also use it to gather some more basic details about{" "}
+          We'll also use it to gather some additional basic details about{" "}
           {getValues().animalName}.
         </Text>
         <View className="py-12"></View>
         <View className="flex flex-row justify-center">
-          {isLoading || isPredicting ? (
-            <View className="h-40 w-full rounded-xl border border-gray-200 p-4">
-              <View className="flex h-full w-full flex-col items-center justify-center">
-                {isLoading && <Text>Uploading photo</Text>}
-                {isPredicting && <Text>Analysing photo</Text>}
+          {isLoading || isPredicting || animalPhoto ? (
+            <View className="w-full rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+              <View className="flex w-full flex-col items-center justify-center">
+                {animalPhoto && (
+                  <Image
+                    source={{ uri: animalPhoto }}
+                    style={{ width: 100, height: 100, borderRadius: 50 }}
+                  />
+                )}
                 <View className="py-2" />
-                <MainSpinner />
+                {getValues().animalBreed && (
+                  <Text fontFamily="$mono" fontSize="$lg" textAlign="center">
+                    From reviewing this photo, it looks like{" "}
+                    {getValues().animalName} might be{" "}
+                    {["a", "e", "i", "o", "u"].includes(
+                      getValues().animalBreed[0].toLowerCase(),
+                    )
+                      ? "an"
+                      : "a"}{" "}
+                    {getValues().animalBreed}. Is that correct?
+                  </Text>
+                )}
+                {/* <View className="py-2" />
+                <MainSpinner /> */}
               </View>
+              <View className="flex flex-row space-x-4"></View>
             </View>
           ) : (
-            <ImagePicker
-              setIsLoading={setIsLoading}
-              onUploadComplete={handleSuccessfulUpload}
-            />
+            <VStack justifyContent="center">
+              <ImagePicker
+                setIsLoading={setIsLoading}
+                onUploadComplete={handleSuccessfulUpload}
+              />
+              <Button onPress={} variant="link" mt="$2">
+                <ButtonText>I'll do this later</ButtonText>
+              </Button>
+            </VStack>
           )}
         </View>
       </View>
       <View className="align-center w-full pb-12">
-        <NavigationControls
-          currentIndex={2}
-          navigateToSlide={navigateToSlide}
-          canProgress={getValues().animalBreed !== ""}
-        />
+        {shouldShowControls && (
+          <NavigationControls
+            currentIndex={2}
+            navigateToSlide={navigateToSlide}
+            canProgress={getValues().animalBreed !== ""}
+          />
+        )}
       </View>
     </Animated.View>
   );
@@ -535,7 +560,11 @@ const ReviewAnimalDetails = ({
                         value={`${Number(attribute.weight) / 1000} KG`}
                       />
                     </View>
-                    <View className="flex w-full flex-row justify-between">
+                    <View className="flex w-full flex-col justify-between rounded-xl border border-gray-200 p-2">
+                      <HStack>
+                        <Text>Color</Text>
+                        <Text>{attribute.color}</Text>
+                      </HStack>
                       <Text>{attribute.ailments}</Text>
                     </View>
                   </View>
@@ -582,31 +611,37 @@ const NavigationControls = ({
   };
 
   return (
-    <VStack>
-      <Button
-        rounded="$full"
-        size="xl"
-        bg="$black"
-        w="$full"
-        isDisabled={!canProgress}
-        onPress={() => nextSlide()}
-      >
-        <ButtonText fontFamily="$mono">Continue</ButtonText>
-      </Button>
-      {currentIndex !== 0 && (
+    <View className="px-2">
+      <HStack space="sm">
+        {currentIndex !== 0 && (
+          <Button
+            rounded="$2xl"
+            w="$1/2"
+            size="xl"
+            bg="white"
+            borderColor="$lightGray"
+            isDisabled={!canGoBack}
+            onPress={() => previousSlide()}
+          >
+            <Text color="$black" fontFamily="$mono">
+              Back
+            </Text>
+          </Button>
+        )}
         <Button
-          w="$full"
+          rounded="$2xl"
           size="xl"
-          bg="$white"
-          isDisabled={!canGoBack}
-          onPress={() => previousSlide()}
+          bg="$black"
+          w={currentIndex !== 0 ? "$1/2" : "$full"}
+          isDisabled={!canProgress}
+          onPress={() => nextSlide()}
         >
-          <ButtonText color="$black" fontFamily="$mono">
-            Back
-          </ButtonText>
+          <Text fontFamily="$mono" color="white">
+            Continue
+          </Text>
         </Button>
-      )}
-    </VStack>
+      </HStack>
+    </View>
   );
 };
 
@@ -630,31 +665,31 @@ const AnimalStat = ({ label, value }: AnimalStatProps) => {
   );
 };
 
-interface ConfidenceBadgeProps {
-  confidence: "High" | "Medium" | "Low";
-}
+// interface ConfidenceBadgeProps {
+//   confidence: "High" | "Medium" | "Low";
+// }
 
-const ConfidenceBadge = ({ confidence }: ConfidenceBadgeProps) => {
-  let badgeColor, textColor;
-  switch (confidence) {
-    case "High":
-      badgeColor = "bg-green-50 border-green-600";
-      textColor = "text-green-600";
-      break;
-    case "Medium":
-      badgeColor = "bg-yellow-50 border-yellow-600";
-      textColor = "text-yellow-600";
-      break;
-    case "Low":
-      badgeColor = "bg-red-50 border-red-600";
-      textColor = "text-red-600";
-      break;
-  }
-  return (
-    <View className={`rounded border ${badgeColor}`}>
-      <Text fontSize={12} className={`px-2 py-1 ${textColor} shadow-lg`}>
-        Confidence: {confidence}
-      </Text>
-    </View>
-  );
-};
+// const ConfidenceBadge = ({ confidence }: ConfidenceBadgeProps) => {
+//   let badgeColor, textColor;
+//   switch (confidence) {
+//     case "High":
+//       badgeColor = "bg-green-50 border-green-600";
+//       textColor = "text-green-600";
+//       break;
+//     case "Medium":
+//       badgeColor = "bg-yellow-50 border-yellow-600";
+//       textColor = "text-yellow-600";
+//       break;
+//     case "Low":
+//       badgeColor = "bg-red-50 border-red-600";
+//       textColor = "text-red-600";
+//       break;
+//   }
+//   return (
+//     <View className={`rounded border ${badgeColor}`}>
+//       <Text fontSize={12} className={`px-2 py-1 ${textColor} shadow-lg`}>
+//         Confidence: {confidence}
+//       </Text>
+//     </View>
+//   );
+// };
