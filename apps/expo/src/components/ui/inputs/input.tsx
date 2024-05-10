@@ -58,9 +58,6 @@ export default function BaseInput(props: BaseInputProps) {
             />
           </Input>
         </Box>
-        <Text fontSize="$md" color="$red700" px={2}>
-          {props.errorText}
-        </Text>
         <FormControlHelper>
           <FormControlHelperText>{props.helperText}</FormControlHelperText>
         </FormControlHelper>

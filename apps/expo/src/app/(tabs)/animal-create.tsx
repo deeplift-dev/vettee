@@ -5,9 +5,10 @@ import { Alert, Keyboard, Pressable } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { Image } from "expo-image";
-import { Redirect } from "expo-router";
+import { Link, Redirect } from "expo-router";
 import {
   Button,
+  ButtonSpinner,
   ButtonText,
   HStack,
   Text,
@@ -140,6 +141,7 @@ const CarouselBody = () => {
           control={control}
           errors={errors}
           setValue={setValue}
+          createAnimal={createAnimal}
         />
       ),
     },
@@ -253,68 +255,74 @@ const BasicAnimalInfoCard = ({
             Starting with the easy stuff
           </Text>
         </View>
-        <VStack className="rounded-lg bg-white p-4">
-          <Controller
-            control={control}
-            rules={{
-              required: true,
-            }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <BaseInput
-                label="What's your pet's name?"
-                placeholder="Fido"
-                onChangeText={(value) => {
-                  setValue("animalName", value);
-                }}
-                value={value}
-                onBlur={onBlur}
-                errorText={errors?.animalName?.message}
-              />
-            )}
-            name="animalName"
-          />
-          <Controller
-            control={control}
-            rules={{
-              required: true,
-            }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <BaseSelect
-                label="What kind of animal do you have?"
-                placeholder="Select species"
-                items={animalSpecies}
-                onValueChange={(value) => {
-                  console.log("value--animal", value);
-                  onChange(value);
-                  setValue("animalType", value);
-                }}
-                value={value}
-                errorText={errors?.animalType?.message}
-              />
-            )}
-            name="animalType"
-          />
-          <Controller
-            control={control}
-            rules={{
-              required: true,
-              min: 1,
-            }}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <BaseSelect
-                label="What year was your animal born?"
-                placeholder="2010"
-                items={getYears()}
-                onValueChange={(value) => {
-                  onChange(value);
-                  setValue("animalAge", value);
-                }}
-                value={value}
-                errorText={errors?.animalAge?.message}
-              />
-            )}
-            name="animalAge"
-          />
+        <VStack className="p-4">
+          <Animated.View entering={FadeInDown.duration(500).delay(100)}>
+            <Controller
+              control={control}
+              rules={{
+                required: true,
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <BaseInput
+                  label="What's your pet's name?"
+                  placeholder="Fido"
+                  onChangeText={(value) => {
+                    setValue("animalName", value);
+                  }}
+                  value={value}
+                  onBlur={onBlur}
+                  errorText={errors?.animalName?.message}
+                />
+              )}
+              name="animalName"
+            />
+          </Animated.View>
+          <Animated.View entering={FadeInDown.duration(500).delay(200)}>
+            <Controller
+              control={control}
+              rules={{
+                required: true,
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <BaseSelect
+                  label="What kind of animal do you have?"
+                  placeholder="Select species"
+                  items={animalSpecies}
+                  onValueChange={(value) => {
+                    console.log("value--animal", value);
+                    onChange(value);
+                    setValue("animalType", value);
+                  }}
+                  value={value}
+                  errorText={errors?.animalType?.message}
+                />
+              )}
+              name="animalType"
+            />
+          </Animated.View>
+          <Animated.View entering={FadeInDown.duration(500).delay(300)}>
+            <Controller
+              control={control}
+              rules={{
+                required: true,
+                min: 1,
+              }}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <BaseSelect
+                  label="What year was your animal born?"
+                  placeholder="2010"
+                  items={getYears()}
+                  onValueChange={(value) => {
+                    onChange(value);
+                    setValue("animalAge", value);
+                  }}
+                  value={value}
+                  errorText={errors?.animalAge?.message}
+                />
+              )}
+              name="animalAge"
+            />
+          </Animated.View>
         </VStack>
         {/* </DismissKeyboard> */}
         <View className="align-center w-full py-12">
@@ -356,60 +364,24 @@ const BasicAnimalInfoCard = ({
 //   background_colors: string[];
 // }
 
-const CheckAnimalType = ({
-  navigateToSlide,
-  getValues,
-  setValue,
-}: CarouselItemProps) => {
+const CheckAnimalType = ({ getValues, createAnimal }: CarouselItemProps) => {
   const setBackground = useStore((state) => state.updateBackgroundColors);
   const [isLoading, setIsLoading] = useState(false);
   const [isPredicting, setIsPredicting] = useState(false);
   const [animalPhoto, setAnimalPhoto] = useState<string | null>(null);
   const [shouldShowControls, setShouldShowControls] = useState(false);
   const [showField, setShowField] = useState(false);
-  const { mutateAsync: checkAnimal, error } =
-    api.assistant.checkAnimal.useMutation({
-      async onSuccess() {},
-    });
 
   const handleSuccessfulUpload = async (uri: string) => {
-    // try {
-    //   setIsPredicting(true);
-    //   setValue("animalPhoto", uri);
-    //   setAnimalPhoto(uri);
-    //   const result: ChatCompletion | undefined = await checkAnimal({
-    //     species: getValues().animalType,
-    //     presignedUrl: uri,
-    //   });
-
-    //   if (!result) {
-    //     throw new Error("Failed to identify animal");
-    //   }
-
-    //   const prediction: Prediction[] = formatToJson(result);
-
-    //   if (!prediction[0]?.type) {
-    //     throw new Error("Failed to identify animal");
-    //   }
-
-    //   const { attributes, type, background_colors, confidence } = prediction[0];
-
-    //   if (
-    //     prediction[0].type.toLowerCase() !==
-    //     getValues().animalType.toLowerCase()
-    //   ) {
-    //     setBackground(background_colors);
-    //     setValue("animalBreed", type);
-    //     setValue("animalAttributes", attributes);
-    //     setValue("confidence", confidence);
-    //     // return navigateToSlide(3);
-    //   }
-    // } catch (error) {
-    //   console.log("Error : ", error);
-    // } finally {
-    //   setIsPredicting(false);
-    // }
-
+    try {
+      setIsPredicting(true);
+      setValue("animalPhoto", uri);
+      setAnimalPhoto(uri);
+    } catch (error) {
+      console.log("Error : ", error);
+    } finally {
+      setIsPredicting(false);
+    }
   };
 
   return (
@@ -465,26 +437,33 @@ const CheckAnimalType = ({
               <View className="flex flex-row space-x-4"></View>
             </View>
           ) : (
-            <VStack justifyContent="center">
+            <VStack justifyContent="center" width="$full">
               <ImagePicker
                 setIsLoading={setIsLoading}
                 onUploadComplete={handleSuccessfulUpload}
               />
-              <Button onPress={} variant="link" mt="$2">
-                <ButtonText>I'll do this later</ButtonText>
-              </Button>
             </VStack>
           )}
         </View>
       </View>
       <View className="align-center w-full pb-12">
-        {shouldShowControls && (
-          <NavigationControls
-            currentIndex={2}
-            navigateToSlide={navigateToSlide}
-            canProgress={getValues().animalBreed !== ""}
-          />
-        )}
+        <Link href="/chat" asChild>
+          <Button
+            rounded="$2xl"
+            size="xl"
+            bg={getValues().animalPhoto ? "$black" : "$lightgray"}
+          >
+            {getValues().animalPhoto ? (
+              <Text fontFamily="$mono" color="$white">
+                Save Animal
+              </Text>
+            ) : (
+              <Text fontFamily="$mono" color="$black">
+                Skip for now
+              </Text>
+            )}
+          </Button>
+        </Link>
       </View>
     </Animated.View>
   );
@@ -611,23 +590,8 @@ const NavigationControls = ({
   };
 
   return (
-    <View className="px-2">
+    <View className="px-3">
       <HStack space="sm">
-        {currentIndex !== 0 && (
-          <Button
-            rounded="$2xl"
-            w="$1/2"
-            size="xl"
-            bg="white"
-            borderColor="$lightGray"
-            isDisabled={!canGoBack}
-            onPress={() => previousSlide()}
-          >
-            <Text color="$black" fontFamily="$mono">
-              Back
-            </Text>
-          </Button>
-        )}
         <Button
           rounded="$2xl"
           size="xl"
@@ -640,6 +604,22 @@ const NavigationControls = ({
             Continue
           </Text>
         </Button>
+        {currentIndex !== 0 && (
+          <Button
+            rounded="$2xl"
+            w="$1/2"
+            size="xl"
+            bg="$white"
+            isDisabled={!canGoBack}
+            borderWidth={1}
+            borderColor="$gray600"
+            onPress={() => previousSlide()}
+          >
+            <Text color="$black" fontFamily="$mono">
+              Back
+            </Text>
+          </Button>
+        )}
       </HStack>
     </View>
   );

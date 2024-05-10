@@ -72,12 +72,16 @@ export default function ImagePicker({
       alert("Issue picking image.");
       return;
     }
+    console.log("pickerResult", pickerResult);
 
     try {
       setIsLoading(true);
       const img = await fetchImageFromUri(pickerResult.assets[0].uri);
+      console.log("img", img);
       await uploadImage(pickerResult.assets[0].fileName, img);
+      console.log("uploaded image");
       const urlResult = await downloadImage(pickerResult.assets[0].fileName);
+      console.log("urlResult", urlResult);
       onUploadComplete(urlResult.url.toString());
     } catch (e) {
       console.log(e);
@@ -142,7 +146,7 @@ export default function ImagePicker({
           <Text style={styles.info}>Long press to copy the image url</Text>
         </View>
       )}
-      <View className="rounded-xl border-2 border-gray-100 bg-white p-1 shadow-sm">
+      <View className="w-full rounded-xl border-2 border-gray-100 bg-white p-1 shadow-sm">
         <Pressable onPress={pickImage}>
           <View className="flex w-full flex-row items-center rounded-lg border border-gray-200 px-4 py-4">
             <Image

@@ -48,16 +48,17 @@ export default function Layout() {
     <Stack>
       <Stack.Screen name="index" />
       <Stack.Screen
-        name="modal"
-        options={{
-          headerShown: false,
-          presentation: "modal",
-        }}
-      />
-      <Stack.Screen
         name="animal-create"
         options={{
           headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="chat"
+        options={{
+          headerShown: false,
+          presentation: "transparentModal",
+          animation: "fade",
         }}
       />
     </Stack>

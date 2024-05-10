@@ -55,7 +55,11 @@ export default function BaseSelect(props: SelectProps) {
             {props.label}
           </FormControlLabelText>
         </FormControlLabel>
-        <Select onValueChange={props.onValueChange}>
+        <Select
+          isFocusVisible={true}
+          isFocused={false}
+          onValueChange={props.onValueChange}
+        >
           <Box borderWidth={1} borderColor="$blue100" borderRadius={10}>
             <SelectTrigger
               variant="outline"
