@@ -1,20 +1,11 @@
-import type BottomSheet from "@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet";
 import type { Control, FieldErrors, UseFormWatch } from "react-hook-form";
 import React, { useCallback, useState } from "react";
-import { Alert, Keyboard, Pressable } from "react-native";
+import { ActivityIndicator, Alert, Keyboard, Pressable } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-import Animated, { FadeInDown } from "react-native-reanimated";
+import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { Image } from "expo-image";
 import { Link, Redirect } from "expo-router";
-import {
-  Button,
-  ButtonSpinner,
-  ButtonText,
-  HStack,
-  Text,
-  View,
-  VStack,
-} from "@gluestack-ui/themed";
+import { Button, HStack, Text, View, VStack } from "@gluestack-ui/themed";
 import AnimatedLottieView from "lottie-react-native";
 import { Controller, useForm } from "react-hook-form";
 
@@ -97,12 +88,13 @@ const CarouselBody = () => {
     },
   });
 
-  const { mutate: createAnimal, error } = api.animal.create.useMutation({
-    onSuccess: async () => {
+  const { mutate: createAnimal } = api.animal.create.useMutation({
+    onSuccess: async (data) => {
+      console.log("Animal created", data);
       Keyboard.dismiss();
-      // await utils.post.all.invalidate();
     },
     onError: (error) => {
+      console.log("Error creating animal", error);
       if (error.data?.code === "UNAUTHORIZED")
         Alert.alert("Error", "You must be logged in to create a post");
     },
@@ -141,7 +133,18 @@ const CarouselBody = () => {
           control={control}
           errors={errors}
           setValue={setValue}
-          createAnimal={createAnimal}
+          onSaveAnimal={() => {
+            console.log("create animal");
+            console.log("Animal Name:", getValues().animalName);
+            console.log("Animal Type:", getValues().animalType);
+            console.log("Animal Photo URL:", getValues().animalPhoto);
+            console.log("Animal Year of Birth:", getValues().animalAge);
+            createAnimal({
+              name: getValues().animalName,
+              species: getValues().animalType,
+              avatarUrl: getValues().animalPhoto,
+            });
+          }}
         />
       ),
     },
@@ -364,7 +367,17 @@ const BasicAnimalInfoCard = ({
 //   background_colors: string[];
 // }
 
-const CheckAnimalType = ({ getValues, createAnimal }: CarouselItemProps) => {
+interface CheckAnimalTypeProps {
+  getValues: () => FormData;
+  setValue: (name: keyof FormData, value: string) => void;
+  onSaveAnimal: () => void;
+}
+
+const CheckAnimalType = ({
+  getValues,
+  setValue,
+  onSaveAnimal,
+}: CheckAnimalTypeProps) => {
   const setBackground = useStore((state) => state.updateBackgroundColors);
   const [isLoading, setIsLoading] = useState(false);
   const [isPredicting, setIsPredicting] = useState(false);
@@ -409,30 +422,40 @@ const CheckAnimalType = ({ getValues, createAnimal }: CarouselItemProps) => {
         </Text>
         <View className="py-12"></View>
         <View className="flex flex-row justify-center">
-          {isLoading || isPredicting || animalPhoto ? (
-            <View className="w-full rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+          {isLoading || isPredicting ? (
+            <View className="flex w-full flex-col items-center justify-center pt-12">
+              <ActivityIndicator size="large" color="#0000ff" />
+              <Text>Uploading</Text>
+            </View>
+          ) : animalPhoto ? (
+            <View>
               <View className="flex w-full flex-col items-center justify-center">
-                {animalPhoto && (
+                <Animated.View entering={FadeIn.duration(900).delay(200)}>
                   <Image
                     source={{ uri: animalPhoto }}
-                    style={{ width: 100, height: 100, borderRadius: 50 }}
+                    style={{ width: 300, height: 300, borderRadius: 10 }}
+                    placeholder={{ blurhash }}
                   />
-                )}
-                <View className="py-2" />
-                {getValues().animalBreed && (
-                  <Text fontFamily="$mono" fontSize="$lg" textAlign="center">
-                    From reviewing this photo, it looks like{" "}
-                    {getValues().animalName} might be{" "}
-                    {["a", "e", "i", "o", "u"].includes(
-                      getValues().animalBreed[0].toLowerCase(),
-                    )
-                      ? "an"
-                      : "a"}{" "}
-                    {getValues().animalBreed}. Is that correct?
-                  </Text>
-                )}
-                {/* <View className="py-2" />
-                <MainSpinner /> */}
+                </Animated.View>
+                <View className="py-4"></View>
+                <Animated.View entering={FadeIn.duration(500).delay(200)}>
+                  <Button
+                    w="$full"
+                    rounded="$2xl"
+                    size="xl"
+                    backgroundColor="$red50"
+                    onPress={() => setAnimalPhoto(null)}
+                  >
+                    <Text
+                      width="$full"
+                      fontFamily="$mono"
+                      color="$red600"
+                      textAlign="center"
+                    >
+                      Remove Image
+                    </Text>
+                  </Button>
+                </Animated.View>
               </View>
               <View className="flex flex-row space-x-4"></View>
             </View>
@@ -447,23 +470,24 @@ const CheckAnimalType = ({ getValues, createAnimal }: CarouselItemProps) => {
         </View>
       </View>
       <View className="align-center w-full pb-12">
-        <Link href="/chat" asChild>
-          <Button
-            rounded="$2xl"
-            size="xl"
-            bg={getValues().animalPhoto ? "$black" : "$lightgray"}
-          >
-            {getValues().animalPhoto ? (
-              <Text fontFamily="$mono" color="$white">
-                Save Animal
-              </Text>
-            ) : (
-              <Text fontFamily="$mono" color="$black">
-                Skip for now
-              </Text>
-            )}
-          </Button>
-        </Link>
+        <Button
+          onPress={onSaveAnimal}
+          rounded="$2xl"
+          size="xl"
+          bg={getValues().animalPhoto ? "$black" : "$lightgray"}
+        >
+          {isLoading ? (
+            <ActivityIndicator size="small" color="#0000ff" />
+          ) : getValues().animalPhoto ? (
+            <Text fontFamily="$mono" color="$white">
+              Save
+            </Text>
+          ) : (
+            <Text fontFamily="$mono" color="$black">
+              Skip for now
+            </Text>
+          )}
+        </Button>
       </View>
     </Animated.View>
   );

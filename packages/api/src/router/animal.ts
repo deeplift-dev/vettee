@@ -24,11 +24,12 @@ export const animalRouter = createTRPCRouter({
       });
     }),
 
-  create: protectedProcedure
+  create: publicProcedure
     .input(
       z.object({
         name: z.string().min(1),
         species: z.string().min(1),
+        avatarUrl: z.string().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -36,6 +37,7 @@ export const animalRouter = createTRPCRouter({
         id: nanoid(),
         name: input.name,
         species: input.species,
+        avatarUrl: input.avatarUrl,
         ownerId: ctx.user.id,
       });
     }),

@@ -5,7 +5,7 @@ import Constants from "expo-constants";
 import * as ExpoImagePicker from "expo-image-picker";
 import { Text } from "@gluestack-ui/themed";
 import { Amplify } from "aws-amplify";
-import { getUrl, uploadData } from "aws-amplify/storage";
+import { downloadData, getUrl, uploadData } from "aws-amplify/storage";
 
 import { BaseButton } from "~/components/ui/buttons/base-button";
 import { api } from "~/utils/api";
@@ -77,12 +77,9 @@ export default function ImagePicker({
     try {
       setIsLoading(true);
       const img = await fetchImageFromUri(pickerResult.assets[0].uri);
-      console.log("img", img);
       await uploadImage(pickerResult.assets[0].fileName, img);
-      console.log("uploaded image");
       const urlResult = await downloadImage(pickerResult.assets[0].fileName);
-      console.log("urlResult", urlResult);
-      onUploadComplete(urlResult.url.toString());
+      onUploadComplete(pickerResult.assets[0].fileName);
     } catch (e) {
       console.log(e);
       alert("Something went wrong. Please try again.");
@@ -128,24 +125,8 @@ export default function ImagePicker({
     return blob;
   };
 
-  const copyToClipboard = () => {
-    // Clipboard.setString(image);
-    alert("Copied image URL to clipboard");
-  };
-
   return (
     <View className="w-full">
-      {image && (
-        <View>
-          <Text style={styles.result} onPress={copyToClipboard}>
-            <Image
-              source={{ uri: image }}
-              style={{ width: 250, height: 250 }}
-            />
-          </Text>
-          <Text style={styles.info}>Long press to copy the image url</Text>
-        </View>
-      )}
       <View className="w-full rounded-xl border-2 border-gray-100 bg-white p-1 shadow-sm">
         <Pressable onPress={pickImage}>
           <View className="flex w-full flex-row items-center rounded-lg border border-gray-200 px-4 py-4">
