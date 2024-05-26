@@ -4,7 +4,7 @@ import { ActivityIndicator, Alert, Keyboard, Pressable } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { Image } from "expo-image";
-import { Link, Redirect } from "expo-router";
+import { Link, Redirect, useNavigation } from "expo-router";
 import { Button, HStack, Text, View, VStack } from "@gluestack-ui/themed";
 import AnimatedLottieView from "lottie-react-native";
 import { Controller, useForm } from "react-hook-form";
@@ -62,6 +62,7 @@ interface CarouselItemProps {
 
 const CarouselBody = () => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const navigation = useNavigation();
   const {
     control,
     getValues,
@@ -91,6 +92,7 @@ const CarouselBody = () => {
   const { mutate: createAnimal } = api.animal.create.useMutation({
     onSuccess: async (data) => {
       console.log("Animal created", data);
+      navigation.navigate("index");
       Keyboard.dismiss();
     },
     onError: (error) => {
@@ -127,45 +129,23 @@ const CarouselBody = () => {
       id: 2,
       name: "animal-photo",
       component: (
-        <CheckAnimalType
+        <UploadAnimalImages
           navigateToSlide={(index) => setActiveIndex(index)}
           getValues={getValues}
           control={control}
           errors={errors}
           setValue={setValue}
           onSaveAnimal={() => {
-            console.log("create animal");
-            console.log("Animal Name:", getValues().animalName);
-            console.log("Animal Type:", getValues().animalType);
-            console.log("Animal Photo URL:", getValues().animalPhoto);
-            console.log("Animal Year of Birth:", getValues().animalAge);
             createAnimal({
               name: getValues().animalName,
               species: getValues().animalType,
               avatarUrl: getValues().animalPhoto,
+              yearOfBirth: Number(getValues().animalAge),
             });
           }}
         />
       ),
     },
-    // May be used in the future
-    // {
-    //   id: 3,
-    //   name: "animal-summary",
-    //   component: (
-    //     <ReviewAnimalDetails
-    //       navigateToSlide={() => {
-    //         console.log("create animal");
-    //         createAnimal({
-    //           name: getValues().animalName,
-    //           species: getValues().animalType,
-    //         });
-    //       }}
-    //       getValues={getValues}
-    //       errors={errors}
-    //     />
-    //   ),
-    // },
   ];
 
   if (!carouselItems[activeIndex]) {
@@ -367,17 +347,17 @@ const BasicAnimalInfoCard = ({
 //   background_colors: string[];
 // }
 
-interface CheckAnimalTypeProps {
+interface UploadAnimalImagesProps {
   getValues: () => FormData;
   setValue: (name: keyof FormData, value: string) => void;
   onSaveAnimal: () => void;
 }
 
-const CheckAnimalType = ({
+const UploadAnimalImages = ({
   getValues,
   setValue,
   onSaveAnimal,
-}: CheckAnimalTypeProps) => {
+}: UploadAnimalImagesProps) => {
   const setBackground = useStore((state) => state.updateBackgroundColors);
   const [isLoading, setIsLoading] = useState(false);
   const [isPredicting, setIsPredicting] = useState(false);
@@ -385,11 +365,11 @@ const CheckAnimalType = ({
   const [shouldShowControls, setShouldShowControls] = useState(false);
   const [showField, setShowField] = useState(false);
 
-  const handleSuccessfulUpload = async (uri: string) => {
+  const handleSuccessfulUpload = async ({ fileName, url }) => {
     try {
       setIsPredicting(true);
-      setValue("animalPhoto", uri);
-      setAnimalPhoto(uri);
+      setValue("animalPhoto", fileName);
+      setAnimalPhoto(url);
     } catch (error) {
       console.log("Error : ", error);
     } finally {

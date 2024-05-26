@@ -14,6 +14,7 @@
     "db:studio": "pnpm -F db studio",
     "dev": "turbo dev --parallel",
     "dev:next": "turbo dev --parallel --filter=!@acme/expo",
+    "dev:expo": "turbo dev --filter=@acme/expo",
     "format:fix": "turbo format --continue -- --write --cache --cache-location node_modules/.cache/.prettiercache",
     "lint": "turbo lint --continue -- --cache --cache-location node_modules/.cache/.eslintcache",
     "lint:fix": "turbo lint --continue -- --fix --cache --cache-location node_modules/.cache/.eslintcache",

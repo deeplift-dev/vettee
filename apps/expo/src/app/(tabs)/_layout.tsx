@@ -51,14 +51,15 @@ export default function Layout() {
         name="animal-create"
         options={{
           headerShown: false,
+          presentation: "containedModal",
         }}
       />
       <Stack.Screen
         name="chat"
+        initialParams={{ conversationId: "123", animalId: "456" }}
         options={{
           headerShown: false,
-          presentation: "transparentModal",
-          animation: "fade",
+          presentation: "modal",
         }}
       />
     </Stack>

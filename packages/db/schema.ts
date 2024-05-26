@@ -37,6 +37,7 @@ export const animal = pgTable("animal", {
   name: varchar("name", { length: 256 }).notNull(),
   species: varchar("species", { length: 256 }),
   weight: numeric("weight"),
+  yearOfBirth: numeric("year_of_birth").notNull(),
   ownerId: varchar("owner_id", { length: 256 }),
   avatarUrl: varchar("avatar_url", { length: 256 }),
   createdAt: timestamp("created_at")

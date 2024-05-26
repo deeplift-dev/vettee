@@ -20,7 +20,16 @@ export const profileRouter = createTRPCRouter({
       .from(schema.profile)
       .where(eq(schema.profile.id, ctx.user.id));
   }),
+  animals: protectedProcedure.query(async ({ ctx }) => {
+    const result = await ctx.db
+      .select()
+      .from(schema.animal)
+      .where(eq(schema.animal.ownerId, ctx.user.id));
 
+    console.log("has animals call", result);
+
+    return result;
+  }),
   create: protectedProcedure
     .input(
       z.object({

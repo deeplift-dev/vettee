@@ -14,15 +14,19 @@ import {
 } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { BlurView } from "expo-blur";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { AddIcon, Badge, BadgeIcon, BadgeText } from "@gluestack-ui/themed";
 import BottomSheet from "@gorhom/bottom-sheet";
 
 import LogoText from "~/components/ui/logo/logo-text";
 
 const ChatPage = () => {
+  const { animalId, conversationId } = useLocalSearchParams<{
+    animalId: string;
+    conversationId: string;
+  }>();
   const router = useRouter();
-  const [isChatLoading, setIsChatLoading] = useState(true);
+
   const [messages, setMessages] = useState([
     {
       id: 1,

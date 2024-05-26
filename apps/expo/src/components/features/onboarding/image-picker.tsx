@@ -1,20 +1,19 @@
-import { useEffect, useState } from "react";
-import { Button, Image, Pressable, StyleSheet, View } from "react-native";
+import { useState } from "react";
+import { Image, Pressable, StyleSheet, View } from "react-native";
 // import * as Clipboard from "expo-clipboard";
 import Constants from "expo-constants";
 import * as ExpoImagePicker from "expo-image-picker";
 import { Text } from "@gluestack-ui/themed";
+import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import { Amplify } from "aws-amplify";
-import { downloadData, getUrl, uploadData } from "aws-amplify/storage";
 
-import { BaseButton } from "~/components/ui/buttons/base-button";
-import { api } from "~/utils/api";
+import { downloadPresignedUrl, uploadImage } from "~/utils/helpers/images";
 import amplifyconfig from "../../../amplifyconfiguration.json";
 
 Amplify.configure(amplifyconfig);
 
 interface ImagePickerProps {
-  onUploadComplete: (url: string) => void;
+  onUploadComplete: (params: { fileName: string; url: string }) => void;
   setIsLoading: (isLoading: boolean) => void;
 }
 
@@ -23,6 +22,8 @@ export default function ImagePicker({
   setIsLoading,
 }: ImagePickerProps) {
   const [image, setImage] = useState(null);
+
+  const supabase = useSupabaseClient();
 
   const checkPermissions = async () => {
     if (Constants?.platform?.ios) {
@@ -44,6 +45,7 @@ export default function ImagePicker({
     const result = await ExpoImagePicker.launchCameraAsync({
       mediaTypes: ExpoImagePicker.MediaTypeOptions.Images,
       aspect: [4, 3],
+      base64: true,
     });
 
     await handleImagePicked(result);
@@ -55,6 +57,7 @@ export default function ImagePicker({
       mediaTypes: ExpoImagePicker.MediaTypeOptions.Images,
       aspect: [4, 3],
       quality: 1,
+      base64: true,
     });
 
     await handleImagePicked(result);
@@ -63,11 +66,6 @@ export default function ImagePicker({
   const handleImagePicked = async (
     pickerResult: ExpoImagePicker.ImagePickerResult,
   ) => {
-    if (pickerResult.canceled) {
-      alert("Upload cancelled");
-      return;
-    }
-
     if (!pickerResult.assets?.[0]?.fileName) {
       alert("Issue picking image.");
       return;
@@ -77,9 +75,24 @@ export default function ImagePicker({
     try {
       setIsLoading(true);
       const img = await fetchImageFromUri(pickerResult.assets[0].uri);
-      await uploadImage(pickerResult.assets[0].fileName, img);
-      const urlResult = await downloadImage(pickerResult.assets[0].fileName);
-      onUploadComplete(pickerResult.assets[0].fileName);
+      await uploadImage(
+        supabase,
+        "animal-profiles",
+        pickerResult.assets[0].fileName,
+        img,
+      );
+      const urlResult = await downloadPresignedUrl(
+        supabase,
+        pickerResult.assets[0].fileName,
+        "animal-profiles",
+      );
+
+      if (!urlResult) throw new Error("Failed to get public URL");
+
+      onUploadComplete({
+        fileName: pickerResult.assets[0].fileName,
+        url: urlResult,
+      });
     } catch (e) {
       console.log(e);
       alert("Something went wrong. Please try again.");
@@ -88,41 +101,11 @@ export default function ImagePicker({
     }
   };
 
-  const uploadImage = async (
-    filename: string,
-    img: Blob | ArrayBufferView | ArrayBuffer | string,
-  ) => {
-    try {
-      const result = await uploadData({
-        key: filename,
-        data: img,
-      }).result;
-
-      return result;
-      console.log("Succeeded in uploading: ", result);
-    } catch (error) {
-      console.log("Error : ", error);
-    }
-  };
-
-  const downloadImage = async (filename: string) => {
-    const getUrlResult = await getUrl({
-      key: filename,
-      options: {
-        accessLevel: "guest", // can be 'private', 'protected', or 'guest' but defaults to `guest`
-        validateObjectExistence: false, // defaults to false
-        expiresIn: 20, // validity of the URL, in seconds. defaults to 900 (15 minutes) and maxes at 3600 (1 hour)
-        // useAccelerateEndpoint: true, // Whether to use accelerate endpoint.
-      },
-    });
-
-    return getUrlResult;
-  };
-
   const fetchImageFromUri = async (uri) => {
     const response = await fetch(uri);
     const blob = await response.blob();
-    return blob;
+    const arrayBuffer = await new Response(blob).arrayBuffer();
+    return arrayBuffer;
   };
 
   return (
