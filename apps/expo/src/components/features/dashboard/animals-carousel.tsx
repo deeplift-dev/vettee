@@ -101,6 +101,14 @@ const AnimalsCarousel: React.FC<AnimalsCarouselProps> = ({
               />
             </View>
           ))}
+          <Pressable
+            onPress={() => navigation.navigate("animal-create")}
+            className="mr-2 h-64 w-40 items-center rounded-xl border border-gray-300 bg-gray-200"
+          >
+            <Text className="text-center font-medium text-slate-800">
+              Add New Animal
+            </Text>
+          </Pressable>
         </View>
       </ScrollView>
     </View>

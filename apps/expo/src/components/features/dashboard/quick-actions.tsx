@@ -22,17 +22,19 @@ const QuickActions = () => {
       <Text variant="subtitle" className="font-medium text-slate-700">
         Quick actions
       </Text>
-      {shuffledActions.map((action, index) => (
-        <Pressable
-          key={index}
-          onPress={() => navigation.navigate(action.navigateTo)}
-          className="m-1 rounded-lg border border-gray-300 bg-gray-50 p-2"
-        >
-          <Text className="p-2 text-sm font-medium text-slate-800">
-            {action.label}
-          </Text>
-        </Pressable>
-      ))}
+      <View className="grid grid-cols-2">
+        {actions.map((action, index) => (
+          <Pressable
+            key={index}
+            onPress={() => navigation.navigate(action.navigateTo)}
+            className="m-1 rounded-lg border border-gray-300 bg-gray-50"
+          >
+            <Text className="p-2 text-sm font-medium text-slate-800">
+              {action.label}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
     </View>
   );
 };
