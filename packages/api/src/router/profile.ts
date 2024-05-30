@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { eq, schema } from "@acme/db";
+import { desc, eq, schema } from "@acme/db";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
@@ -24,9 +24,8 @@ export const profileRouter = createTRPCRouter({
     const result = await ctx.db
       .select()
       .from(schema.animal)
+      .orderBy(desc(schema.animal.createdAt))
       .where(eq(schema.animal.ownerId, ctx.user.id));
-
-    console.log("has animals call", result);
 
     return result;
   }),

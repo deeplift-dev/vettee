@@ -242,7 +242,7 @@ const BasicAnimalInfoCard = ({
             }}
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
-                placeholder="Fido"
+                placeholder="Bingo"
                 onBlur={onBlur}
                 autoFocus={true}
                 value={value}
@@ -432,7 +432,7 @@ const CheckAnimalType = ({
           </Text>
         </View>
         <Text fontSize={20} className="text-left font-medium text-black">
-          Let's grab a nice, clear picture of {getValues().animalName} the{" "}
+          Let's grab a nice, clear picture of {getValues().animalName}the
           {getValues().animalType}, we'll use it for their profile picture.
           We'll also use it to gather some more basic details about{" "}
           {getValues().animalName}.

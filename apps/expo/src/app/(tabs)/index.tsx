@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { Link, Stack } from "expo-router";
+import { Link, Stack, useFocusEffect } from "expo-router";
 import {
   Box,
   Button,
@@ -18,8 +18,19 @@ import { HomeHeader } from "~/components/ui/headers/dashboard-header";
 import { api } from "~/utils/api";
 
 const Index = () => {
-  const { data: animals, isLoading, error } = api.profile.animals.useQuery();
+  const {
+    data: animals,
+    isLoading,
+    error,
+    refetch,
+  } = api.profile.animals.useQuery();
   const hasAnimals = animals && animals.length > 0;
+
+  useFocusEffect(
+    React.useCallback(() => {
+      refetch();
+    }, [refetch]),
+  );
 
   return (
     <View h="$full" w="$full">

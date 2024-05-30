@@ -25,12 +25,12 @@ export default function ProfileButton() {
     user?.user_metadata.full_name ||
     "Unknown";
 
-  console.log("user", profile);
+  console.log("user", user);
   return (
     <Link href="/modal">
       <Avatar bgColor="$green200" size="md" borderRadius="$full">
+        <AvatarImage source={{ uri: user?.user_metadata.avatar_url }} />
         <AvatarFallbackText color="$black">{name}</AvatarFallbackText>
-        <AvatarImage src={user?.user_metadata.picture} />
       </Avatar>
     </Link>
   );

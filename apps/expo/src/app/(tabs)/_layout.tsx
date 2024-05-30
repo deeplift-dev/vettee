@@ -56,7 +56,6 @@ export default function Layout() {
       />
       <Stack.Screen
         name="chat"
-        initialParams={{ conversationId: "123", animalId: "456" }}
         options={{
           headerShown: false,
           presentation: "modal",

@@ -248,7 +248,7 @@ const BasicAnimalInfoCard = ({
               render={({ field: { onChange, onBlur, value } }) => (
                 <BaseInput
                   label="What's your pet's name?"
-                  placeholder="Fido"
+                  placeholder="Bingo"
                   onChangeText={(value) => {
                     setValue("animalName", value);
                   }}

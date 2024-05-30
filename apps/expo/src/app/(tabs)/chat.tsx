@@ -1,9 +1,10 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Button,
   Image,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -12,13 +13,14 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import Animated, { FadeIn } from "react-native-reanimated";
-import { BlurView } from "expo-blur";
+import Animated, { FadeIn, FadeOutLeft } from "react-native-reanimated";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { AddIcon, Badge, BadgeIcon, BadgeText } from "@gluestack-ui/themed";
+import { AntDesign, Feather } from "@expo/vector-icons";
+import { AddIcon } from "@gluestack-ui/themed";
 import BottomSheet from "@gorhom/bottom-sheet";
 
 import LogoText from "~/components/ui/logo/logo-text";
+import { api } from "~/utils/api";
 
 const ChatPage = () => {
   const { animalId, conversationId } = useLocalSearchParams<{
@@ -27,22 +29,15 @@ const ChatPage = () => {
   }>();
   const router = useRouter();
 
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      text: "Hello, how can I help you today?",
-      sender: "ai",
-      avatar:
-        "https://avataaars.io/?avatarStyle=Circle&topType=LongHairStraight&accessoriesType=Blank&hairColor=BrownDark&facialHairType=Blank&clotheType=BlazerShirt&eyeType=Default&eyebrowType=Default&mouthType=Default&skinColor=Light",
-    },
-    {
-      id: 2,
-      text: "I need assistance with my account.",
-      sender: "user",
-      avatar:
-        "https://avataaars.io/?avatarStyle=Circle&topType=LongHairStraight&accessoriesType=Blank&hairColor=BrownDark&facialHairType=Blank&clotheType=BlazerShirt&eyeType=Default&eyebrowType=Default&mouthType=Default&skinColor=Light",
-    },
-  ]);
+  const { data: animal, isLoading } = api.animal.getById.useQuery({
+    id: animalId,
+  });
+
+  useEffect(() => {
+    initialiseChat(conversationId, animalId);
+  }, [conversationId, animalId]);
+
+  const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState("");
   const bottomSheetRef = useRef(null);
 
@@ -65,14 +60,50 @@ const ChatPage = () => {
     bottomSheetRef.current?.close();
   };
 
+  const initialiseChat = (conversationId: string, animalId: string) => {
+    if (conversationId) {
+      // Fetch the existing conversation using the conversationId
+      fetchConversation(conversationId);
+    } else {
+      // Initiate the intake sequence if no conversationId is provided
+      initiateIntakeSequence();
+    }
+  };
+
+  const fetchConversation = (conversationId: string) => {
+    // Fetch the existing conversation from the server
+    console.log("Fetching conversation...");
+  };
+
+  const initiateIntakeSequence = () => {
+    // Start the intake sequence
+    // This will create a new conversation and send the first message
+    console.log("Initiating intake sequence...");
+  };
+
+  const [viewVisible, setViewVisible] = useState(true);
+
+  const hideViewAfterTimeout = (timeout) => {
+    setTimeout(() => {
+      setViewVisible(false);
+    }, timeout);
+  };
+
+  useEffect(() => {
+    // Hide the view after 5000 milliseconds (5 seconds)
+    hideViewAfterTimeout(5000);
+  }, []);
+
   return (
-    <BlurView intensity={10000} style={styles.fullSize}>
+    <View style={styles.fullSize}>
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.header}>
           <Animated.View>
             <LogoText />
           </Animated.View>
-          <Button title="Options" onPress={openBottomSheet} />
+          <Pressable onPress={openBottomSheet}>
+            <Feather name="more-horizontal" size={40} color="black" />
+          </Pressable>
         </View>
         <KeyboardAvoidingView
           style={styles.container}
@@ -95,56 +126,119 @@ const ChatPage = () => {
               </Animated.View>
             ))}
           </ScrollView>
-          <View className="w-full border-t border-slate-300 bg-white">
-            <View className="flex w-full flex-row items-center gap-2 self-start border-b border-slate-300 bg-slate-50 px-2 pb-2 pt-2">
-              <View>
-                <Text className="font-medium text-slate-600">Focus:</Text>
-              </View>
-              <View className="flex flex-row rounded-full border border-slate-300 bg-white px-2 py-1">
-                <View className="h-6 w-6 rounded-full bg-slate-300"></View>
-                <View className="ml-2 pt-0.5">
-                  <Text>Jetson</Text>
+          {animal && (
+            <Animated.View
+              entering={FadeIn.springify().duration(300).delay(500)}
+              className="w-full border-t border-slate-300 bg-white"
+            >
+              <Animated.View
+                entering={FadeIn.springify().duration(500).delay(700)}
+                className="flex w-full flex-row items-center gap-2 self-start border-b border-slate-300 bg-slate-50 px-2 pb-2 pt-2"
+              >
+                {viewVisible ? (
+                  <Animated.View
+                    entering={FadeIn.springify().duration(400)}
+                    exiting={FadeOutLeft.springify().duration(500)}
+                    className="flex flex-row items-center gap-2"
+                  >
+                    <View>
+                      <Text className="font-medium text-slate-600">
+                        Talking about
+                      </Text>
+                    </View>
+                    <View className="flex flex-row rounded-full border border-slate-300 bg-white px-2 py-1">
+                      <>
+                        <View className="h-6 w-6 rounded-full bg-slate-300"></View>
+                        <View className="ml-2 pt-0.5">
+                          <Text>{animal.name}</Text>
+                        </View>
+                      </>
+                    </View>
+                  </Animated.View>
+                ) : (
+                  <View className="flex flex-row rounded-full border border-slate-300 bg-white px-2 py-1">
+                    <>
+                      <View className="h-6 w-6 rounded-full bg-slate-300"></View>
+                      <View className="ml-2 pt-0.5">
+                        <Text>{animal.name}</Text>
+                      </View>
+                    </>
+                  </View>
+                )}
+              </Animated.View>
+              <View className="flex flex-row items-center justify-center gap-2 p-2">
+                <View>
+                  <AddIcon size="xl" />
                 </View>
+                <TextInput
+                  style={styles.input}
+                  value={inputText}
+                  onChangeText={setInputText}
+                  onSubmitEditing={handleSend}
+                  placeholder="Type your message here..."
+                  returnKeyType="send"
+                />
               </View>
-            </View>
-            <View className="flex flex-row items-center justify-center gap-2 p-2">
-              <View>
-                <AddIcon size="xl" />
-              </View>
-              <TextInput
-                style={styles.input}
-                value={inputText}
-                onChangeText={setInputText}
-                onSubmitEditing={handleSend}
-                placeholder="Type your message here..."
-                returnKeyType="send"
-              />
-            </View>
-          </View>
+            </Animated.View>
+          )}
         </KeyboardAvoidingView>
       </SafeAreaView>
       <BottomSheet
         ref={bottomSheetRef}
         index={-1}
-        snapPoints={["25%", "50%"]}
+        snapPoints={["25%"]}
         enablePanDownToClose={true}
         onClose={closeBottomSheet}
       >
-        <TouchableWithoutFeedback onPress={closeBottomSheet}>
-          <View style={styles.bottomSheetContent}>
-            <Button title="Leave" onPress={() => router.back()} />
-            <Button title="New" onPress={() => console.log("New")} />
-            <Button title="Rename" onPress={() => console.log("Rename")} />
+        <TouchableWithoutFeedback
+          className="border-t border-gray-800 shadow"
+          onPress={closeBottomSheet}
+        >
+          <View className="flex flex-col justify-between px-4 pt-2">
+            <Pressable onPress={() => router.back()}>
+              <View className="flex w-full flex-row items-center space-x-4 rounded-xl border border-gray-300 bg-white px-4 py-3">
+                <AntDesign
+                  className="mr-4"
+                  name="logout"
+                  size={20}
+                  color="black"
+                />
+                <Text className="text-xl font-medium">Save chat and close</Text>
+              </View>
+            </Pressable>
+            <Pressable onPress={() => router.back()}>
+              <View className="mt-2 flex w-full flex-row items-center space-x-4 rounded-xl border border-gray-300 bg-white px-4 py-3">
+                <AntDesign
+                  className="mr-4"
+                  name="staro"
+                  size={20}
+                  color="black"
+                />
+                <Text className="text-xl font-medium">Add to favourites</Text>
+              </View>
+            </Pressable>
+            <Pressable onPress={() => router.back()}>
+              <View className="mt-2 flex w-full flex-row items-center space-x-4 rounded-xl border border-gray-300 bg-white px-4 py-3">
+                <Feather
+                  className="mr-4"
+                  name="settings"
+                  size={20}
+                  color="black"
+                />
+                <Text className="text-xl font-medium">Settings</Text>
+              </View>
+            </Pressable>
           </View>
         </TouchableWithoutFeedback>
       </BottomSheet>
-    </BlurView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   fullSize: {
     flex: 1,
+    backgroundColor: "#FFF",
   },
   safeArea: {
     flex: 1,

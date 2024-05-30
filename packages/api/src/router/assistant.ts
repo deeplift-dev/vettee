@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import OpenAI from "openai";
 import { z } from "zod";
 
@@ -107,6 +108,48 @@ export const assistantRouter = createTRPCRouter({
         return response;
       } catch (error) {
         console.log(error);
+      }
+    }),
+  intakeAnimalProcedure: publicProcedure
+    .input(
+      z.object({
+        animalId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      try {
+        const questions = [
+          "What are the current medications for the animal, if any?",
+          "Are there any ongoing medical concerns for the animal?",
+          "Is the pet desexed (neutered or spayed)?",
+        ];
+
+        const response = await openai.chat.completions.create({
+          stream: false,
+          model: "gpt-4",
+          max_tokens: 150,
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are an assistant helping with the intake of a new animal at a veterinary clinic. Please ask the following questions to the user.",
+            },
+            {
+              role: "assistant",
+              content: questions.join("\n"),
+            },
+          ],
+        });
+
+        console.log("OpenAI response -- ", response);
+        return response;
+      } catch (error) {
+        console.error("Failed to process intake through OpenAI:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to process animal intake through OpenAI",
+        });
       }
     }),
 });

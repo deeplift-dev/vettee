@@ -1,8 +1,12 @@
 import React from "react";
 import { Pressable, ScrollView, View } from "react-native";
+import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
+import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "expo-router";
+import { Feather } from "@expo/vector-icons";
 
-import type { RouterOutputs } from "~/trpc/server";
+import type { RouterOutputs } from "@acme/api";
+
 import Text from "~/components/ui/text";
 import AnimalCard from "./animal-card";
 
@@ -76,7 +80,10 @@ const AnimalsCarousel: React.FC<AnimalsCarouselProps> = ({
 
   return (
     <View className="my-4 w-full">
-      <View className="w-full flex-row items-center justify-between px-5">
+      <Animated.View
+        className="w-full flex-row items-center justify-between px-5"
+        entering={FadeIn.duration(800)}
+      >
         <Text variant="subtitle" className="font-medium text-slate-700">
           My animals
         </Text>
@@ -86,26 +93,44 @@ const AnimalsCarousel: React.FC<AnimalsCarouselProps> = ({
         >
           <Text className="font-medium text-slate-50">Add animal</Text>
         </Pressable>
-      </View>
+      </Animated.View>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         className="flex-row p-2.5"
       >
         <View className="flex-row p-2.5">
-          {animals.map((animal) => (
-            <View className="max-w-full" key={animal.id}>
+          {animals.map((animal: any, index: number) => (
+            <Animated.View
+              className="max-w-full"
+              key={animal.id}
+              entering={FadeInDown.delay(100 * index).duration(500)}
+              style={{ transform: [{ translateY: 30 * index }] }}
+            >
               <AnimalCard
                 animal={animal}
                 onEdit={() => handleEdit(animal.id)}
               />
-            </View>
+            </Animated.View>
           ))}
           <Pressable
             onPress={() => navigation.navigate("animal-create")}
-            className="mr-2 h-64 w-40 items-center rounded-xl border border-gray-300 bg-gray-200"
+            className=" mr-2 flex h-64 w-52 flex-col items-center justify-center rounded-xl border-2 border-dashed border-emerald-300 bg-gray-200"
           >
-            <Text className="text-center font-medium text-slate-800">
+            <LinearGradient
+              start={{ x: 0, y: 0 }}
+              end={{ x: 0.1, y: 1 }}
+              colors={["#00FFED", "#00B8BA"]}
+              style={{
+                width: "100%",
+                height: "100%",
+                position: "absolute",
+                borderRadius: 10,
+                opacity: 0.01,
+              }}
+            />
+            <Feather name="plus-circle" size={24} color="#00B8BA" />
+            <Text className="mt-4 text-center font-bold text-[#00B8BA]">
               Add New Animal
             </Text>
           </Pressable>

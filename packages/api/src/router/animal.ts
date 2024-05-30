@@ -27,4 +27,12 @@ export const animalRouter = createTRPCRouter({
         yearOfBirth: input.yearOfBirth.toString(),
       });
     }),
+
+  getById: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(({ ctx, input }) => {
+      return ctx.db.query.animal.findFirst({
+        where: eq(schema.animal.id, input.id),
+      });
+    }),
 });
