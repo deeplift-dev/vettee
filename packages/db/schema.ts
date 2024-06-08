@@ -29,7 +29,7 @@ export const profile = pgTable("profile", {
 
 export const profileRelations = relations(profile, ({ many }) => ({
   posts: many(post),
-  animals: many(animal),
+  assistants: many(assistant),
 }));
 
 export const animal = pgTable("animal", {
@@ -40,6 +40,49 @@ export const animal = pgTable("animal", {
   yearOfBirth: numeric("year_of_birth").notNull(),
   ownerId: varchar("owner_id", { length: 256 }),
   avatarUrl: varchar("avatar_url", { length: 256 }),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+});
+
+export const assistant = pgTable("assistant", {
+  id: varchar("id", { length: 256 }).primaryKey(),
+  name: varchar("name", { length: 256 }).notNull(),
+  instructions: varchar("instructions", { length: 256 }).notNull(),
+  model: varchar("model", { length: 256 }).notNull(),
+  profileId: varchar("profile_id", { length: 256 })
+    .notNull()
+    .references(() => profile.id),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+});
+
+export const assistantRelations = relations(assistant, ({ many }) => ({
+  threads: many(thread),
+  runs: many(run),
+  animals: many(animal),
+}));
+
+export const thread = pgTable("thread", {
+  id: varchar("id", { length: 256 }).primaryKey(),
+  assistantId: varchar("assistant_id", { length: 256 })
+    .notNull()
+    .references(() => assistant.id),
+  animalId: varchar("animal_id", { length: 256 }).references(() => animal.id),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+});
+
+export const run = pgTable("run", {
+  id: varchar("id", { length: 256 }).primaryKey(),
+  threadId: varchar("thread_id", { length: 256 })
+    .notNull()
+    .references(() => thread.id),
+  assistantId: varchar("assistant_id", { length: 256 })
+    .notNull()
+    .references(() => assistant.id),
   createdAt: timestamp("created_at")
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),

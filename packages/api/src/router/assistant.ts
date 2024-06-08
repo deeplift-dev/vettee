@@ -114,36 +114,49 @@ export const assistantRouter = createTRPCRouter({
     .input(
       z.object({
         animalId: z.string(),
+        userMessage: z.string().min(1),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
       try {
-        const questions = [
-          "What are the current medications for the animal, if any?",
-          "Are there any ongoing medical concerns for the animal?",
-          "Is the pet desexed (neutered or spayed)?",
-        ];
+        const assistant = await openai.beta.assistants.create({
+          name: "Intaking Vet",
+          instructions: `You are a highly capable, highly experienced and practical vet who has genuine and charming bedside manner 
+            who is tasked with intaking a new animal into your vet practice.
+            The user will provide you with the necessary information to complete the intake process. .`,
 
-        const response = await openai.chat.completions.create({
-          stream: false,
-          model: "gpt-4",
-          max_tokens: 150,
-          messages: [
-            {
-              role: "system",
-              content:
-                "You are an assistant helping with the intake of a new animal at a veterinary clinic. Please ask the following questions to the user.",
-            },
-            {
-              role: "assistant",
-              content: questions.join("\n"),
-            },
-          ],
+          // tools: [{ type: "code_interpreter" }],
+          model: "gpt-4o",
         });
 
-        console.log("OpenAI response -- ", response);
-        return response;
+        const thread = await openai.beta.threads.create();
+
+        const message = await openai.beta.threads.messages.create(thread.id, {
+          role: "user",
+          content: input.userMessage,
+        });
+
+        const run = await openai.beta.threads.runs.createAndPoll(thread.id, {
+          assistant_id: assistant.id,
+          instructions: `Please ask for 
+            any additional information you need to complete the intake process. At the very least I want you to A) 
+            ask if the animal is on any current or ongoing medications B) if the animal has any known allergies
+            C) if the animal has any known medical conditions D) If appropriate given the species, ask if the pet is neutered or spayed.
+            Please ask for any additional information you need to complete the intake process. Please do not ask all questions at once, 
+            ask one question at a time and wait for a response before asking the next question.`,
+        });
+
+        if (run.status === "completed") {
+          const messages = await openai.beta.threads.messages.list(
+            run.thread_id,
+          );
+          for (const message of messages.data.reverse()) {
+            console.log(`${message.role} > ${message?.content[0].text.value}`);
+          }
+        } else {
+          console.log(run.status);
+        }
       } catch (error) {
         console.error("Failed to process intake through OpenAI:", error);
         throw new TRPCError({

@@ -84,7 +84,8 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onEdit }) => {
           </Pressable>
         </View>
         <Image
-          source={{ uri: imageUrl || undefined }}
+          alt="Animal Image"
+          source={{ uri: imageUrl }}
           style={{ width: "100%", height: "100%", borderRadius: 10 }}
         />
         <LinearGradient

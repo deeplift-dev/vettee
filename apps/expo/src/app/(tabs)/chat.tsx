@@ -18,6 +18,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { AntDesign, Feather } from "@expo/vector-icons";
 import { AddIcon } from "@gluestack-ui/themed";
 import BottomSheet from "@gorhom/bottom-sheet";
+import { ref } from "yup";
 
 import LogoText from "~/components/ui/logo/logo-text";
 import { api } from "~/utils/api";
@@ -39,18 +40,127 @@ const ChatPage = () => {
 
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState("");
+  const [currentThreadId, setCurrentThreadId] = useState("");
+  const [currentRunId, setCurrentRunId] = useState("");
+  const [currentAssistantId, setCurrentAssistantId] = useState("");
   const bottomSheetRef = useRef(null);
 
-  const handleSend = () => {
-    const newMessage = {
-      id: messages.length + 1,
-      text: inputText,
-      sender: "user",
-      avatar: "path/to/user/avatar.png",
-    };
-    setMessages([...messages, newMessage]);
-    setInputText("");
+  const { mutateAsync: createIntakeAssistant } =
+    api.intakeAssistant.createAssistant.useMutation({
+      async onSuccess(assistant) {
+        console.log("Intake Assistant created successfully:", assistant);
+      },
+      async onError(error) {
+        console.error("Error creating Intake Assistant:", error);
+      },
+    });
+
+  const { mutateAsync: createIntakeThread } =
+    api.intakeAssistant.createThread.useMutation({
+      async onSuccess(thread) {
+        console.log("Intake Thread created successfully:", thread);
+      },
+      async onError(error) {
+        console.error("Error creating Intake Thread:", error);
+      },
+    });
+
+  const { mutateAsync: createIntakeRun } =
+    api.intakeAssistant.createRun.useMutation({
+      async onSuccess(run) {
+        console.log("Intake Run created successfully:", run);
+      },
+      async onError(error) {
+        console.error("Error creating Intake Run:", error);
+      },
+    });
+
+  const { mutateAsync: createMessage } =
+    api.intakeAssistant.createMessage.useMutation({
+      async onSuccess(message) {
+        fetchMessages();
+        console.log("Message created successfully:", message);
+      },
+      async onError(error) {
+        console.error("Error creating message:", error);
+      },
+    });
+
+  const { mutate: fetchRunSteps, data: runSteps } =
+    api.intakeAssistant.getRunSteps.useMutation();
+
+  const {
+    data: threadMessages,
+    error: fetchMessagesError,
+    refetch: fetchMessages,
+  } = api.intakeAssistant.getMessages.useQuery(
+    {
+      threadId: currentThreadId,
+    },
+    {
+      enabled: !!currentThreadId,
+    },
+  );
+
+  useEffect(() => {
+    if (threadMessages?.data) {
+      const formattedMessages = threadMessages.data.map((msg) => ({
+        id: msg.id,
+        text: msg.content.map((content) => content.text.value).join(" "),
+        sender: msg.role,
+        timestamp: new Date(msg.created_at * 1000).toLocaleString(),
+      }));
+      setMessages(formattedMessages);
+    }
+  }, [threadMessages]);
+
+  useEffect(() => {
+    if (currentThreadId && currentRunId) {
+      fetchRunSteps({ threadId: currentThreadId, runId: currentRunId });
+    }
+  }, [currentThreadId, currentRunId, fetchRunSteps]);
+
+  const handleSend = async () => {
+    try {
+      const messageResult = await createMessage({
+        threadId: currentThreadId,
+        role: "user",
+        content: inputText,
+      });
+
+      createIntakeRun({
+        threadId: currentThreadId,
+        assistantId: currentAssistantId,
+      });
+
+      if (!messageResult) {
+        throw new Error("Failed to send message");
+      }
+
+      fetchMessages();
+
+      setInputText("");
+    } catch (error) {
+      console.error("Error in sending message: ", error);
+    }
   };
+
+  const pollMessages = () => {
+    const interval = setInterval(() => {
+      if (currentThreadId) {
+        fetchMessages();
+      } else {
+        clearInterval(interval);
+      }
+    }, 5000); // Polling every 5 seconds
+
+    return () => clearInterval(interval);
+  };
+
+  useEffect(() => {
+    const stopPolling = pollMessages();
+    return () => stopPolling();
+  }, [currentThreadId, fetchMessages]);
 
   const openBottomSheet = () => {
     bottomSheetRef.current?.expand();
@@ -75,10 +185,22 @@ const ChatPage = () => {
     console.log("Fetching conversation...");
   };
 
-  const initiateIntakeSequence = () => {
+  const initiateIntakeSequence = async () => {
     // Start the intake sequence
     // This will create a new conversation and send the first message
-    console.log("Initiating intake sequence...");
+    const assistant = await createIntakeAssistant({
+      name: "Intake Assistant",
+      animalId: animalId,
+    });
+    const thread = await createIntakeThread();
+    const run = await createIntakeRun({
+      threadId: thread.id,
+      assistantId: assistant.id,
+    });
+
+    setCurrentAssistantId(assistant.id);
+    setCurrentThreadId(thread.id);
+    setCurrentRunId(run.id);
   };
 
   const [viewVisible, setViewVisible] = useState(true);
