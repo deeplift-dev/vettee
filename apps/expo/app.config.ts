@@ -9,11 +9,13 @@ import type { ExpoConfig } from "@expo/config";
 //   );
 // }
 
+const packageJson = require("../../package.json");
+
 const defineConfig = (): ExpoConfig => ({
   name: "vettee",
   slug: "vettee",
   scheme: "vettee",
-  version: "0.0.1",
+  version: packageJson.version,
   orientation: "portrait",
   icon: "./assets/icon.png",
   userInterfaceStyle: "dark",
