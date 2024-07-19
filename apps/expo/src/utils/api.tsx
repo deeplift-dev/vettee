@@ -20,24 +20,10 @@ export { type RouterInputs, type RouterOutputs } from "@acme/api";
  */
 const getBaseUrl = () => {
   /**
-   * Returns the API URL based on the environment.
-   * In development, it uses the localhost address.
-   * In production, it uses the API_URL from the environment variables.
+   * Retrieves the API URL from the environment variables.
+   * Ensure that EXPO_PUBLIC_API_URL is set in your environment configuration.
    */
-
-  if (process.env.NODE_ENV === "development") {
-    return process.env.EXPO_PUBLIC_API_URL;
-  } else {
-    const debuggerHost = Constants.expoConfig?.hostUri;
-    const localhost = debuggerHost?.split(":")[0];
-
-    if (!localhost) {
-      throw new Error(
-        "Failed to get localhost. Please point to your production server.",
-      );
-    }
-    return `http://${localhost}:3000`;
-  }
+  return process.env.EXPO_PUBLIC_API_URL;
 };
 
 /**

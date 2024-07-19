@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "clean": "git clean -xdf .expo .turbo node_modules",
-    "dev": "NODE_ENV=local expo start --ios --dev-client",
-    "dev:android": "NODE_ENV=local expo start --android --dev-client",
-    "dev:ios": "NODE_ENV=local expo start --ios --dev-client",
+    "dev": "NODE_ENV=development expo start --ios --dev-client",
+    "dev:android": "NODE_ENV=development expo start --android --dev-client",
+    "dev:ios": "NODE_ENV=development expo start --ios --dev-client",
     "lint": "eslint .",
     "format": "prettier --check . --ignore-path ../../.gitignore",
     "typecheck": "tsc --noEmit",
