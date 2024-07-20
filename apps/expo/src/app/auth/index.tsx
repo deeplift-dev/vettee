@@ -1,13 +1,5 @@
-import { Platform } from "react-native";
-import { Link } from "expo-router";
-import {
-  Button,
-  ButtonText,
-  KeyboardAvoidingView,
-  View,
-  VStack,
-} from "@gluestack-ui/themed";
-import create from "zustand";
+import { Button, View, VStack } from "@gluestack-ui/themed";
+import { create } from "zustand";
 
 import AuthSheet from "~/components/features/auth/sheets/auth-sheet";
 import MarqueeCarousel from "~/components/features/onboarding/marquee-carousel";
