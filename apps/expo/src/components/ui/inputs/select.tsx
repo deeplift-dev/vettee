@@ -60,18 +60,18 @@ export default function BaseSelect(props: SelectProps) {
           isFocused={false}
           onValueChange={props.onValueChange}
         >
-          <Box borderWidth={1} borderColor="$blue100" borderRadius={10}>
+          <Box borderWidth={0.3} borderColor="$blue100" borderRadius={10}>
             <SelectTrigger
               variant="outline"
               size="xl"
               height={45}
-              borderRadius={10}
+              borderRadius={5}
               backgroundColor="white"
               py={0}
             >
               <SelectInput
                 fontFamily="$mono"
-                fontSize={18}
+                fontSize="$md"
                 placeholder={
                   props.placeholder ? props.placeholder : "Select option"
                 }

@@ -32,7 +32,7 @@ export function BaseButton({
       <View
         className={`
       w-full
-      rounded-lg
+      rounded
       font-bold
       ${className}
       ${variantStyles.default}

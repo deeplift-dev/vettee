@@ -7,12 +7,17 @@ import { createTRPCRouter, protectedProcedure } from "../trpc";
 export const profileRouter = createTRPCRouter({
   byId: protectedProcedure
     .input(z.object({ id: z.string() }))
-    .query(({ ctx, input }) => {
-      console.log("made it here", input);
-      return ctx.db
+    .query(async ({ ctx, input }) => {
+      const profile = await ctx.db
         .select()
         .from(schema.profile)
         .where(eq(schema.profile.id, input.id));
+
+      if (!profile.length) {
+        throw new Error("Profile not found");
+      }
+
+      return profile;
     }),
   getCurrentUserProfile: protectedProcedure.query(({ ctx }) => {
     return ctx.db
@@ -37,10 +42,14 @@ export const profileRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const [existingProfile] = await ctx.db
+      console.log("input----", input);
+      const existingProfile = await ctx.db
         .select()
         .from(schema.profile)
-        .where(eq(schema.profile.id, ctx.user.id));
+        .where(eq(schema.profile.id, ctx.user.id))
+        .then((profiles) => profiles[0]);
+
+      console.log("existingProfile----", existingProfile);
 
       if (existingProfile) {
         await ctx.db
@@ -55,7 +64,7 @@ export const profileRouter = createTRPCRouter({
         return existingProfile.id;
       }
 
-      const [newProfile] = await ctx.db
+      const newProfile = await ctx.db
         .insert(schema.profile)
         .values({
           id: ctx.user.id,
@@ -65,8 +74,9 @@ export const profileRouter = createTRPCRouter({
           lastName: input.last_name,
           onboardedAt: new Date(),
         })
-        .returning();
+        .returning()
+        .then((profiles) => profiles[0]);
 
-      return newProfile!.id;
+      return newProfile.id;
     }),
 });

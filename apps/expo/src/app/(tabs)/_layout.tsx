@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Redirect, Stack, useLocalSearchParams } from "expo-router";
 import { useSessionContext } from "@supabase/auth-helpers-react";
 
@@ -7,38 +8,47 @@ import { api } from "~/utils/api";
 export default function Layout() {
   const { session, isLoading } = useSessionContext();
   const searchParams = useLocalSearchParams();
+  const [isAuthed, setIsAuthed] = useState(false);
+  const [hasOnboarded, setHasOnboarded] = useState(false);
 
-  if (isLoading) {
+  useEffect(() => {
+    if (session?.user) {
+      setIsAuthed(true);
+    } else {
+      setIsAuthed(false);
+    }
+  }, [session]);
+
+  const {
+    data: profile,
+    isLoading: loadingProfile,
+    error,
+  } = api.profile.byId.useQuery(
+    { id: session?.user?.id },
+    { enabled: isAuthed },
+  );
+
+  useEffect(() => {
+    if (profile) {
+      const onboarded =
+        profile?.[0]?.onboardedAt ||
+        (searchParams?.params?.onboardingSuccess === "true" &&
+          searchParams?.screen === "index");
+      setHasOnboarded(!!onboarded);
+    }
+  }, [profile, searchParams]);
+
+  if (isLoading || loadingProfile) {
     return <LoadingFullscreen />;
   }
 
-  /**
-   * If the user is not authenticated, redirect them to the onboarding flow.
-   */
-  const isAuthed = session?.user;
+  if (error) {
+    console.error("Error fetching profile:", error);
+  }
 
   if (!isAuthed) {
     return <Redirect href="/auth/" />;
   }
-
-  /**
-   * If the user is authenticated, but has not onboarded, redirect them to the onboarding flow.
-   */
-  const {
-    data: profile,
-    isLoading: loadingProfile,
-    isPending,
-    isSuccess,
-  } = api.profile.byId.useQuery({ id: session.user.id });
-
-  if (loadingProfile || isPending || !isSuccess) {
-    return <LoadingFullscreen />;
-  }
-
-  const hasOnboarded =
-    profile?.[0]?.onboardedAt ||
-    (searchParams?.params?.onboardingSuccess === "true" &&
-      searchParams?.screen === "index");
 
   if (!hasOnboarded) {
     return <Redirect href="/onboarding/account" />;
