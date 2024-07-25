@@ -1,5 +1,11 @@
 # @acme/expo
 
+## 1.1.2
+
+### Patch Changes
+
+- Ensuring that works on Testflight
+
 ## 1.1.1
 
 ### Patch Changes
