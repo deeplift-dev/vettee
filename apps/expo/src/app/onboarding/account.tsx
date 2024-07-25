@@ -110,6 +110,7 @@ const IntroCard = ({ navigateToSlide }: IntroCardProps) => {
       router.push({ pathname: "/", params: { onboardingSuccess: "true" } });
     },
     onError: (error) => {
+      console.log("error----", error);
       if (error.data?.code === "UNAUTHORIZED")
         Alert.alert("Error", "You must be signed in to continue.");
     },
@@ -252,7 +253,6 @@ const NavigationControls = ({
             </Button>
           )}
           <Button
-            rounded="$2xl"
             size="xl"
             bg="$black"
             w="$full"

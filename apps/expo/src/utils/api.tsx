@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Constants from "expo-constants";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -20,24 +20,12 @@ export { type RouterInputs, type RouterOutputs } from "@acme/api";
  */
 const getBaseUrl = () => {
   /**
-   * Returns the API URL based on the environment.
-   * In development, it uses the localhost address.
-   * In production, it uses the API_URL from the environment variables.
+   * Retrieves the API URL from the environment variables.
+   * Ensure that EXPO_PUBLIC_API_URL is set in your environment configuration.
    */
-
-  if (process.env.NODE_ENV === "development") {
-    return process.env.EXPO_PUBLIC_API_URL;
-  } else {
-    const debuggerHost = Constants.expoConfig?.hostUri;
-    const localhost = debuggerHost?.split(":")[0];
-
-    if (!localhost) {
-      throw new Error(
-        "Failed to get localhost. Please point to your production server.",
-      );
-    }
-    return `http://${localhost}:3000`;
-  }
+  const baseUrl = process.env.EXPO_PUBLIC_API_URL;
+  console.log("Base URL:", baseUrl);
+  return baseUrl;
 };
 
 /**
@@ -48,8 +36,9 @@ export const TRPCProvider = (props: { children: React.ReactNode }) => {
   const supabase = useSupabaseClient();
 
   const [queryClient] = useState(() => new QueryClient());
-  const [trpcClient] = useState(() =>
-    api.createClient({
+  const [trpcClient] = useState(() => {
+    console.log("Initializing TRPC Client");
+    return api.createClient({
       transformer: superjson,
       links: [
         httpBatchLink({
@@ -60,7 +49,13 @@ export const TRPCProvider = (props: { children: React.ReactNode }) => {
 
             const { data } = await supabase.auth.getSession();
             const token = data.session?.access_token;
-            if (token) headers.set("authorization", token);
+            console.log("Supabase session data:", data);
+            if (token) {
+              console.log("Authorization token found:", token);
+              headers.set("authorization", token);
+            } else {
+              console.log("No authorization token found");
+            }
 
             return Object.fromEntries(headers);
           },
@@ -72,8 +67,15 @@ export const TRPCProvider = (props: { children: React.ReactNode }) => {
           colorMode: "ansi",
         }),
       ],
-    }),
-  );
+    });
+  });
+
+  useEffect(() => {
+    console.log("TRPCProvider mounted");
+    return () => {
+      console.log("TRPCProvider unmounted");
+    };
+  }, []);
 
   return (
     <api.Provider client={trpcClient} queryClient={queryClient}>
