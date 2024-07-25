@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Alert, Platform } from "react-native";
+import { Alert } from "react-native";
 import { router } from "expo-router";
 import {
   Button,
@@ -10,8 +10,6 @@ import {
   InputField,
   InputIcon,
   InputSlot,
-  KeyboardAvoidingView,
-  set,
   Text,
   VStack,
 } from "@gluestack-ui/themed";
@@ -50,13 +48,9 @@ export default function LoginForm() {
     setIsLoading(false);
     setIsGeneratingProfile(true);
 
-    console.log("made it to before call");
     const { data: profile } = await api.profile.byId.useQuery({
       id: data?.user?.id,
     });
-
-    console.log("made it to after call");
-    console.log("profile", profile);
 
     if (!profile) {
       const { error: profileError } = await api.profile.create.useMutation({
@@ -80,55 +74,50 @@ export default function LoginForm() {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={300}
-    >
-      <VStack space="xl">
-        <VStack space="xs">
-          <Text lineHeight="$xs">Email</Text>
-          <Input size="xl">
-            <InputField
-              autoCapitalize="none"
-              autoComplete="off"
-              type="text"
-              onChangeText={setEmail}
-              lineHeight="$lg"
-            />
-          </Input>
-        </VStack>
-        <VStack space="xs">
-          <Text lineHeight="$xs">Password</Text>
-          <Input size="xl">
-            <InputField
-              type={showPassword ? "text" : "password"}
-              onChangeText={setPassword}
-              lineHeight="$lg"
-            />
-            <InputSlot pr="$3" onPress={handleState}>
-              <InputIcon
-                as={showPassword ? EyeIcon : EyeOffIcon}
-                color="$darkBlue500"
-              />
-            </InputSlot>
-          </Input>
-        </VStack>
-        <Button
-          onPress={signInWithPassword}
-          bg={theme.colors.primary}
-          size="xl"
-          height={55}
-          rounded="$2xl"
-          isDisabled={isLoading}
-          boxShadow="lg"
-        >
-          {isLoading ? (
-            <ButtonText color="$black">Loading...</ButtonText>
-          ) : (
-            <ButtonText color="$black">Login</ButtonText>
-          )}
-        </Button>
+    <VStack space="xl">
+      <VStack space="xs">
+        <Text lineHeight="$xs">Email</Text>
+        <Input size="xl">
+          <InputField
+            autoCapitalize="none"
+            autoComplete="off"
+            type="text"
+            onChangeText={setEmail}
+            lineHeight="$lg"
+          />
+        </Input>
       </VStack>
-    </KeyboardAvoidingView>
+      <VStack space="xs">
+        <Text lineHeight="$xs">Password</Text>
+        <Input size="xl">
+          <InputField
+            type={showPassword ? "text" : "password"}
+            onChangeText={setPassword}
+            lineHeight="$lg"
+          />
+          <InputSlot pr="$3" onPress={handleState}>
+            <InputIcon
+              as={showPassword ? EyeIcon : EyeOffIcon}
+              color="$darkBlue500"
+            />
+          </InputSlot>
+        </Input>
+      </VStack>
+      <Button
+        onPress={signInWithPassword}
+        bg={theme.colors.primary}
+        size="xl"
+        height={55}
+        rounded="$2xl"
+        isDisabled={isLoading}
+        boxShadow="lg"
+      >
+        {isLoading ? (
+          <ButtonText color="$black">Loading...</ButtonText>
+        ) : (
+          <ButtonText color="$black">Login</ButtonText>
+        )}
+      </Button>
+    </VStack>
   );
 }

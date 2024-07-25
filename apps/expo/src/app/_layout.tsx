@@ -1,9 +1,12 @@
-import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
-import { StatusBar } from "expo-status-bar";
 import { GluestackUIProvider } from "@gluestack-ui/themed";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { SessionContextProvider } from "@supabase/auth-helpers-react";
+
+import "expo-dev-client";
+
+import { useFonts } from "expo-font";
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 
 import { TRPCProvider } from "../utils/api";
 import { supabase } from "../utils/supabase";

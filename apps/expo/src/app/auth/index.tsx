@@ -1,9 +1,9 @@
+import { KeyboardAvoidingView, Platform } from "react-native";
 import { Button, View, VStack } from "@gluestack-ui/themed";
 import { create } from "zustand";
 
 import AuthSheet from "~/components/features/auth/sheets/auth-sheet";
 import MarqueeCarousel from "~/components/features/onboarding/marquee-carousel";
-import { PageContainer } from "~/components/ui/page-container";
 import Text from "~/components/ui/text";
 import { theme } from "~/styles";
 
@@ -32,15 +32,19 @@ const Index = () => {
   );
 
   return (
-    <VStack>
-      <MarqueeCarousel autoPlay={autoPlay} activeSlide={activeSlide} />
-      <GetStarted
-        openSheet={() => {
-          setAutoPlay(false);
-          setActiveSlide(0);
-        }}
-      />
-    </VStack>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <VStack>
+        <MarqueeCarousel autoPlay={autoPlay} activeSlide={activeSlide} />
+        <GetStarted
+          openSheet={() => {
+            setAutoPlay(false);
+            setActiveSlide(0);
+          }}
+        />
+      </VStack>
+    </KeyboardAvoidingView>
   );
 };
 

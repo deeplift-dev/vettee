@@ -2,9 +2,9 @@ import { useState } from "react";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { makeRedirectUri } from "expo-auth-session";
 import * as QueryParams from "expo-auth-session/build/QueryParams";
-import { Redirect, router } from "expo-router";
+import { router } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
-import { AntDesign, Entypo, Ionicons } from "@expo/vector-icons";
+import { Entypo, Ionicons } from "@expo/vector-icons";
 import {
   Actionsheet,
   ActionsheetBackdrop,
@@ -20,7 +20,6 @@ import {
   VStack,
 } from "@gluestack-ui/themed";
 
-import { api } from "~/utils/api";
 import { supabase } from "~/utils/supabase";
 import LoginFrom from "../forms/login-form";
 
@@ -42,8 +41,11 @@ export default function AuthSheet({ trigger }: AuthSheetProps) {
           {trigger}
         </TouchableOpacity>
       )}
-
-      <Actionsheet isOpen={showActionsheet} onClose={handleClose} zIndex={999}>
+      <Actionsheet
+        isOpen={showActionsheet}
+        onClose={handleClose}
+        // zIndex={999}
+      >
         <ActionsheetBackdrop />
         <ActionsheetContent pb="$8" zIndex={999}>
           <ActionsheetDragIndicatorWrapper>
