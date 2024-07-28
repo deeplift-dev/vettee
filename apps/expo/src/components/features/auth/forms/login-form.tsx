@@ -29,44 +29,57 @@ export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGeneratingProfile, setIsGeneratingProfile] = useState(false);
 
+  const { data: profile, refetch: refetchProfile } = api.profile.byId.useQuery(
+    { id: "" },
+    { enabled: false },
+  );
+
+  const createProfileMutation = api.profile.create.useMutation();
+
   const signInWithPassword = async () => {
     setIsLoading(true);
     const { error, data } = isSignUp
-      ? await supabase.auth.signUp({
-          email,
-          password,
-        })
-      : await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-    if (error) Alert.alert("There was an issue signing you in", error.message);
-    else if (isSignUp && data.user) {
+      ? await supabase.auth.signUp({ email, password })
+      : await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      Alert.alert("There was an issue signing you in", error.message);
+      setIsLoading(false);
+      return;
+    }
+
+    if (isSignUp && data.user) {
       Alert.alert("Check your email for a confirmation link.");
       setIsSignUp(false);
+      setIsLoading(false);
+      return;
     }
-    setIsLoading(false);
-    setIsGeneratingProfile(true);
 
-    const { data: profile } = await api.profile.byId.useQuery({
-      id: data?.user?.id,
-    });
+    try {
+      setIsGeneratingProfile(true);
 
-    if (!profile) {
-      const { error: profileError } = await api.profile.create.useMutation({
-        id: data?.user?.id,
-        input: {
-          id: data?.user?.id,
-          username: data?.user?.email,
-          avatar: data?.user?.avatar_url,
-        },
-      });
-      if (profileError) {
-        Alert.alert("There was an issue creating your profile", error.message);
+      // Refetch profile with the user's ID
+      await refetchProfile({ id: data?.user?.id });
+
+      if (!profile) {
+        const result = await createProfileMutation.mutateAsync({});
+
+        if (result.error) {
+          Alert.alert(
+            "There was an issue creating your profile",
+            result.error.message,
+          );
+        }
       }
+    } catch (error) {
+      console.log(
+        "An error occurred",
+        error instanceof Error ? error.message : "An unknown error occurred",
+      );
+    } finally {
+      setIsGeneratingProfile(false);
+      setIsLoading(false);
     }
-
-    setIsGeneratingProfile(false);
 
     if (data?.user) {
       router.replace("/(tabs)");

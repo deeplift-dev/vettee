@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Redirect, Stack, useLocalSearchParams } from "expo-router";
 import { useSessionContext } from "@supabase/auth-helpers-react";
 
-import LoadingFullscreen from "~/components/ui/loading-fullscreen";
 import { api } from "~/utils/api";
 
 export default function Layout() {
@@ -38,21 +37,21 @@ export default function Layout() {
     }
   }, [profile, searchParams]);
 
-  if (isLoading || loadingProfile) {
-    return <LoadingFullscreen />;
-  }
+  // if (isLoading || loadingProfile) {
+  //   return <LoadingFullscreen />;
+  // }
 
-  if (error) {
-    console.error("Error fetching profile:", error);
-  }
+  // if (error) {
+  //   console.error("Error fetching profile:", error);
+  // }
 
   if (!isAuthed) {
     return <Redirect href="/auth/" />;
   }
 
-  if (!hasOnboarded) {
-    return <Redirect href="/onboarding/account" />;
-  }
+  // if (!hasOnboarded) {
+  //   return <Redirect href="/onboarding/account" />;
+  // }
 
   return (
     <Stack>

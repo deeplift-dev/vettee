@@ -37,8 +37,8 @@ export const profileRouter = createTRPCRouter({
   create: protectedProcedure
     .input(
       z.object({
-        first_name: z.string().min(1),
-        last_name: z.string().min(1),
+        first_name: z.string().optional(),
+        last_name: z.string().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
