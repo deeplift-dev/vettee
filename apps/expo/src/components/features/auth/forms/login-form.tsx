@@ -86,9 +86,12 @@ export default function LoginForm() {
     }
   };
 
+  const baseUrl = process.env.EXPO_PUBLIC_API_URL;
+
   return (
     <VStack space="xl">
       <VStack space="xs">
+        <Text>{baseUrl}</Text>
         <Text lineHeight="$xs">Email</Text>
         <Input size="xl">
           <InputField
