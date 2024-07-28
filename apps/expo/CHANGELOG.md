@@ -1,5 +1,11 @@
 # @acme/expo
 
+## 1.1.5
+
+### Patch Changes
+
+- Updating PUBLIC_API_URL
+
 ## 1.1.4
 
 ### Patch Changes
