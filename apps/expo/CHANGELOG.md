@@ -1,5 +1,11 @@
 # @acme/expo
 
+## 1.1.3
+
+### Patch Changes
+
+- Fix for KeyboardAvoidingView
+
 ## 1.1.2
 
 ### Patch Changes

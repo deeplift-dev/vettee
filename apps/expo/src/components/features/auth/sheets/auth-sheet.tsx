@@ -1,10 +1,11 @@
 import { useState } from "react";
+import { KeyboardAvoidingView, Platform } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { makeRedirectUri } from "expo-auth-session";
 import * as QueryParams from "expo-auth-session/build/QueryParams";
-import { Redirect, router } from "expo-router";
+import { router } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
-import { AntDesign, Entypo, Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import {
   Actionsheet,
   ActionsheetBackdrop,
@@ -14,13 +15,11 @@ import {
   Box,
   Button,
   Divider,
-  HStack,
   Text,
   View,
   VStack,
 } from "@gluestack-ui/themed";
 
-import { api } from "~/utils/api";
 import { supabase } from "~/utils/supabase";
 import LoginFrom from "../forms/login-form";
 
@@ -42,18 +41,26 @@ export default function AuthSheet({ trigger }: AuthSheetProps) {
           {trigger}
         </TouchableOpacity>
       )}
-
-      <Actionsheet isOpen={showActionsheet} onClose={handleClose} zIndex={999}>
-        <ActionsheetBackdrop />
-        <ActionsheetContent pb="$8" zIndex={999}>
-          <ActionsheetDragIndicatorWrapper>
-            <ActionsheetDragIndicator />
-          </ActionsheetDragIndicatorWrapper>
-          <AuthSteps
-            activeStep={activeStep}
-            nextStep={(step) => setActiveStep(step)}
-          />
-        </ActionsheetContent>
+      <Actionsheet
+        isOpen={showActionsheet}
+        onClose={handleClose}
+        // zIndex={999}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={{ width: "100%" }}
+        >
+          <ActionsheetBackdrop />
+          <ActionsheetContent pb="$8" zIndex={999}>
+            <ActionsheetDragIndicatorWrapper>
+              <ActionsheetDragIndicator />
+            </ActionsheetDragIndicatorWrapper>
+            <AuthSteps
+              activeStep={activeStep}
+              nextStep={(step) => setActiveStep(step)}
+            />
+          </ActionsheetContent>
+        </KeyboardAvoidingView>
       </Actionsheet>
     </Box>
   );
@@ -150,15 +157,14 @@ const IntroCard = ({ nextStep }: { nextStep: (step: AuthStep) => void }) => {
               <Text color="$white">Continue with Apple</Text>
             </HStack>
           </AuthButton> */}
-          <AuthButton onPress={signInWithFacebook}>
+          {/* <AuthButton onPress={signInWithFacebook}>
             <HStack space="md" alignItems="center" justifyContent="center">
               <Entypo name="facebook-with-circle" size={24} color="white" />
               <Text color="$white">Continue with Facebook</Text>
             </HStack>
           </AuthButton>
-          {/* <AuthButton onPress={() => router.replace("/(tabs)")}>
+          <AuthButton onPress={() => router.replace("/(tabs)")}>
             <HStack space="md" alignItems="center" justifyContent="center">
-              <AntDesign name="google" size={24} color="white" />
               <Text color="$white">Continue with Google</Text>
             </HStack>
           </AuthButton> */}

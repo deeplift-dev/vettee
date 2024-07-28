@@ -1,11 +1,8 @@
-import { Button, View, VStack } from "@gluestack-ui/themed";
+import { Button, Text, View, VStack } from "@gluestack-ui/themed";
 import { create } from "zustand";
 
 import AuthSheet from "~/components/features/auth/sheets/auth-sheet";
 import MarqueeCarousel from "~/components/features/onboarding/marquee-carousel";
-import { PageContainer } from "~/components/ui/page-container";
-import Text from "~/components/ui/text";
-import { theme } from "~/styles";
 
 interface Store {
   activeSlide: number | null;
@@ -54,14 +51,17 @@ const GetStarted = ({ openSheet }: GetStartedProps) => {
       trigger={
         <View px="$12">
           <Button
-            bg={theme.colors.primary}
-            onPress={() => openSheet()}
+            bg="$black"
             size="xl"
             height={55}
             rounded="$2xl"
-            boxShadow="lg"
+            borderWidth={1}
+            borderColor="$backgroundLight300"
+            onPress={() => openSheet()}
           >
-            <Text>Get started</Text>
+            <Text fontFamily="$mono" color="white">
+              Get started
+            </Text>
           </Button>
         </View>
       }
