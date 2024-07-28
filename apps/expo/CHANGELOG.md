@@ -1,5 +1,11 @@
 # @acme/expo
 
+## 1.1.4
+
+### Patch Changes
+
+- Checking if correct api is being provided.
+
 ## 1.1.3
 
 ### Patch Changes
