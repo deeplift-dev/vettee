@@ -1,22 +1,6 @@
 import { relations, sql } from "drizzle-orm";
 import { numeric, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
 
-export const post = pgTable("post", {
-  id: varchar("id", { length: 256 }).primaryKey(),
-  title: varchar("name", { length: 256 }).notNull(),
-  content: varchar("content", { length: 256 }).notNull(),
-  authorId: varchar("author_id", { length: 256 })
-    .notNull()
-    .references(() => profile.id),
-  createdAt: timestamp("created_at")
-    .default(sql`CURRENT_TIMESTAMP`)
-    .notNull(),
-});
-
-export const postRelations = relations(post, ({ one }) => ({
-  author: one(profile, { fields: [post.authorId], references: [profile.id] }),
-}));
-
 export const profile = pgTable("profile", {
   id: varchar("id", { length: 256 }).primaryKey(),
   firstName: varchar("first_name", { length: 256 }),
@@ -28,7 +12,6 @@ export const profile = pgTable("profile", {
 });
 
 export const profileRelations = relations(profile, ({ many }) => ({
-  posts: many(post),
   animals: many(animal),
 }));
 
@@ -47,4 +30,40 @@ export const animal = pgTable("animal", {
 
 export const animalRelations = relations(animal, ({ one }) => ({
   owner: one(profile, { fields: [animal.ownerId], references: [profile.id] }),
+}));
+
+export const assistant = pgTable("assistant", {
+  id: varchar("id", { length: 256 }).primaryKey(),
+  name: varchar("name", { length: 256 }),
+  instructions: varchar("instructions", { length: 256 }),
+  model: varchar("model", { length: 256 }),
+  profileId: varchar("profile_id", { length: 256 }),
+  createdAt: timestamp("created_at"),
+});
+
+export const assistantRelations = relations(assistant, ({ one }) => ({
+  profile: one(profile, {
+    fields: [assistant.profileId],
+    references: [profile.id],
+  }),
+}));
+
+export const thread = pgTable("thread", {
+  id: varchar("id", { length: 256 }).primaryKey(),
+  assistantId: varchar("assistant_id", { length: 256 }),
+  animalId: varchar("animal_id", { length: 256 }),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+});
+
+export const threadRelations = relations(thread, ({ one }) => ({
+  assistant: one(assistant, {
+    fields: [thread.assistantId],
+    references: [assistant.id],
+  }),
+  animal: one(animal, {
+    fields: [thread.animalId],
+    references: [animal.id],
+  }),
 }));

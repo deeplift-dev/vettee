@@ -1,7 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-  Button,
-  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -23,9 +21,10 @@ import LogoText from "~/components/ui/logo/logo-text";
 import { api } from "~/utils/api";
 
 const ChatPage = () => {
-  const { animalId, conversationId } = useLocalSearchParams<{
+  const { animalId, threadId, assistantId } = useLocalSearchParams<{
     animalId: string;
-    conversationId: string;
+    threadId: string;
+    assistantId: string;
   }>();
   const router = useRouter();
 
@@ -33,9 +32,72 @@ const ChatPage = () => {
     id: animalId,
   });
 
+  const createAssistant = api.assistant.createNew.useMutation({
+    onSuccess: (data) => {
+      router.setParams({ assistantId: data.id });
+      createThread.mutate();
+    },
+    onError: (error) => {
+      console.error("Error creating assistant:", error);
+    },
+  });
+
+  const createThread = api.assistant.createThread.useMutation({
+    onSuccess: (data) => {
+      router.setParams({ threadId: data.id });
+    },
+    onError: (error) => {
+      console.error("Error creating thread:", error);
+    },
+  });
+
+  const createMessage = api.assistant.createMessage.useMutation({
+    onSuccess: () => {
+      createRun.mutate({
+        threadId: threadId,
+        assistantId: assistantId,
+      });
+    },
+    onError: (error) => {
+      console.error("Error creating message:", error);
+    },
+  });
+
+  const createRun = api.assistant.createRun.useMutation({
+    onSuccess: (data) => {
+      pollRunUntilComplete(data.id);
+    },
+    onError: (error) => {
+      console.error("Error creating run:", error);
+    },
+  });
+
+  const pollRun = api.assistant.pollRun.useMutation({
+    onSuccess: (data) => {
+      console.log("Polling run data:", data);
+    },
+    onError: (error) => {
+      console.error("Error polling run:", error);
+    },
+  });
+
+  const getMessages = api.assistant.getMessages.useMutation({
+    onSuccess: (data) => {
+      const latestMessage = {
+        id: data.body.data[0].id,
+        text: data.body.data[0].content[0].text.value,
+        sender: data.body.data[0].role,
+      };
+      setMessages((prevMessages) => [...prevMessages, latestMessage]);
+    },
+    onError: (error) => {
+      console.error("Error fetching messages:", error);
+    },
+  });
+
   useEffect(() => {
-    initialiseChat(conversationId, animalId);
-  }, [conversationId, animalId]);
+    initialiseChat(threadId, animalId);
+  }, [threadId, animalId]);
 
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState("");
@@ -46,9 +108,12 @@ const ChatPage = () => {
       id: messages.length + 1,
       text: inputText,
       sender: "user",
-      avatar: "path/to/user/avatar.png",
     };
-    setMessages([...messages, newMessage]);
+    setMessages((prevMessages) => [...prevMessages, newMessage]);
+    createMessage.mutate({
+      threadId: threadId,
+      message: inputText,
+    });
     setInputText("");
   };
 
@@ -60,39 +125,69 @@ const ChatPage = () => {
     bottomSheetRef.current?.close();
   };
 
-  const initialiseChat = (conversationId: string, animalId: string) => {
-    if (conversationId) {
-      // Fetch the existing conversation using the conversationId
-      fetchConversation(conversationId);
-    } else {
-      // Initiate the intake sequence if no conversationId is provided
+  const initialiseChat = (threadId: string, animalId: string) => {
+    if (!threadId) {
       initiateIntakeSequence();
+    } else {
+      getMessages.mutate({
+        threadId,
+      });
     }
   };
 
-  const fetchConversation = (conversationId: string) => {
-    // Fetch the existing conversation from the server
-    console.log("Fetching conversation...");
-  };
-
   const initiateIntakeSequence = () => {
-    // Start the intake sequence
-    // This will create a new conversation and send the first message
-    console.log("Initiating intake sequence...");
+    try {
+      createAssistant.mutate({
+        animalId,
+        name: "Experienced Vet",
+        instructions:
+          "You are highly experienced vet with kind and charming bedside humor.",
+      });
+    } catch (error) {
+      console.error("Error initiating intake sequence:", error);
+    }
   };
 
   const [viewVisible, setViewVisible] = useState(true);
 
-  const hideViewAfterTimeout = (timeout) => {
+  const hideViewAfterTimeout = (timeout: number) => {
     setTimeout(() => {
       setViewVisible(false);
     }, timeout);
   };
 
   useEffect(() => {
-    // Hide the view after 5000 milliseconds (5 seconds)
     hideViewAfterTimeout(5000);
   }, []);
+
+  const pollRunUntilComplete = (runId: string) => {
+    const interval = setInterval(() => {
+      pollRun.mutate(
+        {
+          threadId: threadId,
+          runId,
+        },
+        {
+          onSuccess: (data) => {
+            if (data.status === "completed") {
+              clearInterval(interval);
+              getMessages.mutate({
+                threadId: threadId,
+              });
+            }
+          },
+          onError: (error) => {
+            console.error(
+              "Error polling run for runId:",
+              runId,
+              "error:",
+              error,
+            );
+          },
+        },
+      );
+    }, 1000);
+  };
 
   return (
     <View style={styles.fullSize}>
@@ -105,28 +200,29 @@ const ChatPage = () => {
             <Feather name="more-horizontal" size={40} color="black" />
           </Pressable>
         </View>
-        <KeyboardAvoidingView
-          style={styles.container}
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-        >
-          <ScrollView style={styles.messagesContainer}>
-            {messages.map((message) => (
-              <Animated.View
-                key={message.id}
-                entering={FadeIn}
-                className="flex flex-col py-2"
-              >
-                <View className="flex flex-row items-center gap-2">
-                  <View className="h-6 w-6 rounded-full bg-pink-300"></View>
-                  <View>
-                    <Text className="font-medium">{message.sender}</Text>
-                  </View>
+        <ScrollView style={styles.messagesContainer}>
+          {messages.map((message) => (
+            <Animated.View
+              key={message.id}
+              entering={FadeIn}
+              className="flex flex-col py-2"
+            >
+              <View className="flex flex-row items-center gap-2">
+                <View className="h-6 w-6 rounded-full bg-pink-300"></View>
+                <View>
+                  <Text className="font-medium">{message.sender}</Text>
                 </View>
-                <Text style={styles.messageText}>{message.text}</Text>
-              </Animated.View>
-            ))}
-          </ScrollView>
-          {animal && (
+              </View>
+              <Text style={styles.messageText}>{message.text}</Text>
+            </Animated.View>
+          ))}
+        </ScrollView>
+        {animal && (
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
+            style={{ width: "100%" }}
+          >
             <Animated.View
               entering={FadeIn.springify().duration(300).delay(500)}
               className="w-full border-t border-slate-300 bg-white"
@@ -180,8 +276,8 @@ const ChatPage = () => {
                 />
               </View>
             </Animated.View>
-          )}
-        </KeyboardAvoidingView>
+          </KeyboardAvoidingView>
+        )}
       </SafeAreaView>
       <BottomSheet
         ref={bottomSheetRef}

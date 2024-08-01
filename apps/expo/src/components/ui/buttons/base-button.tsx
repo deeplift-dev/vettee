@@ -1,56 +1,66 @@
-import { View } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import React from "react";
+import { ActivityIndicator, Text, TouchableOpacity } from "react-native";
+import clsx from "clsx";
 
-import Text from "../text";
+type ButtonVariant =
+  | "default"
+  | "secondary"
+  | "primary"
+  | "outline"
+  | "ghost"
+  | "destructive";
 
-type ButtonVariant = "default" | "secondary" | "primary";
+interface BaseButtonProps {
+  children: React.ReactNode;
+  onPress: () => void;
+  variant?: ButtonVariant;
+  style?: object;
+  disabled?: boolean;
+  isLoading?: boolean;
+}
 
 export function BaseButton({
   children,
-  variant,
+  variant = "default",
   onPress,
-  className,
   style,
   disabled,
-}: {
-  children: React.ReactNode;
-  onPress: () => void;
-  className?: string;
-  variant: ButtonVariant;
-  style?: any;
-  disabled?: boolean;
-}) {
-  const variantStyles = {
-    default: "rounded bg-slate-900 py-4 font-medium text-white",
-    primary: "bg-white text-white border-gray-300 border",
-    secondary: "bg-white-500 text-black",
-  };
+  isLoading = false,
+}: BaseButtonProps) {
   const isTextChild = typeof children === "string";
 
+  const buttonClassName = clsx(
+    "bg-slate-900 py-4 rounded-2xl items-center justify-center", // default styles
+    {
+      "bg-white border-gray-300 border": variant === "primary",
+      "bg-slate-500 text-black": variant === "secondary",
+      "bg-transparent border-gray-300 border text-black": variant === "outline",
+      "bg-transparent": variant === "ghost",
+      "bg-red-500": variant === "destructive",
+      "opacity-40": disabled,
+    },
+  );
+
+  const textClassName = clsx("text-center text-xl font-semibold", {
+    "text-white": variant !== "secondary" && variant !== "outline",
+    "text-slate-900": variant === "secondary" || variant === "outline",
+    "text-opacity-60": disabled,
+  });
+
   return (
-    <TouchableOpacity className="w-full" onPress={onPress} disabled={disabled}>
-      <View
-        className={`
-      w-full
-      rounded
-      font-bold
-      ${className}
-      ${variantStyles.default}
-      ${variantStyles[variant]}
-    `}
-      >
-        {isTextChild ? (
-          <Text
-            fontSize={20}
-            className="w-full text-center text-gray-50"
-            fontWeight="400"
-          >
-            {children}
-          </Text>
-        ) : (
-          children
-        )}
-      </View>
+    <TouchableOpacity
+      className={buttonClassName}
+      style={style}
+      onPress={onPress}
+      disabled={disabled || isLoading}
+    >
+      {isLoading ? (
+        <ActivityIndicator size="small" color="#ffffff" />
+      ) : isTextChild ? (
+        <Text className={textClassName}>{children}</Text>
+      ) : (
+        children
+      )}
     </TouchableOpacity>
   );
 }

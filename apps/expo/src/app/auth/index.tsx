@@ -1,8 +1,11 @@
-import { Button, Text, View, VStack } from "@gluestack-ui/themed";
+import { useRouter } from "expo-router";
+import { View, VStack } from "@gluestack-ui/themed";
+import { useSessionContext } from "@supabase/auth-helpers-react";
 import { create } from "zustand";
 
 import AuthSheet from "~/components/features/auth/sheets/auth-sheet";
 import MarqueeCarousel from "~/components/features/onboarding/marquee-carousel";
+import { BaseButton } from "~/components/ui/buttons/base-button";
 
 interface Store {
   activeSlide: number | null;
@@ -19,6 +22,7 @@ const useStore = create<Store>((set) => ({
 }));
 
 const Index = () => {
+  const { session, isLoading } = useSessionContext();
   const { activeSlide, autoPlay, setActiveSlide, setAutoPlay } = useStore(
     (state) => ({
       activeSlide: state.activeSlide,
@@ -27,6 +31,11 @@ const Index = () => {
       setAutoPlay: state.setAutoPlay,
     }),
   );
+  const router = useRouter();
+
+  if (session) {
+    router.replace("/(tabs)");
+  }
 
   return (
     <VStack>
@@ -50,19 +59,7 @@ const GetStarted = ({ openSheet }: GetStartedProps) => {
     <AuthSheet
       trigger={
         <View px="$12">
-          <Button
-            bg="$black"
-            size="xl"
-            height={55}
-            rounded="$2xl"
-            borderWidth={1}
-            borderColor="$backgroundLight300"
-            onPress={() => openSheet()}
-          >
-            <Text fontFamily="$mono" color="white">
-              Get started
-            </Text>
-          </Button>
+          <BaseButton onPress={openSheet}>Get started</BaseButton>
         </View>
       }
     />
