@@ -20,6 +20,7 @@ import {
   VStack,
 } from "@gluestack-ui/themed";
 
+import { BaseButton } from "~/components/ui/buttons/base-button";
 import { supabase } from "~/utils/supabase";
 import LoginFrom from "../forms/login-form";
 
@@ -170,13 +171,9 @@ const IntroCard = ({ nextStep }: { nextStep: (step: AuthStep) => void }) => {
           </AuthButton> */}
         </VStack>
         <Divider my="$0.5" />
-        <AuthButton
-          onPress={() => nextStep("email")}
-          bg="$white"
-          textColor="$black"
-        >
-          <Text color="$black">Continue with Email</Text>
-        </AuthButton>
+        <BaseButton onPress={() => nextStep("email")}>
+          Continue with email
+        </BaseButton>
       </VStack>
     </View>
   );

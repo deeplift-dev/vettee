@@ -2,8 +2,6 @@ import { useState } from "react";
 import { Alert } from "react-native";
 import { router } from "expo-router";
 import {
-  Button,
-  ButtonText,
   EyeIcon,
   EyeOffIcon,
   Input,
@@ -15,7 +13,7 @@ import {
 } from "@gluestack-ui/themed";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
 
-import { theme } from "~/styles";
+import { BaseButton } from "~/components/ui/buttons/base-button";
 import { api } from "~/utils/api";
 
 export default function LoginForm() {
@@ -46,39 +44,6 @@ export default function LoginForm() {
       Alert.alert("There was an issue signing you in", error.message);
       setIsLoading(false);
       return;
-    }
-
-    if (isSignUp && data.user) {
-      Alert.alert("Check your email for a confirmation link.");
-      setIsSignUp(false);
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      setIsGeneratingProfile(true);
-
-      // Refetch profile with the user's ID
-      await refetchProfile({ id: data?.user?.id });
-
-      if (!profile) {
-        const result = await createProfileMutation.mutateAsync({});
-
-        if (result.error) {
-          Alert.alert(
-            "There was an issue creating your profile",
-            result.error.message,
-          );
-        }
-      }
-    } catch (error) {
-      console.log(
-        "An error occurred",
-        error instanceof Error ? error.message : "An unknown error occurred",
-      );
-    } finally {
-      setIsGeneratingProfile(false);
-      setIsLoading(false);
     }
 
     if (data?.user) {
@@ -116,21 +81,25 @@ export default function LoginForm() {
           </InputSlot>
         </Input>
       </VStack>
-      <Button
+      <BaseButton disabled={isLoading} onPress={signInWithPassword}>
+        Login
+      </BaseButton>
+      {/* <Button
         onPress={signInWithPassword}
-        bg={theme.colors.primary}
+        bg={"$black"}
         size="xl"
         height={55}
         rounded="$2xl"
+        borderWidth={1}
+        borderColor="$backgroundLight300"
         isDisabled={isLoading}
-        boxShadow="lg"
       >
         {isLoading ? (
-          <ButtonText color="$black">Loading...</ButtonText>
+          <Text color="$white">Loading...</Text>
         ) : (
-          <ButtonText color="$black">Login</ButtonText>
+          <Text color="$white">Login</Text>
         )}
-      </Button>
+      </Button> */}
     </VStack>
   );
 }
