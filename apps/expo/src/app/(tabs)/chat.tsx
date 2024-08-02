@@ -5,13 +5,13 @@ import {
   Pressable,
   SafeAreaView,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
 import Animated, { FadeIn, FadeOutLeft } from "react-native-reanimated";
+import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { AntDesign, Feather } from "@expo/vector-icons";
 import { AddIcon } from "@gluestack-ui/themed";
@@ -31,6 +31,11 @@ const ChatPage = () => {
   const { data: animal, isLoading } = api.animal.getById.useQuery({
     id: animalId,
   });
+
+  const { data: profile, isLoading: isProfileLoading } =
+    api.profile.getCurrentUserProfile.useQuery();
+
+  console.log("Profile data:", profile);
 
   const createAssistant = api.assistant.createNew.useMutation({
     onSuccess: (data) => {
@@ -190,9 +195,9 @@ const ChatPage = () => {
   };
 
   return (
-    <View style={styles.fullSize}>
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
+    <View className="flex-1 bg-white">
+      <SafeAreaView className="flex-1">
+        <View className="flex-row items-center justify-between p-2">
           <Animated.View>
             <LogoText />
           </Animated.View>
@@ -200,28 +205,68 @@ const ChatPage = () => {
             <Feather name="more-horizontal" size={40} color="black" />
           </Pressable>
         </View>
-        <ScrollView style={styles.messagesContainer}>
-          {messages.map((message) => (
-            <Animated.View
-              key={message.id}
-              entering={FadeIn}
-              className="flex flex-col py-2"
-            >
-              <View className="flex flex-row items-center gap-2">
-                <View className="h-6 w-6 rounded-full bg-pink-300"></View>
-                <View>
-                  <Text className="font-medium">{message.sender}</Text>
+        <ScrollView className="flex-1 p-2">
+          {messages.map(
+            (message: { id: number; text: string; sender: string }) => (
+              <Animated.View
+                key={message.id}
+                entering={FadeIn}
+                className={`mb-4 inline-flex flex-col rounded-xl bg-blue-50 px-2 py-2 ${
+                  message.sender === "user"
+                    ? "items-end self-end bg-lime-50"
+                    : ""
+                } ${
+                  message.text.length < 20
+                    ? "w-1/4"
+                    : message.text.length < 50
+                      ? "w-1/2"
+                      : "w-3/4"
+                }`}
+              >
+                <View
+                  className={`inline-flex flex-row items-center gap-2 ${
+                    message.sender === "user" ? "flex-row-reverse" : ""
+                  }`}
+                >
+                  {message.sender === "user" ? (
+                    <Image
+                      source={profile?.[0]?.image ?? ""}
+                      className="rounded-full"
+                      style={{
+                        width: 25,
+                        height: 25,
+                        borderRadius: 100,
+                        borderWidth: 1,
+                        borderColor: "#d3d3d3",
+                      }}
+                    />
+                  ) : (
+                    <View className="h-6 w-6 rounded-full bg-slate-300"></View>
+                  )}
+                  <View>
+                    <Text className="font-medium">
+                      {message.sender === "assistant"
+                        ? "Vettee"
+                        : profile?.[0]?.firstName}
+                    </Text>
+                  </View>
                 </View>
-              </View>
-              <Text style={styles.messageText}>{message.text}</Text>
-            </Animated.View>
-          ))}
+                <Text
+                  className={`rounded-2xl p-2 ${
+                    message.sender === "user" ? "text-right" : ""
+                  }`}
+                >
+                  {message.text}
+                </Text>
+              </Animated.View>
+            ),
+          )}
         </ScrollView>
         {animal && (
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
             keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
-            style={{ width: "100%" }}
+            className="w-full"
           >
             <Animated.View
               entering={FadeIn.springify().duration(300).delay(500)}
@@ -267,7 +312,7 @@ const ChatPage = () => {
                   <AddIcon size="xl" />
                 </View>
                 <TextInput
-                  style={styles.input}
+                  className="flex-1 rounded-2xl border border-gray-300 bg-white p-2"
                   value={inputText}
                   onChangeText={setInputText}
                   onSubmitEditing={handleSend}
@@ -330,66 +375,5 @@ const ChatPage = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  fullSize: {
-    flex: 1,
-    backgroundColor: "#FFF",
-  },
-  safeArea: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 10,
-  },
-  headerText: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  container: {
-    flex: 1,
-    justifyContent: "flex-end",
-  },
-  messagesContainer: {
-    flex: 1,
-    padding: 10,
-  },
-  messageRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 2,
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 10,
-  },
-  messageText: {
-    flex: 1,
-    padding: 5,
-    borderRadius: 20,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    padding: 10,
-  },
-  input: {
-    flex: 1,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: "#DDD",
-    borderRadius: 20,
-    backgroundColor: "#FFF",
-  },
-  bottomSheetContent: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "space-around",
-  },
-});
 
 export default ChatPage;
