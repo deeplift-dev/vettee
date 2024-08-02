@@ -197,7 +197,7 @@ const ChatPage = () => {
   return (
     <View className="flex-1 bg-white">
       <SafeAreaView className="flex-1">
-        <View className="flex-row items-center justify-between p-2">
+        <View className="flex-row items-center justify-between border-b border-slate-200 p-2">
           <Animated.View>
             <LogoText />
           </Animated.View>
@@ -205,26 +205,31 @@ const ChatPage = () => {
             <Feather name="more-horizontal" size={40} color="black" />
           </Pressable>
         </View>
-        <ScrollView className="flex-1 p-2">
+        <ScrollView
+          className="flex-1 p-2"
+          ref={(ref) => {
+            if (ref) {
+              ref.scrollToEnd({ animated: true });
+            }
+          }}
+        >
           {messages.map(
             (message: { id: number; text: string; sender: string }) => (
               <Animated.View
                 key={message.id}
                 entering={FadeIn}
-                className={`mb-4 inline-flex flex-col rounded-xl bg-blue-50 px-2 py-2 ${
-                  message.sender === "user"
-                    ? "items-end self-end bg-lime-50"
-                    : ""
-                } ${
+                className={`mb-4 inline-flex w-full flex-col ${
                   message.text.length < 20
                     ? "w-1/4"
                     : message.text.length < 50
                       ? "w-1/2"
                       : "w-3/4"
+                } ${
+                  message.sender === "assistant" ? "self-start" : "self-end"
                 }`}
               >
                 <View
-                  className={`inline-flex flex-row items-center gap-2 ${
+                  className={`mb-2 inline-flex flex-row items-center gap-2 ${
                     message.sender === "user" ? "flex-row-reverse" : ""
                   }`}
                 >
@@ -251,13 +256,15 @@ const ChatPage = () => {
                     </Text>
                   </View>
                 </View>
-                <Text
-                  className={`rounded-2xl p-2 ${
-                    message.sender === "user" ? "text-right" : ""
+                <View
+                  className={`w-full self-end rounded-2xl p-2 ${
+                    message.sender === "user"
+                      ? "bg-[#f0f0f9] text-right"
+                      : "bg-slate-50"
                   }`}
                 >
-                  {message.text}
-                </Text>
+                  <Text>{message.text}</Text>
+                </View>
               </Animated.View>
             ),
           )}
