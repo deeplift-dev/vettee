@@ -1,5 +1,11 @@
 # @acme/expo
 
+## 1.1.7
+
+### Patch Changes
+
+- Additional formatting for the chat
+
 ## 1.1.6
 
 ### Patch Changes
