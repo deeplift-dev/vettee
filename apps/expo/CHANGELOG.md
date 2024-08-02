@@ -1,5 +1,11 @@
 # @acme/expo
 
+## 1.1.6
+
+### Patch Changes
+
+- Ensure that chat assistant is working
+
 ## 1.1.5
 
 ### Patch Changes

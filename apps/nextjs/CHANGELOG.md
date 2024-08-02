@@ -1,5 +1,11 @@
 # @acme/nextjs
 
+## 0.2.2
+
+### Patch Changes
+
+- Ensure that chat assistant is working
+
 ## 0.2.1
 
 ### Patch Changes
