@@ -52,6 +52,8 @@ export const thread = pgTable("thread", {
   id: varchar("id", { length: 256 }).primaryKey(),
   assistantId: varchar("assistant_id", { length: 256 }),
   animalId: varchar("animal_id", { length: 256 }),
+  threadId: varchar("thread_id", { length: 256 }),
+  object: varchar("object", { length: 256 }),
   createdAt: timestamp("created_at")
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),

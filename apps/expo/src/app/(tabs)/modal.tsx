@@ -15,7 +15,6 @@ export default function Modal() {
   // If the page was reloaded or navigated to directly, then the modal should be presented as
   // a full screen page. You may need to change the UI to account for this.
   const isPresented = router.canGoBack();
-  console.log("is presented", isPresented);
   return (
     <View flex={1} flexDirection="column" w="$full">
       <View flex={1} w="$full" p="$4" flexDirection="column">

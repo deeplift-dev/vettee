@@ -42,14 +42,11 @@ export const profileRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      console.log("input----", input);
       const existingProfile = await ctx.db
         .select()
         .from(schema.profile)
         .where(eq(schema.profile.id, ctx.user.id))
         .then((profiles) => profiles[0]);
-
-      console.log("existingProfile----", existingProfile);
 
       if (existingProfile) {
         await ctx.db

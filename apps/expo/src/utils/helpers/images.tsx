@@ -53,7 +53,6 @@ export async function uploadImage(
       console.error("Error uploading image: ", error);
       return { data: null, error };
     }
-    console.log("Succeeded in uploading: ", data);
     return { data, error: null };
   } catch (error) {
     console.error("Exception when uploading image: ", error);
