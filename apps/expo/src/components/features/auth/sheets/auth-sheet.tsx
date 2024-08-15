@@ -100,12 +100,8 @@ const IntroCard = ({ nextStep }: { nextStep: (step: AuthStep) => void }) => {
     const createSessionFromUrl = async (url: string) => {
       const { params, errorCode } = QueryParams.getQueryParams(url);
 
-      console.log("params", params, errorCode);
-
       if (errorCode) throw new Error(errorCode);
       const { code } = params;
-
-      console.log("code", code);
 
       if (!code) return;
 
@@ -120,15 +116,10 @@ const IntroCard = ({ nextStep }: { nextStep: (step: AuthStep) => void }) => {
       provider: "facebook",
     });
 
-    console.log("data step one", data, error);
-    console.log("redirect to", redirectTo);
-
     const res = await WebBrowser.openAuthSessionAsync(
       data?.url ?? "",
       redirectTo,
     );
-
-    console.log("res step two", res);
 
     if (res.type === "success") {
       const { url } = res;

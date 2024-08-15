@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import Constants from "expo-constants";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, loggerLink } from "@trpc/client";
@@ -24,7 +23,6 @@ const getBaseUrl = () => {
    * Ensure that EXPO_PUBLIC_API_URL is set in your environment configuration.
    */
   const baseUrl = process.env.EXPO_PUBLIC_API_URL;
-  console.log("Base URL:", baseUrl);
   return baseUrl;
 };
 
@@ -37,7 +35,6 @@ export const TRPCProvider = (props: { children: React.ReactNode }) => {
 
   const [queryClient] = useState(() => new QueryClient());
   const [trpcClient] = useState(() => {
-    console.log("Initializing TRPC Client");
     return api.createClient({
       transformer: superjson,
       links: [
@@ -49,9 +46,7 @@ export const TRPCProvider = (props: { children: React.ReactNode }) => {
 
             const { data } = await supabase.auth.getSession();
             const token = data.session?.access_token;
-            console.log("Supabase session data:", data);
             if (token) {
-              console.log("Authorization token found:", token);
               headers.set("authorization", token);
             } else {
               console.log("No authorization token found");
@@ -71,7 +66,6 @@ export const TRPCProvider = (props: { children: React.ReactNode }) => {
   });
 
   useEffect(() => {
-    console.log("TRPCProvider mounted");
     return () => {
       console.log("TRPCProvider unmounted");
     };

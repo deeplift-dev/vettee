@@ -9,7 +9,7 @@ import { Image } from "expo-image";
 import { Redirect } from "expo-router";
 import { AntDesign } from "@expo/vector-icons";
 import AnimatedLottieView from "lottie-react-native";
-import { Controller, set, useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 
 import ImagePicker from "~/components/features/onboarding/image-picker";
 import CustomBottomSheet from "~/components/ui/bottom-sheet";
@@ -213,9 +213,7 @@ const BasicAnimalInfoCard = ({
   const [isOpen, setIsOpen] = useState(false);
   const bottomSheetRef = React.useRef<BottomSheet>(null);
 
-  const handleSheetChanges = useCallback((index: number) => {
-    console.log("handleSheetChanges", index);
-  }, []);
+  const handleSheetChanges = useCallback((index: number) => {}, []);
 
   return (
     <Animated.View

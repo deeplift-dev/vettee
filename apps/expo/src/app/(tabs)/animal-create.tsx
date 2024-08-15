@@ -1,10 +1,10 @@
 import type { Control, FieldErrors, UseFormWatch } from "react-hook-form";
-import React, { useCallback, useState } from "react";
-import { ActivityIndicator, Alert, Keyboard, Pressable } from "react-native";
+import React, { useState } from "react";
+import { ActivityIndicator, Alert, Keyboard } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { Image } from "expo-image";
-import { Link, Redirect, useNavigation } from "expo-router";
+import { Redirect, useNavigation } from "expo-router";
 import { Button, HStack, Text, View, VStack } from "@gluestack-ui/themed";
 import AnimatedLottieView from "lottie-react-native";
 import { Controller, useForm } from "react-hook-form";
@@ -91,12 +91,10 @@ const CarouselBody = () => {
 
   const { mutate: createAnimal } = api.animal.create.useMutation({
     onSuccess: async (data) => {
-      console.log("Animal created", data);
       navigation.navigate("index");
       Keyboard.dismiss();
     },
     onError: (error) => {
-      console.log("Error creating animal", error);
       if (error.data?.code === "UNAUTHORIZED")
         Alert.alert("Error", "You must be logged in to create a post");
     },
@@ -272,7 +270,6 @@ const BasicAnimalInfoCard = ({
                   placeholder="Select species"
                   items={animalSpecies}
                   onValueChange={(value) => {
-                    console.log("value--animal", value);
                     onChange(value);
                     setValue("animalType", value);
                   }}

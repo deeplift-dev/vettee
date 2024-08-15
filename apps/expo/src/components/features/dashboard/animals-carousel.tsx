@@ -21,7 +21,6 @@ const AnimalsCarousel: React.FC<AnimalsCarouselProps> = ({
 }) => {
   const navigation = useNavigation();
   const handleEdit = (animalId: number) => {
-    console.log(`Edit animal with ID: ${animalId}`);
     // Navigation or state update logic here
   };
 

@@ -1,6 +1,9 @@
 import { TRPCError } from "@trpc/server";
+import { nanoid } from "nanoid";
 import OpenAI from "openai";
 import { z } from "zod";
+
+import { schema } from "@acme/db";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
@@ -71,17 +74,18 @@ export const assistantRouter = createTRPCRouter({
           // ]
         });
 
-        console.log("response -- ", response);
         return response;
       } catch (error) {
         console.log(error);
       }
     }),
 
-  getBasicSpeciesFacts: protectedProcedure
+  getPromptSuggestions: protectedProcedure
     .input(
       z.object({
         species: z.string().min(1),
+        name: z.string().min(1),
+        yearOfBirth: z.string().min(1),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -94,22 +98,36 @@ export const assistantRouter = createTRPCRouter({
           messages: [
             {
               role: "user",
-              content: [
+              content: `
+                Please provide me with a list of 4 prompts for a ${input.species} called ${input.name} who was born in ${input.yearOfBirth}.
+                The prompts should be relevant to the following categories:
+                1. Diet and Nutrition
+                2. Vaccinations and Health Checkups
+                3. Behavioral Issues
+                4. Emergency Assessment
+        
+                These could be questions that someone might ask a Vet or a question that the owner might ask themselves. 
+                Ensure the prompts are varied, useful, and interesting. Keep each prompt under 8 words. Keep the language
+                non-technical, and you do not have to explicitly mention the animals age. Just use it as context when crafting 
+                the prompts. 
+                Return the response as a JSON object with the following structure:
+        
                 {
-                  type: "text",
-                  text: `I'd like to know some basic facts about a ${input.species}.`,
-                },
-              ],
+                  "prompts": [
+                    { "description": "a description of the prompt, please keep under 80 characters" }
+                  ]
+                }
+              `,
             },
           ],
         });
 
-        console.log("response -- ", response);
         return response;
       } catch (error) {
         console.log(error);
       }
     }),
+
   createNew: protectedProcedure
     .input(
       z.object({
@@ -138,15 +156,32 @@ export const assistantRouter = createTRPCRouter({
       }
     }),
 
-  createThread: protectedProcedure.mutation(async ({ ctx, input }) => {
-    try {
-      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-      const thread = await openai.beta.threads.create();
-      return thread;
-    } catch (error) {
-      console.log(error);
-    }
-  }),
+  createThread: protectedProcedure
+    .input(
+      z.object({
+        assistantId: z.string(),
+        animalId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+        const thread = await openai.beta.threads.create();
+        console.log("made it here", input, thread.object, thread.id);
+        const threadDb = await ctx.db.insert(schema.thread).values({
+          id: nanoid(),
+          assistantId: input.assistantId,
+          animalId: input.animalId,
+          threadId: thread.id,
+          object: thread.object,
+        });
+
+        console.log("threadDb", threadDb);
+        return thread;
+      } catch (error) {
+        console.log("error saving---", error);
+      }
+    }),
 
   createMessage: protectedProcedure
     .input(
@@ -211,6 +246,7 @@ export const assistantRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
       const messages = await openai.beta.threads.messages.list(input.threadId);
+      console.log(messages?.body?.data);
       return messages;
     }),
 });

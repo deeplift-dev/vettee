@@ -1,10 +1,5 @@
 import { Link } from "expo-router";
-import {
-  Avatar,
-  AvatarFallbackText,
-  AvatarImage,
-  VStack,
-} from "@gluestack-ui/themed";
+import { Avatar, AvatarFallbackText, AvatarImage } from "@gluestack-ui/themed";
 import { useUser } from "@supabase/auth-helpers-react";
 
 import { api } from "~/utils/api";
@@ -26,7 +21,6 @@ export default function ProfileButton() {
     user?.user_metadata.full_name ||
     "Unknown";
 
-  console.log("user", user);
   return (
     <Link href="/modal">
       <Avatar bgColor="$green200" size="md" borderRadius="$full">
