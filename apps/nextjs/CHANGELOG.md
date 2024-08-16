@@ -1,5 +1,11 @@
 # @acme/nextjs
 
+## 0.2.3
+
+### Patch Changes
+
+- Improvements to chat interface
+
 ## 0.2.2
 
 ### Patch Changes

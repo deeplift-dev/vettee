@@ -3,7 +3,7 @@ import { Pressable, View } from "react-native";
 import { BlurView } from "expo-blur";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-import { router, useNavigation, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import {
   Button,
@@ -25,7 +25,7 @@ import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import type { RouterOutputs } from "@acme/api";
 
 import Text from "~/components/ui/text";
-import { chatUrlForAnimal, navigateToChat } from "~/utils/chat";
+import { navigateToChat } from "~/utils/chat";
 import { downloadPresignedUrl } from "~/utils/helpers/images";
 
 interface AnimalCardProps {
@@ -37,6 +37,21 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onEdit }) => {
   const router = useRouter();
   const supabase = useSupabaseClient();
   const [showAwarenessModal, setShowAwarenessModal] = React.useState(false);
+
+  const generateHarmoniousColors = React.useMemo(() => {
+    const colors = [
+      ["#FFCCCB", "#FFE5CC", "#FFFFCC", "#CCFFDD"],
+      ["#CCE8FF", "#FFCCCB", "#FFE5CC", "#FFFFCC"],
+      ["#CCFFDD", "#CCE8FF", "#FFCCCB", "#FFE5CC"],
+      ["#FFE5CC", "#FFFFCC", "#CCFFDD", "#CCE8FF"],
+      ["#FFCCCB", "#FFE5CC", "#FFFFCC", "#CCFFDD"],
+      ["#CCE8FF", "#FFCCCB", "#FFE5CC", "#FFFFCC"],
+      ["#CCFFDD", "#CCE8FF", "#FFCCCB", "#FFE5CC"],
+      ["#FFE5CC", "#FFFFCC", "#CCFFDD", "#CCE8FF"],
+    ];
+    const randomIndex = Math.floor(Math.random() * colors.length);
+    return colors[randomIndex];
+  }, []);
 
   if (!animal) {
     return null;
@@ -60,8 +75,8 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onEdit }) => {
   }, [animal.avatarUrl, supabase]);
 
   return (
-    <View className="w-94">
-      <View className="relative mr-2 h-64 w-96 items-center rounded-xl border border-gray-300 bg-gray-200">
+    <View className="h-5/6 w-full">
+      <View className="relative mr-2 h-full w-full items-center rounded-xl border border-gray-400 bg-gray-200">
         <View className="absolute right-0 top-0 z-10 mx-4 mt-2 rounded-full">
           <Pressable
             onPress={() => setShowAwarenessModal(true)}
@@ -83,23 +98,44 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onEdit }) => {
             </BlurView>
           </Pressable>
         </View>
-        <Image
-          source={{ uri: imageUrl || undefined }}
-          style={{ width: "100%", height: "100%", borderRadius: 10 }}
-        />
-        <LinearGradient
-          start={{ x: 0, y: 0 }}
-          end={{ x: 0.1, y: 1 }}
-          colors={["black", "transparent"]}
-          style={{
-            width: "100%",
-            height: "45%",
-            position: "absolute",
-            borderRadius: 10,
-          }}
-        />
+        {imageUrl ? (
+          <Image
+            source={{ uri: imageUrl }}
+            style={{ width: "100%", height: "100%", borderRadius: 10 }}
+          />
+        ) : (
+          <LinearGradient
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0.1, y: 1 }}
+            colors={generateHarmoniousColors}
+            style={{
+              width: "100%",
+              height: "100%",
+              position: "absolute",
+              borderRadius: 10,
+            }}
+          />
+        )}
+        {imageUrl && (
+          <LinearGradient
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0.1, y: 1 }}
+            colors={["black", "transparent"]}
+            style={{
+              width: "100%",
+              height: "25%",
+              position: "absolute",
+              borderRadius: 10,
+              opacity: 0.6,
+            }}
+          />
+        )}
         <View className="absolute w-full px-4 pt-2">
-          <Text className="font-medium text-white">{animal.name}</Text>
+          <Text
+            className={`font-medium ${imageUrl ? "text-white" : "text-black"}`}
+          >
+            {animal.name}
+          </Text>
           {/* <Text className="text-xs text-white">{animal.species}</Text> */}
         </View>
         <View className="absolute bottom-0 w-full px-2 pb-2">

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { SafeAreaView } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link, Stack, useFocusEffect } from "expo-router";
@@ -13,7 +13,6 @@ import {
 } from "@gluestack-ui/themed";
 
 import AnimalsCarousel from "~/components/features/dashboard/animals-carousel";
-import QuickActions from "~/components/features/dashboard/quick-actions";
 import { HomeHeader } from "~/components/ui/headers/dashboard-header";
 import { api } from "~/utils/api";
 
@@ -50,7 +49,7 @@ const Index = () => {
         ) : hasAnimals ? (
           <>
             <AnimalsCarousel isLoading={isLoading} animals={animals} />
-            <QuickActions />
+            {/* <QuickActions /> */}
           </>
         ) : (
           <Center h="$2/3" w="$full">

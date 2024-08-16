@@ -1,5 +1,11 @@
 # @acme/expo
 
+## 1.1.8
+
+### Patch Changes
+
+- Improvements to chat interface
+
 ## 1.1.7
 
 ### Patch Changes

@@ -1,3 +1,8 @@
+import { AntDesign, Feather } from "@expo/vector-icons";
+import { AddIcon } from "@gluestack-ui/themed";
+import BottomSheet from "@gorhom/bottom-sheet";
+import { Image } from "expo-image";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -8,23 +13,20 @@ import {
   ScrollView,
   Text,
   TextInput,
-  TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { OpenAI } from "react-native-gen-ui";
 import Markdown from "react-native-markdown-display";
 import Animated, { FadeIn, FadeOutLeft } from "react-native-reanimated";
-import { Image } from "expo-image";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { AntDesign, Feather } from "@expo/vector-icons";
-import { AddIcon } from "@gluestack-ui/themed";
-import BottomSheet from "@gorhom/bottom-sheet";
 
+import { PromptSuggestions } from "~/components/features/chat/prompt-suggestions";
 import LogoText from "~/components/ui/logo/logo-text";
 import { api } from "~/utils/api";
 
 const ChatPage = () => {
   console.log("rerending page");
+
   const [isResponding, setIsResponding] = useState(false);
   const { animalId, threadId, assistantId } = useLocalSearchParams<{
     animalId: string;
@@ -35,6 +37,12 @@ const ChatPage = () => {
 
   const { data: animal, isLoading } = api.animal.getById.useQuery({
     id: animalId,
+  });
+
+  const openAi = new OpenAI({
+    apiKey: process.env.EXPO_PUBLIC_OPENAI_API_KEY,
+    model: "gpt-4",
+    // You can even set a custom basePath of your SSE server
   });
 
   const { data: profile, isLoading: isProfileLoading } =
@@ -452,57 +460,6 @@ const ChatPage = () => {
         </TouchableWithoutFeedback>
       </BottomSheet>
     </View>
-  );
-};
-
-const PromptSuggestions = ({ animal, promptSelected, promptSuggestions }) => {
-  if (!promptSuggestions || promptSuggestions.length === 0) {
-    return (
-      <View className="flex w-full pt-24">
-        <Text className="text-center text-xl font-medium">
-          Loading suggestions...
-        </Text>
-      </View>
-    );
-  }
-
-  return (
-    <View className="flex w-full pt-24">
-      <View>
-        <Text className="text-center text-xl font-medium">Quick questions</Text>
-        <Text className="text-center text-base text-slate-500">
-          Ask a question about your pet
-        </Text>
-      </View>
-      <View className="flex flex-row flex-wrap justify-between">
-        {promptSuggestions.prompts.map((prompt, index) => (
-          <View key={index} className="mb-4 h-32 w-[48%]">
-            <PromptSuggestionCard
-              prompt={prompt}
-              onPromptSelected={promptSelected}
-            />
-          </View>
-        ))}
-      </View>
-    </View>
-  );
-};
-
-const PromptSuggestionCard = ({
-  prompt,
-  onPromptSelected,
-}: {
-  prompt: { logo: string; description: string };
-  onPromptSelected: (description: string) => void;
-}) => {
-  return (
-    <TouchableOpacity
-      onPress={() => onPromptSelected(prompt.description)}
-      className="mt-4 flex h-full w-full flex-col justify-center rounded-lg border border-gray-200 bg-white p-6"
-    >
-      {/* <Text>{prompt.logo}</Text> */}
-      <Text>{prompt.description}</Text>
-    </TouchableOpacity>
   );
 };
 
