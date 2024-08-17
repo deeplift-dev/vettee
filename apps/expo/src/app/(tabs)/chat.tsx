@@ -1,8 +1,3 @@
-import { AntDesign, Feather } from "@expo/vector-icons";
-import { AddIcon } from "@gluestack-ui/themed";
-import BottomSheet from "@gorhom/bottom-sheet";
-import { Image } from "expo-image";
-import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -16,9 +11,13 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import { OpenAI } from "react-native-gen-ui";
 import Markdown from "react-native-markdown-display";
 import Animated, { FadeIn, FadeOutLeft } from "react-native-reanimated";
+import { Image } from "expo-image";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { AntDesign, Feather } from "@expo/vector-icons";
+import { AddIcon } from "@gluestack-ui/themed";
+import BottomSheet from "@gorhom/bottom-sheet";
 
 import { PromptSuggestions } from "~/components/features/chat/prompt-suggestions";
 import LogoText from "~/components/ui/logo/logo-text";
@@ -230,6 +229,7 @@ const ChatPage = () => {
         },
         {
           onSuccess: (data) => {
+            console.log("made it here ---", data.status);
             if (data.status === "completed") {
               clearInterval(interval);
               getMessages.mutate({
@@ -268,9 +268,9 @@ const ChatPage = () => {
           <Animated.View>
             <LogoText />
           </Animated.View>
-          <Pressable onPress={openBottomSheet}>
-            <Feather name="more-horizontal" size={40} color="black" />
-          </Pressable>
+          {/* <Pressable onPress={openBottomSheet}>
+            <MaterialIcons name="menu-open" size={28} color="black" />
+          </Pressable> */}
         </View>
         <ScrollView
           className="flex-1 p-2"
