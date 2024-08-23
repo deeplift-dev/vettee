@@ -6,6 +6,7 @@ import { z } from "zod";
 import { schema } from "@acme/db";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { initThreadPrompt } from "../utils/prompt-constants";
 
 export const assistantRouter = createTRPCRouter({
   checkAnimal: protectedProcedure
@@ -167,7 +168,6 @@ export const assistantRouter = createTRPCRouter({
       try {
         const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
         const thread = await openai.beta.threads.create();
-        console.log("made it here", input, thread.object, thread.id);
         const threadDb = await ctx.db.insert(schema.thread).values({
           id: nanoid(),
           assistantId: input.assistantId,
@@ -176,7 +176,6 @@ export const assistantRouter = createTRPCRouter({
           object: thread.object,
         });
 
-        console.log("threadDb", threadDb);
         return thread;
       } catch (error) {
         console.log("error saving---", error);
@@ -199,7 +198,11 @@ export const assistantRouter = createTRPCRouter({
             role: "user",
             content: input.message,
           },
+          {
+            stream: true,
+          },
         );
+        console.log(message.delta);
         return message;
       } catch (error) {
         console.log(error);
@@ -211,13 +214,25 @@ export const assistantRouter = createTRPCRouter({
       z.object({
         threadId: z.string(),
         assistantId: z.string(),
+        animal: z.object({
+          name: z.string().min(1),
+          species: z.string().min(1),
+          avatarUrl: z.string().optional(),
+          yearOfBirth: z.number().int().min(1950),
+        }),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
       const run = await openai.beta.threads.runs.create(input.threadId, {
         assistant_id: input.assistantId,
+        instructions: initThreadPrompt(
+          input.animal.species,
+          input.animal.name,
+          input.animal.yearOfBirth,
+        ),
       });
+      console.log("run: ", run);
       return run;
     }),
 
@@ -246,7 +261,8 @@ export const assistantRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
       const messages = await openai.beta.threads.messages.list(input.threadId);
-      console.log(messages?.body?.data);
+      console.log(messages.data);
+
       return messages;
     }),
 });

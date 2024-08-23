@@ -169,7 +169,7 @@ const AnimalCardButtons: React.FC<{ animalId: string }> = ({ animalId }) => {
         </Text>
       </Pressable>
       <Pressable
-        onPress={() => router.push("Profile")}
+        onPress={() => router.push(`/animal/${animalId}`)}
         className="mr-1 flex w-1/2 flex-row items-center justify-center rounded-xl border border-gray-400 bg-gray-50 p-2.5 shadow-sm"
       >
         <Ionicons name="paw" size={16} color="black" />

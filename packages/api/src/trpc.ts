@@ -40,7 +40,6 @@ export const createTRPCContext = async (opts: {
     : await supabase.auth.getUser();
 
   const source = opts.headers.get("x-trpc-source") ?? "unknown";
-  console.log(">>> tRPC Request from", source, "by", user?.data.user?.email);
 
   return {
     user: user.data.user,
