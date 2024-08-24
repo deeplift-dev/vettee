@@ -20,12 +20,6 @@ const ChatPage = () => {
     id: animalId,
   });
 
-  const openAi = new OpenAI({
-    apiKey: process.env.EXPO_PUBLIC_OPENAI_API_KEY,
-    model: "gpt-4",
-    // You can even set a custom basePath of your SSE server
-  });
-
   const { data: profile, isLoading: isProfileLoading } =
     api.profile.getCurrentUserProfile.useQuery();
 
