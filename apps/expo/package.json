@@ -1,6 +1,6 @@
 {
   "name": "@acme/expo",
-  "version": "1.1.8",
+  "version": "1.2.0",
   "private": true,
   "main": "index.js",
   "scripts": {
@@ -82,7 +82,7 @@
     "zustand": "^4.4.7"
   },
   "devDependencies": {
-    "@acme/api": "workspace:^0.1.0",
+    "@acme/api": "workspace:^0.2.0",
     "@acme/eslint-config": "workspace:^0.2.0",
     "@acme/prettier-config": "workspace:^0.1.0",
     "@acme/tailwind-config": "workspace:^0.1.0",
