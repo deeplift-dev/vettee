@@ -59,7 +59,7 @@ export const thread = pgTable("thread", {
     .notNull(),
 });
 
-export const threadRelations = relations(thread, ({ one }) => ({
+export const threadRelations = relations(thread, ({ one, many }) => ({
   assistant: one(assistant, {
     fields: [thread.assistantId],
     references: [assistant.id],
@@ -67,5 +67,22 @@ export const threadRelations = relations(thread, ({ one }) => ({
   animal: one(animal, {
     fields: [thread.animalId],
     references: [animal.id],
+  }),
+  messages: many(message),
+}));
+
+export const message = pgTable("message", {
+  id: varchar("id", { length: 256 }).primaryKey(),
+  threadId: varchar("thread_id", { length: 256 }),
+  content: varchar("content", { length: 256 }),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+});
+
+export const messageRelations = relations(message, ({ one }) => ({
+  thread: one(thread, {
+    fields: [message.threadId],
+    references: [thread.id],
   }),
 }));

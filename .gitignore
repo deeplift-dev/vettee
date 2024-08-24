@@ -50,3 +50,4 @@ yarn-error.log*
 .turbo
 .env.production
 .env.production
+apps/expo/.env.production

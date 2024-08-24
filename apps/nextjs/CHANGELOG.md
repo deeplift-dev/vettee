@@ -1,5 +1,23 @@
 # @acme/nextjs
 
+## 0.3.0
+
+### Minor Changes
+
+- new chat experience implemented
+
+### Patch Changes
+
+- Updated dependencies
+  - @acme/api@0.2.0
+  - @acme/db@0.2.0
+
+## 0.2.3
+
+### Patch Changes
+
+- Improvements to chat interface
+
 ## 0.2.2
 
 ### Patch Changes
