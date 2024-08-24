@@ -1,8 +1,7 @@
 import React from "react";
-import { Text, TouchableOpacity } from "react-native";
+import { TouchableOpacity } from "react-native";
 import LottieView from "lottie-react-native";
-import { Send } from "lucide-react-native";
-import colors from "tailwindcss/colors";
+import { ArrowUp } from "lucide-react-native";
 
 import TypingAnimation from "../../../../assets/animations/loading/typing.json";
 
@@ -21,7 +20,7 @@ const ChatSubmitButton = ({
 }: ChatSubmitButtonProps) => {
   return (
     <TouchableOpacity
-      className="flex h-[46px] w-28 flex-row items-center justify-center gap-x-2 rounded-full border border-gray-200 bg-gray-50"
+      className="flex h-[46px] w-[46px] flex-row items-center justify-center gap-x-2 rounded-full border border-slate-300 bg-gray-50"
       disabled={isLoading}
       onPress={() => {
         handleSubmit(input);
@@ -32,16 +31,15 @@ const ChatSubmitButton = ({
           source={TypingAnimation}
           resizeMode="cover"
           style={{
-            width: 40,
-            height: 18,
+            width: 20,
+            height: 20,
           }}
           autoPlay
           loop
         />
       ) : (
         <>
-          <Send color={colors.sky[500]} size={16} />
-          <Text className="text-md text-sky-500">Send</Text>
+          <ArrowUp className="text-slate-900" size={22} />
         </>
       )}
     </TouchableOpacity>

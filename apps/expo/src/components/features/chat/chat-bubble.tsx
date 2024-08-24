@@ -15,15 +15,15 @@ const ChatBubble = ({ message }: ChatBubbleProps) => {
   return (
     <View
       className={cn(
-        "relative rounded-3xl px-4 py-3",
+        "relative rounded-xl px-4 py-3",
         message.role === "user"
-          ? "ml-14 self-end bg-sky-500"
+          ? "ml-14 self-end bg-slate-800"
           : "mr-14 self-start bg-gray-200",
       )}
     >
       {message.role === "user" ? (
         <View className="absolute -bottom-1 -right-1 -scale-x-100">
-          <BubbleTail color={colors.sky[500]} />
+          <BubbleTail color={colors.slate[700]} />
         </View>
       ) : (
         <View className="absolute -bottom-1 -left-1">

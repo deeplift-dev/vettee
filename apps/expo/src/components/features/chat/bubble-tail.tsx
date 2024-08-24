@@ -1,11 +1,11 @@
+import type { ColorValue } from "react-native";
 import React from "react";
-import { ColorValue } from "react-native";
-import Svg, { Path } from "react-native-svg";
+import Svg, { Circle } from "react-native-svg";
 
 const BubbleTail = ({ color }: { color: ColorValue }) => {
   return (
-    <Svg width="15" height="30" viewBox="0 0 15 30" fill="none">
-      <Path d="M 15 15 L 15 15 Q 12 26 0 30.5 Q 6 22 5 9 Z" fill={color} />
+    <Svg width="30" height="30" viewBox="0 0 30 30" fill="none" opacity={0.5}>
+      <Circle cx="3.5" cy="26" r="3" fill={color} />
     </Svg>
   );
 };
