@@ -9,19 +9,21 @@ import {
 } from "react-native";
 import { OpenAI, useChat } from "react-native-gen-ui";
 import Animated, { FadeIn } from "react-native-reanimated";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { z } from "zod";
 
+import type { RouterOutputs } from "~/utils/api";
 import Typing from "~/components/ui/loaders/typing";
 import Text from "~/components/ui/text";
+import { api } from "~/utils/api";
 import { initThreadPrompt } from "~/utils/chat/prompt-constants";
 import ChatInput from "./chat-input";
 import ChatMessage from "./chat-message";
 import ChatSubmitButton from "./chat-submit-button";
+import ConversationTitle from "./conversation-title";
 
 const openAi = new OpenAI({
   apiKey: process.env.EXPO_PUBLIC_OPENAI_API_KEY,
-  model: process.env.EXPO_PUBLIC_OPENAI_MODEL || "gpt-4",
+  model: process.env.EXPO_PUBLIC_OPENAI_MODEL || "gpt-4o",
   // You can even set a custom basePath of your SSE server
 });
 
@@ -184,6 +186,43 @@ const useCameraTool = {
 };
 
 const ChatTool = ({ animal, profile }) => {
+  type Conversation = RouterOutputs["conversation"]["create"];
+  type ConversationMessage = RouterOutputs["conversation"]["saveMessage"];
+
+  const [conversationTitle, setConversationTitle] = React.useState<
+    string | null
+  >(null);
+  const [conversationId, setConversationId] = React.useState<string | null>(
+    null,
+  );
+  const {
+    mutate: getConversationTitle,
+    isPending: isGettingConversationTitle,
+  } = api.assistant.getConversationTitle.useMutation({
+    onSuccess: (data) => {
+      console.log("conversation response", data);
+      console.log("conversation title", typeof data);
+      if (data && typeof data === "string") {
+        console.log("setting conversation title", data);
+        setConversationTitle(data);
+      }
+    },
+  });
+
+  const { mutate: createConversation, isPending: isCreatingConversation } =
+    api.conversation.create.useMutation({
+      onSuccess: (data: Conversation) => {
+        setConversationId(data[0]?.id);
+      },
+    });
+
+  const { mutate: saveMessage, isPending: isSavingMessage } =
+    api.conversation.saveMessage.useMutation({
+      onSuccess: (data: ConversationMessage) => {
+        console.log("message saved", data);
+      },
+    });
+
   const {
     input,
     error,
@@ -212,7 +251,33 @@ const ChatTool = ({ animal, profile }) => {
       console.error("Error while streaming:", error);
     },
     onSuccess: (data) => {
-      console.log("onSuccess", data);
+      if (messageCount % 10 === 0 || messageCount === 4) {
+        getConversationTitle({
+          species: animal.species,
+          name: animal.name,
+          yearOfBirth: animal.yearOfBirth,
+          messages: messages,
+        });
+      }
+
+      if (messageCount === 2) {
+        console.log("creating conversation");
+        createConversation({
+          animalId: animal.id,
+          title: conversationTitle || "Conversation with " + animal.name,
+          messages: messages,
+        });
+      }
+
+      if (messageCount > 2 && conversationId) {
+        saveMessage({
+          conversationId: conversationId,
+          message: {
+            content: data[0]?.content,
+            role: data[0]?.role,
+          },
+        });
+      }
     },
     tools: {
       getAwareness: getAwarenessTool,
@@ -225,17 +290,24 @@ const ChatTool = ({ animal, profile }) => {
     () => isLoading && !isStreaming,
     [isLoading, isStreaming],
   );
-  console.log("isThinking", isThinking);
+
+  const messageCount = messages.length;
 
   return (
-    <SafeAreaView className="flex-1">
+    <View className="flex-1">
+      <View className="absolute top-0 z-10 w-full">
+        <ConversationTitle
+          loading={isGettingConversationTitle}
+          title={conversationTitle}
+        />
+      </View>
       {/* List of messages */}
       <FlatList
         data={messages}
         inverted
         contentContainerStyle={{
           flexDirection: "column-reverse",
-          padding: 12,
+          paddingHorizontal: 12,
         }}
         renderItem={({ item, index }) => (
           // Individual message component
@@ -281,7 +353,7 @@ const ChatTool = ({ animal, profile }) => {
           </View>
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 };
 

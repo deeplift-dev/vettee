@@ -1,5 +1,11 @@
 import { relations, sql } from "drizzle-orm";
-import { numeric, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
+import {
+  jsonb,
+  numeric,
+  pgTable,
+  timestamp,
+  varchar,
+} from "drizzle-orm/pg-core";
 
 export const profile = pgTable("profile", {
   id: varchar("id", { length: 256 }).primaryKey(),
@@ -9,6 +15,12 @@ export const profile = pgTable("profile", {
   email: varchar("email", { length: 256 }),
   mobileNumber: varchar("mobile_number", { length: 256 }),
   onboardedAt: timestamp("onboarded_at"),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
 });
 
 export const profileRelations = relations(profile, ({ many }) => ({
@@ -26,63 +38,32 @@ export const animal = pgTable("animal", {
   createdAt: timestamp("created_at")
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
+  updatedAt: timestamp("updated_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
 });
 
 export const animalRelations = relations(animal, ({ one }) => ({
   owner: one(profile, { fields: [animal.ownerId], references: [profile.id] }),
 }));
 
-export const assistant = pgTable("assistant", {
+export const conversation = pgTable("conversation", {
   id: varchar("id", { length: 256 }).primaryKey(),
-  name: varchar("name", { length: 256 }),
-  instructions: varchar("instructions", { length: 256 }),
-  model: varchar("model", { length: 256 }),
-  profileId: varchar("profile_id", { length: 256 }),
-  createdAt: timestamp("created_at"),
-});
-
-export const assistantRelations = relations(assistant, ({ one }) => ({
-  profile: one(profile, {
-    fields: [assistant.profileId],
-    references: [profile.id],
-  }),
-}));
-
-export const thread = pgTable("thread", {
-  id: varchar("id", { length: 256 }).primaryKey(),
-  assistantId: varchar("assistant_id", { length: 256 }),
   animalId: varchar("animal_id", { length: 256 }),
-  threadId: varchar("thread_id", { length: 256 }),
-  object: varchar("object", { length: 256 }),
+  title: varchar("title", { length: 256 }).notNull(),
+  messages: jsonb("messages").notNull(),
+  ownerId: varchar("owner_id", { length: 256 }).notNull(),
   createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at")
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
 });
 
-export const threadRelations = relations(thread, ({ one, many }) => ({
-  assistant: one(assistant, {
-    fields: [thread.assistantId],
-    references: [assistant.id],
-  }),
+export const conversationRelations = relations(conversation, ({ one }) => ({
   animal: one(animal, {
-    fields: [thread.animalId],
+    fields: [conversation.animalId],
     references: [animal.id],
-  }),
-  messages: many(message),
-}));
-
-export const message = pgTable("message", {
-  id: varchar("id", { length: 256 }).primaryKey(),
-  threadId: varchar("thread_id", { length: 256 }),
-  content: varchar("content", { length: 256 }),
-  createdAt: timestamp("created_at")
-    .default(sql`CURRENT_TIMESTAMP`)
-    .notNull(),
-});
-
-export const messageRelations = relations(message, ({ one }) => ({
-  thread: one(thread, {
-    fields: [message.threadId],
-    references: [thread.id],
   }),
 }));

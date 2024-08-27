@@ -4,7 +4,7 @@ import { useRouter } from "expo-router";
 import { View } from "@gluestack-ui/themed";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { formatDistanceToNow } from "date-fns";
-import { XIcon } from "lucide-react-native";
+import { Settings2Icon, XIcon } from "lucide-react-native";
 
 import Text from "~/components/ui/text";
 
@@ -43,7 +43,7 @@ const ChatMenu = forwardRef((props, ref) => {
         </TouchableWithoutFeedback>
         <Text className="text-center font-bold">Menu</Text>
         <View>
-          <Text className="text-right">Reset</Text>
+          <Settings2Icon size={26} color="black" />
         </View>
       </View>
       <View className="flex flex-col gap-6 p-4">

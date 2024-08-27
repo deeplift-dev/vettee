@@ -1,12 +1,8 @@
-import { TRPCError } from "@trpc/server";
-import { nanoid } from "nanoid";
 import OpenAI from "openai";
 import { z } from "zod";
 
-import { schema } from "@acme/db";
-
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { initThreadPrompt } from "../utils/prompt-constants";
+import { getConversationTitlePrompt } from "../utils/prompt-constants";
 
 export const assistantRouter = createTRPCRouter({
   checkAnimal: protectedProcedure
@@ -81,6 +77,64 @@ export const assistantRouter = createTRPCRouter({
       }
     }),
 
+  getConversationTitle: protectedProcedure
+    .input(
+      z.object({
+        species: z.string().min(1),
+        name: z.string().min(1),
+        yearOfBirth: z.string().min(1),
+        messages: z.array(
+          z.object({
+            role: z.enum(["system", "user", "assistant"]),
+            content: z.string(),
+          }),
+        ),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      try {
+        const response = await openai.chat.completions.create({
+          stream: false,
+          model: "gpt-3.5-turbo",
+          max_tokens: 50,
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a helpful assistant that generates conversation titles.",
+            },
+            {
+              role: "user",
+              content: getConversationTitlePrompt(
+                input.messages,
+                input.species,
+                input.name,
+                input.yearOfBirth,
+              ),
+            },
+          ],
+        });
+        const content = response.choices[0]?.message?.content;
+        if (typeof content === "string" && content.trim().length > 0) {
+          // Remove any leading/trailing quotes and whitespace
+          const cleanedContent = content.trim().replace(/^["']|["']$/g, "");
+          // Ensure the title is not too long
+          const truncatedContent =
+            cleanedContent.length > 40
+              ? cleanedContent.substring(0, 37) + "..."
+              : cleanedContent;
+          return truncatedContent;
+        } else {
+          // Fallback title with additional info
+          return `Chat about ${input.species} ${input.name}`;
+        }
+      } catch (error) {
+        console.error("Error generating conversation title:", error);
+        return "Chat with " + input.name;
+      }
+    }),
+
   getPromptSuggestions: protectedProcedure
     .input(
       z.object({
@@ -127,142 +181,5 @@ export const assistantRouter = createTRPCRouter({
       } catch (error) {
         console.log(error);
       }
-    }),
-
-  createNew: protectedProcedure
-    .input(
-      z.object({
-        animalId: z.string(),
-        name: z.string(),
-        instructions: z.string(),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-      try {
-        const assistant = await openai.beta.assistants.create({
-          name: input.name,
-          instructions: input.instructions,
-          model: "gpt-4-turbo",
-        });
-
-        return assistant;
-      } catch (error) {
-        console.error("Failed to process intake through OpenAI:", error);
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to process animal intake through OpenAI",
-        });
-      }
-    }),
-
-  createThread: protectedProcedure
-    .input(
-      z.object({
-        assistantId: z.string(),
-        animalId: z.string(),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      try {
-        const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-        const thread = await openai.beta.threads.create();
-        const threadDb = await ctx.db.insert(schema.thread).values({
-          id: nanoid(),
-          assistantId: input.assistantId,
-          animalId: input.animalId,
-          threadId: thread.id,
-          object: thread.object,
-        });
-
-        return thread;
-      } catch (error) {
-        console.log("error saving---", error);
-      }
-    }),
-
-  createMessage: protectedProcedure
-    .input(
-      z.object({
-        threadId: z.string(),
-        message: z.string(),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      try {
-        const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-        const message = await openai.beta.threads.messages.create(
-          input.threadId,
-          {
-            role: "user",
-            content: input.message,
-          },
-          {
-            stream: true,
-          },
-        );
-        console.log(message.delta);
-        return message;
-      } catch (error) {
-        console.log(error);
-      }
-    }),
-
-  createRun: protectedProcedure
-    .input(
-      z.object({
-        threadId: z.string(),
-        assistantId: z.string(),
-        animal: z.object({
-          name: z.string().min(1),
-          species: z.string().min(1),
-          avatarUrl: z.string().optional(),
-          yearOfBirth: z.number().int().min(1950),
-        }),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-      const run = await openai.beta.threads.runs.create(input.threadId, {
-        assistant_id: input.assistantId,
-        instructions: initThreadPrompt(
-          input.animal.species,
-          input.animal.name,
-          input.animal.yearOfBirth,
-        ),
-      });
-      console.log("run: ", run);
-      return run;
-    }),
-
-  pollRun: protectedProcedure
-    .input(
-      z.object({
-        threadId: z.string(),
-        runId: z.string(),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-      const run = await openai.beta.threads.runs.retrieve(
-        input.threadId,
-        input.runId,
-      );
-      return run;
-    }),
-
-  getMessages: protectedProcedure
-    .input(
-      z.object({
-        threadId: z.string(),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-      const messages = await openai.beta.threads.messages.list(input.threadId);
-      console.log(messages.data);
-
-      return messages;
     }),
 });

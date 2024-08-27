@@ -4,6 +4,7 @@ import Animated, { FadeIn } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "expo-router";
 import { Feather } from "@expo/vector-icons";
+import { PlusCircleIcon } from "lucide-react-native";
 
 import type { RouterOutputs } from "@acme/api";
 
@@ -91,9 +92,10 @@ const AnimalsCarousel: React.FC<AnimalsCarouselProps> = ({
         </Text>
         <Pressable
           onPress={() => navigation.navigate("animal-create")}
-          className="rounded-xl border border-slate-300 bg-slate-900 px-2 py-1 shadow-sm"
+          className="flex flex-row items-center gap-x-2 rounded-xl border border-slate-300 bg-slate-900 px-3 py-3 shadow-sm"
         >
-          <Text className="font-medium text-slate-50">Add animal</Text>
+          <PlusCircleIcon size={20} color="#ffff" />
+          <Text className="font-semibold text-slate-50">Add animal</Text>
         </Pressable>
       </Animated.View>
       <ScrollView

@@ -1,10 +1,8 @@
-import { TRPCError } from "@trpc/server";
 import { nanoid } from "nanoid";
 import { z } from "zod";
 
-import { desc, eq, schema } from "@acme/db";
+import { eq, schema } from "@acme/db";
 
-import { getYears } from "~/utils/data/get-years";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 export const animalRouter = createTRPCRouter({
