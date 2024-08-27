@@ -1,5 +1,6 @@
 import React, { forwardRef, useImperativeHandle, useRef } from "react";
-import { ScrollView, TouchableWithoutFeedback } from "react-native";
+import { ScrollView } from "react-native";
+import { TouchableOpacity } from "react-native-gesture-handler";
 import { useRouter } from "expo-router";
 import { View } from "@gluestack-ui/themed";
 import BottomSheet from "@gorhom/bottom-sheet";
@@ -35,12 +36,12 @@ const ChatMenu = forwardRef((props, ref) => {
       handleComponent={null}
     >
       <View className="flex flex-row items-center justify-between border-b border-gray-200 bg-white px-4 py-4">
-        <TouchableWithoutFeedback
+        <TouchableOpacity
           className="border-t border-gray-800 shadow"
           onPress={closeBottomSheet}
         >
           <XIcon size={26} color="black" />
-        </TouchableWithoutFeedback>
+        </TouchableOpacity>
         <Text className="text-center font-bold">Menu</Text>
         <View>
           <Settings2Icon size={26} color="black" />

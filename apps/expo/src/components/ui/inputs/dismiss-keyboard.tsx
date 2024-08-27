@@ -1,5 +1,5 @@
 import { Keyboard, View } from "react-native";
-import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 interface DismissKeyboardProps {
   children: React.ReactNode;
@@ -11,8 +11,8 @@ export default function DismissKeyboard(props: DismissKeyboardProps) {
     Keyboard.dismiss();
   };
   return (
-    <TouchableWithoutFeedback onPress={dismissKeyboard}>
+    <TouchableOpacity onPress={dismissKeyboard}>
       <View>{children}</View>
-    </TouchableWithoutFeedback>
+    </TouchableOpacity>
   );
 }
