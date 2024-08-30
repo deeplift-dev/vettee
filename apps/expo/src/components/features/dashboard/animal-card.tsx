@@ -1,6 +1,5 @@
 import React from "react";
 import { Pressable, View } from "react-native";
-import { BlurView } from "expo-blur";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
@@ -77,25 +76,16 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onEdit }) => {
   return (
     <View className="h-5/6 w-full">
       <View className="relative mr-2 h-full w-full items-center rounded-xl border border-gray-400 bg-gray-200">
-        <View className="absolute right-0 top-0 z-10 mx-4 mt-2 rounded-full">
+        <View className="absolute right-0 top-0 z-10 mx-4 mt-3 rounded-full">
           <Pressable
             onPress={() => setShowAwarenessModal(true)}
-            className="overflow-hidden rounded-full border border-slate-700 shadow-lg"
+            className="overflow-hidden rounded-lg border border-slate-700 shadow-lg"
           >
-            <BlurView
-              intensity={400}
-              style={{
-                padding: 4,
-                borderRadius: 1000,
-                flexDirection: "row",
-                flex: 1,
-                alignItems: "center",
-              }}
-            >
-              <Text className="mr-1 leading-none text-slate-800">
+            <View className="rounded-lg bg-slate-50 px-1 py-2">
+              <Text className="mr-1 leading-none text-slate-900">
                 Awareness: Low
               </Text>
-            </BlurView>
+            </View>
           </Pressable>
         </View>
         {imageUrl ? (
@@ -130,9 +120,12 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onEdit }) => {
             }}
           />
         )}
-        <View className="absolute w-full px-4 pt-2">
+        <View className="absolute w-full px-4 pt-3">
           <Text
-            className={`font-medium ${imageUrl ? "text-white" : "text-black"}`}
+            fontSize={20}
+            className={`text-lg font-medium ${
+              imageUrl ? "text-white" : "text-black"
+            }`}
           >
             {animal.name}
           </Text>
