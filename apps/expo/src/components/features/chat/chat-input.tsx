@@ -9,6 +9,7 @@ import {
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { Camera, X, Zap } from "lucide-react-native";
 
+import Text from "~/components/ui/text";
 import { cn } from "~/utils/chat/cn";
 
 interface ChatInputProps {
@@ -84,12 +85,19 @@ const ChatInput = ({ input, onInputChange }: ChatInputProps) => {
         )}
       </View>
       {showQuickActions && (
-        <ScrollView horizontal className="mt-2">
-          <View className="m-2 h-24 w-24 rounded-lg bg-gray-200" />
-          <View className="m-2 h-24 w-24 rounded-lg bg-gray-200" />
-          <View className="m-2 h-24 w-24 rounded-lg bg-gray-200" />
-          <View className="m-2 h-24 w-24 rounded-lg bg-gray-200" />
-          <View className="m-2 h-24 w-24 rounded-lg bg-gray-200" />
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          className="gap mt-2 flex flex-row"
+        >
+          <View className="flex h-24 justify-center rounded-lg border border-slate-300 bg-white px-2">
+            <Text className="mb-1 text-sm font-bold">Critical Response</Text>
+            <Text fontSize={14}>Use for serious concerns about pet health</Text>
+          </View>
+          <View className="ml-1 flex h-24 justify-center rounded-lg border border-slate-300 bg-white px-2">
+            <Text className="mb-1 text-sm font-bold">Add Vet</Text>
+            <Text fontSize={14}>Add a real vet to the chat</Text>
+          </View>
         </ScrollView>
       )}
     </View>

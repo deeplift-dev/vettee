@@ -15,11 +15,12 @@ const ChatBubble = ({ message }: ChatBubbleProps) => {
   return (
     <View
       className={cn(
-        "relative rounded-xl px-4 py-3",
+        "relative rounded-xl px-4",
         message.role === "user"
           ? "ml-14 self-end bg-slate-800"
           : "mr-14 self-start bg-gray-200",
       )}
+      style={{ minHeight: 40 }} // Add a minimum height to ensure visibility
     >
       {message.role === "user" ? (
         <View className="absolute -bottom-1 -right-1 -scale-x-100">
@@ -30,9 +31,14 @@ const ChatBubble = ({ message }: ChatBubbleProps) => {
           <BubbleTail color={colors.gray[200]} />
         </View>
       )}
-      <MarkdownDisplay textColor={message.role === "user" ? "white" : "black"}>
-        {typeof message.content === "string" ? message.content : ""}
-      </MarkdownDisplay>
+      <View className="flex-shrink py-3">
+        {/* Wrap MarkdownDisplay in a flexible container */}
+        <MarkdownDisplay
+          textColor={message.role === "user" ? "white" : "black"}
+        >
+          {typeof message.content === "string" ? message.content : ""}
+        </MarkdownDisplay>
+      </View>
     </View>
   );
 };

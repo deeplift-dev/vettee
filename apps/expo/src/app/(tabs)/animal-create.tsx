@@ -1,12 +1,12 @@
 import type { Control, FieldErrors, UseFormWatch } from "react-hook-form";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { ActivityIndicator, Alert, Keyboard } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { Image } from "expo-image";
 import { Redirect, useNavigation } from "expo-router";
 import { Button, HStack, Text, View, VStack } from "@gluestack-ui/themed";
-import AnimatedLottieView from "lottie-react-native";
+import LottieView from "lottie-react-native";
 import { Controller, useForm } from "react-hook-form";
 
 import ImagePicker from "~/components/features/onboarding/image-picker";
@@ -89,16 +89,17 @@ const CarouselBody = () => {
     },
   });
 
-  const { mutate: createAnimal } = api.animal.create.useMutation({
-    onSuccess: async (data) => {
-      navigation.navigate("index");
-      Keyboard.dismiss();
-    },
-    onError: (error) => {
-      if (error.data?.code === "UNAUTHORIZED")
-        Alert.alert("Error", "You must be logged in to create a post");
-    },
-  });
+  const { mutate: createAnimal, isLoading: isCreatingAnimal } =
+    api.animal.create.useMutation({
+      onSuccess: async (data) => {
+        navigation.navigate("index");
+        Keyboard.dismiss();
+      },
+      onError: (error) => {
+        if (error.data?.code === "UNAUTHORIZED")
+          Alert.alert("Error", "You must be logged in to create a post");
+      },
+    });
 
   const carouselItems = [
     {
@@ -133,6 +134,7 @@ const CarouselBody = () => {
           control={control}
           errors={errors}
           setValue={setValue}
+          isCreatingAnimal={isCreatingAnimal}
           onSaveAnimal={() => {
             createAnimal({
               name: getValues().animalName,
@@ -162,6 +164,8 @@ interface IntroCardProps {
 }
 
 const IntroCard = ({ navigateToSlide }: IntroCardProps) => {
+  const animationRef = useRef<LottieView>(null);
+
   return (
     <Animated.View
       entering={FadeInDown.duration(500)}
@@ -185,14 +189,15 @@ const IntroCard = ({ navigateToSlide }: IntroCardProps) => {
         </View>
         <View className="py-12" />
         <View className="flex flex-row justify-center">
-          <AnimatedLottieView
+          <LottieView
+            ref={animationRef}
             autoPlay
+            loop
             style={{
               width: 220,
               height: 220,
               backgroundColor: "transparent",
             }}
-            // Find more Lottie files at https://lottiefiles.com/featured
             source={require("../../../assets/animations/complete-animation.json")}
           />
         </View>
@@ -348,12 +353,14 @@ interface UploadAnimalImagesProps {
   getValues: () => FormData;
   setValue: (name: keyof FormData, value: string) => void;
   onSaveAnimal: () => void;
+  isCreatingAnimal: boolean;
 }
 
 const UploadAnimalImages = ({
   getValues,
   setValue,
   onSaveAnimal,
+  isCreatingAnimal,
 }: UploadAnimalImagesProps) => {
   const setBackground = useStore((state) => state.updateBackgroundColors);
   const [isLoading, setIsLoading] = useState(false);
@@ -453,7 +460,7 @@ const UploadAnimalImages = ({
           size="xl"
           bg={getValues().animalPhoto ? "$black" : "$lightgray"}
         >
-          {isLoading ? (
+          {isLoading || isCreatingAnimal ? (
             <ActivityIndicator size="small" color="#0000ff" />
           ) : getValues().animalPhoto ? (
             <Text fontFamily="$mono" color="$white">

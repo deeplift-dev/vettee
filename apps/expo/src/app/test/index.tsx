@@ -7,9 +7,9 @@ import {
   Pressable,
   Text,
   TextInput,
-  TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { TouchableOpacity } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import { Link, Stack } from "expo-router";
@@ -82,7 +82,7 @@ function CreatePost() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={150}
     >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} className="flex-1">
+      <TouchableOpacity onPress={Keyboard.dismiss} className="flex-1">
         <View className="mt-4 justify-around">
           <TextInput
             className="mb-2 rounded bg-white/10 p-2 text-zinc-200"
@@ -120,7 +120,7 @@ function CreatePost() {
             <Text className="font-semibold text-zinc-900">Publish post</Text>
           </Pressable>
         </View>
-      </TouchableWithoutFeedback>
+      </TouchableOpacity>
     </KeyboardAvoidingView>
   );
 }

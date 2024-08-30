@@ -1,9 +1,11 @@
 import React from "react";
 import { TouchableOpacity, View } from "react-native";
 import { Avatar, AvatarImage } from "@gluestack-ui/themed";
+import { useSupabaseClient } from "@supabase/auth-helpers-react";
 
 import LogoText from "~/components/ui/logo/logo-text";
 import Text from "~/components/ui/text";
+import { downloadPresignedUrl } from "~/utils/helpers/images";
 
 interface Animal {
   type: string;
@@ -47,10 +49,10 @@ const TalkingAboutButton: React.FC<TalkingAboutButtonProps> = ({
   return (
     <TouchableOpacity
       onPress={onPress}
-      className="flex flex-row items-center gap-2 rounded-full bg-white p-1"
+      className="flex flex-row items-center gap-2 rounded-full border border-slate-300 bg-white p-1"
     >
       <AnimalAvatar animal={animal} />
-      <Text variant="fine-print" className="font-medium">
+      <Text fontSize={14} className="font-medium">
         {animal.name}
       </Text>
     </TouchableOpacity>
@@ -62,11 +64,27 @@ interface AnimalAvatarProps {
 }
 
 const AnimalAvatar: React.FC<AnimalAvatarProps> = ({ animal }) => {
+  const [imageUrl, setImageUrl] = React.useState(null);
+  const supabase = useSupabaseClient();
+  React.useEffect(() => {
+    const fetchImageUrl = async () => {
+      if (animal.avatarUrl) {
+        const url = await downloadPresignedUrl(
+          supabase,
+          animal.avatarUrl,
+          "animal-profiles",
+        );
+        setImageUrl(url);
+      }
+    };
+
+    fetchImageUrl();
+  }, [animal.avatarUrl, supabase]);
   return (
     <Avatar bgColor="$green200" size="sm" borderRadius="$full">
       <AvatarImage
         source={{
-          uri: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbgLFeQcTbw1n6q4B8bgoVcc_5x9ftDEggUw&s",
+          uri: imageUrl ?? "",
         }}
       />
     </Avatar>

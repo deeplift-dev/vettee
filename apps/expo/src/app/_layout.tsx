@@ -13,6 +13,7 @@ import { supabase } from "../utils/supabase";
 
 import "../styles.css";
 
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import config from "gluestack.config";
 import { cssInterop } from "nativewind";
@@ -37,22 +38,24 @@ export default function RootLayout() {
   }
 
   return (
-    <SessionContextProvider supabaseClient={supabase}>
-      <TRPCProvider>
-        <GluestackUIProvider config={config}>
-          <BottomSheetModalProvider>
-            <Stack initialRouteName="(tabs)">
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen name="auth" options={{ headerShown: false }} />
-              <Stack.Screen
-                name="onboarding"
-                options={{ headerShown: false }}
-              />
-            </Stack>
-            <StatusBar />
-          </BottomSheetModalProvider>
-        </GluestackUIProvider>
-      </TRPCProvider>
-    </SessionContextProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SessionContextProvider supabaseClient={supabase}>
+        <TRPCProvider>
+          <GluestackUIProvider config={config}>
+            <BottomSheetModalProvider>
+              <Stack initialRouteName="(tabs)">
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen name="auth" options={{ headerShown: false }} />
+                <Stack.Screen
+                  name="onboarding"
+                  options={{ headerShown: false }}
+                />
+              </Stack>
+              <StatusBar />
+            </BottomSheetModalProvider>
+          </GluestackUIProvider>
+        </TRPCProvider>
+      </SessionContextProvider>
+    </GestureHandlerRootView>
   );
 }
