@@ -32,7 +32,7 @@ const ConversationTitle = ({
           >
             <MessageSquareTextIcon size={16} className="text-slate-500" />
             {typeof title === "string" && (
-              <Text fontSize={14} className="text-slate-500">
+              <Text fontSize={14} className="text-slate-700">
                 {title}
               </Text>
             )}

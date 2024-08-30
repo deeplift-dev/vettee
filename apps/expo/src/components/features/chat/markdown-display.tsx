@@ -21,7 +21,7 @@ const MarkdownDisplay = memo(
         {children}
       </Markdown>
     );
-  }
+  },
 );
 
 MarkdownDisplay.displayName = "MarkdownDisplay";
@@ -109,5 +109,6 @@ const styles = {
   paragraph: {
     marginTop: 2,
     marginBottom: 2,
+    paddingVertical: 8,
   },
 };

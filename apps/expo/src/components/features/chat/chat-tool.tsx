@@ -251,7 +251,7 @@ const ChatTool = ({ animal, profile }) => {
       console.error("Error while streaming:", error);
     },
     onSuccess: (data) => {
-      if (messageCount % 10 === 0 || messageCount === 4) {
+      if (messageCount % 10 === 0 || messageCount === 2) {
         getConversationTitle({
           species: animal.species,
           name: animal.name,
