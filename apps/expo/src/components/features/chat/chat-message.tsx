@@ -4,10 +4,11 @@ import type {
 } from "react-native-gen-ui";
 import React from "react";
 import { Text, View } from "react-native";
-import Animated, { FadeInDown } from "react-native-reanimated";
+import Animated, { FadeIn } from "react-native-reanimated";
 
 import { cn } from "~/utils/chat/cn";
 import ChatBubble from "./chat-bubble";
+import MessageToolbar from "./message-toolbar";
 
 interface ChatMessageProps {
   message: ChatCompletionMessageOrReactElement;
@@ -24,15 +25,45 @@ const ChatMessage = ({
   isStreaming,
   error,
 }: ChatMessageProps) => {
+  const [key, setKey] = React.useState(0);
+
+  const handleLikePress = () => {
+    console.log("Like pressed");
+    // Implement like functionality
+  };
+
+  const handleReplyPress = () => {
+    console.log("Reply pressed");
+    // Implement reply functionality
+  };
+
+  const handleSharePress = () => {
+    console.log("Share pressed");
+    // Implement share functionality
+  };
+
   return (
-    <View className={cn("flex gap-y-2", !isLastMessage && "pb-4")}>
+    <Animated.View
+      key={key}
+      className={cn("flex", !isLastMessage && "pb-4")}
+      entering={FadeIn.duration(500)}
+    >
       <MessageContent message={message} />
+      {!React.isValidElement(message) &&
+        (message as ChatCompletionMessageParam).role !== "system" && (
+          <MessageToolbar
+            message={message as ChatCompletionMessageParam}
+            onLikePress={handleLikePress}
+            onReplyPress={handleReplyPress}
+            onSharePress={handleSharePress}
+          />
+        )}
       {isLastMessage && error && (
         <View className="self-start rounded-2xl bg-red-100 px-5 py-4">
           <Text className="text-red-500">{error.message}</Text>
         </View>
       )}
-    </View>
+    </Animated.View>
   );
 };
 
@@ -47,7 +78,6 @@ const MessageContent = ({
   }
 
   if (React.isValidElement(message)) {
-    console.log("made it ehre", message);
     return <View>{message}</View>;
   }
 
@@ -59,18 +89,22 @@ const MessageContent = ({
 
   if (m.role === "function") {
     return null;
-    return (
-      <View style={{ opacity: 0.4 }}>
-        <Text>Only seen by the model:</Text>
-        <Text>{m.content}</Text>
-      </View>
-    );
   }
 
   return (
-    <Animated.View entering={FadeInDown.duration(300)}>
-      <ChatBubble message={m} />
-    </Animated.View>
+    <View>
+      <View
+        style={{ flexShrink: 1 }}
+        className={cn(
+          "rounded-xl",
+          m.role === "user"
+            ? "ml-4 self-end bg-slate-900"
+            : "mr-4 w-full self-start bg-white",
+        )}
+      >
+        <ChatBubble message={m} />
+      </View>
+    </View>
   );
 };
 

@@ -419,6 +419,7 @@ const UploadAnimalImages = ({
                     source={{ uri: animalPhoto }}
                     style={{ width: 300, height: 300, borderRadius: 10 }}
                     placeholder={{ blurhash }}
+                    alt="animal photo"
                   />
                 </Animated.View>
                 <View className="py-4"></View>
@@ -506,6 +507,7 @@ const ReviewAnimalDetails = ({
             placeholder={blurhash}
             contentFit="cover"
             transition={1000}
+            alt="animal photo"
           />
         </View>
         <View className="py-4" />

@@ -1,14 +1,16 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   FlatList,
   Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  ScrollView,
   View,
 } from "react-native";
 import { OpenAI, useChat } from "react-native-gen-ui";
-import Animated, { FadeIn } from "react-native-reanimated";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import { nanoid } from "nanoid";
 import { z } from "zod";
 
 import type { RouterOutputs } from "~/utils/api";
@@ -20,6 +22,21 @@ import ChatInput from "./chat-input";
 import ChatMessage from "./chat-message";
 import ChatSubmitButton from "./chat-submit-button";
 import ConversationTitle from "./conversation-title";
+import { PromptSuggestions } from "./prompt-suggestions";
+
+type Conversation = RouterOutputs["conversation"]["create"];
+type ConversationMessage = RouterOutputs["conversation"]["saveMessage"];
+interface ChatToolProps {
+  animal: {
+    id: string;
+    name: string;
+    species: string;
+  };
+  conversation: Conversation;
+  queryConversationId: string | null;
+  selectedPrompt: string | null;
+  onPromptUsed: () => void;
+}
 
 const openAi = new OpenAI({
   apiKey: process.env.EXPO_PUBLIC_OPENAI_API_KEY,
@@ -27,92 +44,92 @@ const openAi = new OpenAI({
   // You can even set a custom basePath of your SSE server
 });
 
-const getAwarenessTool = {
-  description: "Get awareness of the animal",
-  // Parameters for the tool
-  parameters: z.object({
-    animalId: z.string(),
-  }),
-  // Render component for awareness - can yield loading state
-  render: async function* (args) {
-    // Fetch the awareness data (dummy data for now)
-    const data = {
-      awareness: "Low",
-      animalId: args.animalId,
-    };
+// const getAwarenessTool = {
+//   description: "Get awareness of the animal",
+//   // Parameters for the tool
+//   parameters: z.object({
+//     animalId: z.string(),
+//   }),
+//   // Render component for awareness - can yield loading state
+//   render: async function* (args) {
+//     // Fetch the awareness data (dummy data for now)
+//     const data = {
+//       awareness: "Low",
+//       animalId: args.animalId,
+//     };
 
-    yield {
-      component: <Text>Loading...</Text>,
-    };
+//     yield {
+//       component: <Text>Loading...</Text>,
+//     };
 
-    // Return the final result
-    return {
-      // The data will be seen by the model
-      data,
-      // The component will be rendered to the user
-      component: (
-        <View
-          key={args.animalId}
-          style={{
-            padding: 20,
-            borderRadius: 40,
-            backgroundColor: "rgba(20, 20, 20, 0.05)",
-          }}
-        >
-          <Text className="text-2xl font-bold text-blue-500">
-            🐾 Awareness data: {data.awareness}
-          </Text>
-        </View>
-      ),
-    };
-  },
-};
+//     // Return the final result
+//     return {
+//       // The data will be seen by the model
+//       data,
+//       // The component will be rendered to the user
+//       component: (
+//         <View
+//           key={args.animalId}
+//           style={{
+//             padding: 20,
+//             borderRadius: 40,
+//             backgroundColor: "rgba(20, 20, 20, 0.05)",
+//           }}
+//         >
+//           <Text className="text-2xl font-bold text-blue-500">
+//             🐾 Awareness data: {data.awareness}
+//           </Text>
+//         </View>
+//       ),
+//     };
+//   },
+// };
 
-const getNearestEmergencyVetTool = {
-  description: "Get the nearest emergency vet",
-  // Parameters for the tool
-  parameters: z.object({
-    location: z.string(),
-  }),
-  // Render component for nearest emergency vet - can yield loading state
-  render: async function* (args) {
-    // Fetch the nearest emergency vet data (dummy data for now)
-    const data = {
-      vetName: "Emergency Vet Clinic",
-      address: "123 Pet Street, Pet City",
-      contact: "123-456-7890",
-      location: args.location,
-    };
+// const getNearestEmergencyVetTool = {
+//   description: "Get the nearest emergency vet",
+//   // Parameters for the tool
+//   parameters: z.object({
+//     location: z.string(),
+//   }),
+//   // Render component for nearest emergency vet - can yield loading state
+//   render: async function* (args) {
+//     // Fetch the nearest emergency vet data (dummy data for now)
+//     const data = {
+//       vetName: "Emergency Vet Clinic",
+//       address: "123 Pet Street, Pet City",
+//       contact: "123-456-7890",
+//       location: args.location,
+//     };
 
-    // Yield the loading state
-    yield {
-      component: <Text>Loading...</Text>,
-    };
+//     // Yield the loading state
+//     yield {
+//       component: <Text>Loading...</Text>,
+//     };
 
-    // Return the final result
-    return {
-      // The data will be seen by the model
-      data,
-      // The component will be rendered to the user
-      component: (
-        <View
-          key={args.location}
-          style={{
-            padding: 20,
-            borderRadius: 40,
-            backgroundColor: "rgba(20, 20, 20, 0.05)",
-          }}
-        >
-          <Text className="text-2xl font-bold text-green-500">
-            🏥 Nearest Emergency Vet: {data.vetName}
-          </Text>
-          <Text className="text-lg text-gray-700">Address: {data.address}</Text>
-          <Text className="text-lg text-gray-700">Contact: {data.contact}</Text>
-        </View>
-      ),
-    };
-  },
-};
+//     // Return the final result
+//     return {
+//       // The data will be seen by the model
+//       data,
+//       // The component will be rendered to the user
+//       component: (
+//         <View
+//           key={args.location}
+//           style={{
+//             padding: 20,
+//             borderRadius: 40,
+//             backgroundColor: "rgba(20, 20, 20, 0.05)",
+//           }}
+//         >
+//           <Text className="text-2xl font-bold text-green-500">
+//             🏥 Nearest Emergency Vet: {data.vetName}
+//           </Text>
+//           <Text className="text-lg text-gray-700">Address: {data.address}</Text>
+//           <Text className="text-lg text-gray-700">Contact: {data.contact}</Text>
+//         </View>
+//       ),
+//     };
+//   },
+// };
 
 const useCameraTool = {
   description: "Use the camera to take a photo",
@@ -154,6 +171,7 @@ const useCameraTool = {
                 <Image
                   className="h-10 w-10"
                   source={require("../../../../assets/illustrations/album.png")}
+                  alt="Album icon"
                 />
                 <Text pl="$2" fontFamily="$mono">
                   Pick image from camera roll
@@ -172,6 +190,7 @@ const useCameraTool = {
                 <Image
                   className="h-10 w-10"
                   source={require("../../../../assets/illustrations/camera.png")}
+                  alt="Camera icon"
                 />
                 <Text pl="$2" fontFamily="$mono">
                   Take a photo
@@ -185,42 +204,99 @@ const useCameraTool = {
   },
 };
 
-const ChatTool = ({ animal, profile }) => {
-  type Conversation = RouterOutputs["conversation"]["create"];
-  type ConversationMessage = RouterOutputs["conversation"]["saveMessage"];
-
+const ChatTool: React.FC<ChatToolProps> = ({
+  animal,
+  conversation,
+  queryConversationId,
+}) => {
   const [conversationTitle, setConversationTitle] = React.useState<
     string | null
   >(null);
+
   const [conversationId, setConversationId] = React.useState<string | null>(
     null,
   );
+
+  const [initConversationId, setInitConversationId] = React.useState<
+    string | null
+  >(null);
+
+  const [showPromptSuggestions, setShowPromptSuggestions] = useState(true);
+
+  const { mutate: updateConversationTitle } =
+    api.conversation.updateConversationTitle.useMutation({
+      onSuccess: (data) => {},
+    });
+
   const {
     mutate: getConversationTitle,
     isPending: isGettingConversationTitle,
   } = api.assistant.getConversationTitle.useMutation({
     onSuccess: (data) => {
-      console.log("conversation response", data);
-      console.log("conversation title", typeof data);
-      if (data && typeof data === "string") {
-        console.log("setting conversation title", data);
+      if (data && typeof data === "string" && conversationId) {
         setConversationTitle(data);
+        updateConversationTitle({
+          title: data,
+          id: conversationId,
+        });
       }
     },
+    onError: (err) => {
+      console.log("error", err);
+    },
   });
+
+  useEffect(() => {
+    setInitConversationId(nanoid());
+  }, []);
+
+  useEffect(() => {
+    if (queryConversationId) {
+      setConversationId(queryConversationId);
+    }
+  }, [queryConversationId]);
+
+  const onHandleSubmit = async (msg: string) => {
+    console.log("messageCount", messageCount);
+    if (messageCount === 1) {
+      console.log("creating conversation");
+
+      setShowPromptSuggestions(false);
+      createConversation({
+        id: initConversationId,
+        animalId: animal.id,
+        title: conversationTitle || "Conversation with " + animal.name,
+        messages: [
+          {
+            content: msg,
+            role: "user",
+            created_at: new Date().toISOString(),
+            id: nanoid(),
+          },
+        ],
+      });
+    } else {
+      saveMessage({
+        conversationId: initConversationId!,
+        message: {
+          content: msg,
+          role: "user",
+        },
+      });
+    }
+    handleSubmit(msg);
+  };
 
   const { mutate: createConversation, isPending: isCreatingConversation } =
     api.conversation.create.useMutation({
       onSuccess: (data: Conversation) => {
-        setConversationId(data[0]?.id);
+        setConversationId(data?.id);
       },
     });
 
   const { mutate: saveMessage, isPending: isSavingMessage } =
     api.conversation.saveMessage.useMutation({
-      onSuccess: (data: ConversationMessage) => {
-        console.log("message saved", data);
-      },
+      onSuccess: (data: ConversationMessage) => {},
     });
 
   const {
@@ -233,20 +309,22 @@ const ChatTool = ({ animal, profile }) => {
     onInputChange,
   } = useChat({
     openAi,
-    initialMessages: [
-      {
-        content: initThreadPrompt(
-          animal.species,
-          animal.name,
-          animal.yearOfBirth,
-        ),
-        role: "system",
-      },
-      {
-        content: "Hello, how can I help you today?",
-        role: "assistant",
-      },
-    ],
+    initialMessages: conversation?.messages?.length
+      ? conversation?.messages.map((msg) => ({
+          content: msg.content || "",
+          role: msg.role || "user",
+          id: msg.id || undefined,
+        }))
+      : [
+          {
+            content: initThreadPrompt(
+              animal.species,
+              animal.name,
+              animal.yearOfBirth,
+            ),
+            role: "system",
+          },
+        ],
     onError: (error) => {
       console.error("Error while streaming:", error);
     },
@@ -260,28 +338,34 @@ const ChatTool = ({ animal, profile }) => {
         });
       }
 
-      if (messageCount === 2) {
-        console.log("creating conversation");
-        createConversation({
-          animalId: animal.id,
-          title: conversationTitle || "Conversation with " + animal.name,
-          messages: messages,
-        });
-      }
+      console.log("conversationId!!", data);
 
-      if (messageCount > 2 && conversationId) {
-        saveMessage({
-          conversationId: conversationId,
-          message: {
-            content: data[0]?.content,
-            role: data[0]?.role,
-          },
-        });
+      if (messageCount > 0 && initConversationId) {
+        const lastMessage = data[0];
+        if (React.isValidElement(lastMessage)) {
+          saveMessage({
+            conversationId: initConversationId,
+            message: {
+              content: data[1]?.content || "",
+              role: data[1]?.role || "assistant",
+            },
+          });
+          console.log("last message is a valid element", lastMessage);
+        } else {
+          console.log("made it here");
+          saveMessage({
+            conversationId: initConversationId,
+            message: {
+              content: lastMessage?.content || "",
+              role: lastMessage?.role || "assistant",
+            },
+          });
+        }
       }
     },
     tools: {
-      getAwareness: getAwarenessTool,
-      getNearestEmergencyVet: getNearestEmergencyVetTool,
+      // getAwareness: getAwarenessTool,
+      // getNearestEmergencyVet: getNearestEmergencyVetTool,
       useCamera: useCameraTool,
     },
   });
@@ -293,6 +377,12 @@ const ChatTool = ({ animal, profile }) => {
 
   const messageCount = messages.length;
 
+  const [isBottomViewVisible, setIsBottomViewVisible] = useState(false);
+
+  const handleZapPress = (isVisible: boolean) => {
+    setIsBottomViewVisible(isVisible);
+  };
+
   return (
     <View className="flex-1">
       <View className="absolute top-0 z-10 w-full">
@@ -301,6 +391,18 @@ const ChatTool = ({ animal, profile }) => {
           title={conversationTitle}
         />
       </View>
+      {showPromptSuggestions && !conversationId && (
+        <View className="absolute top-1/4 z-10 flex items-center justify-center">
+          <View className="w-full px-4">
+            <PromptSuggestions
+              animal={animal}
+              promptSelected={(prompt) => {
+                onHandleSubmit(prompt);
+              }}
+            />
+          </View>
+        </View>
+      )}
       {/* List of messages */}
       <FlatList
         data={messages}
@@ -310,7 +412,6 @@ const ChatTool = ({ animal, profile }) => {
           paddingHorizontal: 12,
         }}
         renderItem={({ item, index }) => (
-          // Individual message component
           <Animated.View entering={FadeIn.duration(500)}>
             <Pressable onPress={() => console.log("Message pressed", item)}>
               <ChatMessage
@@ -323,10 +424,16 @@ const ChatTool = ({ animal, profile }) => {
             </Pressable>
           </Animated.View>
         )}
+        keyExtractor={(item, index) =>
+          `message-${index}-${
+            item.id ||
+            (item.content ? item.content.substring(0, 10) : "no-content")
+          }`
+        }
       />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="w-full"
+        className="mb-8 w-full"
         keyboardVerticalOffset={150}
       >
         <View
@@ -339,7 +446,11 @@ const ChatTool = ({ animal, profile }) => {
         <View className="flex flex-row items-start gap-x-2 p-3">
           {/* Text input field */}
           <View className="grow basis-0">
-            <ChatInput input={input} onInputChange={onInputChange} />
+            <ChatInput
+              input={input}
+              onInputChange={onInputChange}
+              onZapPress={handleZapPress}
+            />
           </View>
 
           {/* Submit button */}
@@ -348,10 +459,48 @@ const ChatTool = ({ animal, profile }) => {
               isLoading={isLoading}
               isStreaming={isStreaming}
               input={input}
-              handleSubmit={handleSubmit}
+              handleSubmit={async (msg) => {
+                await onHandleSubmit(msg);
+              }}
             />
           </View>
         </View>
+
+        {isBottomViewVisible && (
+          <Animated.View
+            className="relative mx-4 mt-2"
+            entering={FadeIn.duration(300)}
+            exiting={FadeOut.duration(300)}
+          >
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              className="flex flex-row"
+            >
+              <Animated.View
+                className="flex h-24 justify-center rounded-lg border border-slate-300 bg-white px-2"
+                entering={FadeIn.duration(300).delay(100)}
+                exiting={FadeOut.duration(300)}
+              >
+                <Text className="mb-1 text-sm font-bold">
+                  Critical Response
+                </Text>
+                <Text fontSize={14}>
+                  Use for serious concerns about pet health
+                </Text>
+              </Animated.View>
+              <Animated.View
+                className="ml-1 flex h-24 justify-center rounded-lg border border-slate-300 bg-white px-2"
+                entering={FadeIn.duration(300).delay(200)}
+                exiting={FadeOut.duration(300)}
+              >
+                <Text className="mb-1 text-sm font-bold">Add Vet</Text>
+                <Text fontSize={14}>Add a real vet to the chat</Text>
+              </Animated.View>
+            </ScrollView>
+            <View className="absolute right-0 top-0 h-full w-16 bg-gradient-to-l from-white to-transparent" />
+          </Animated.View>
+        )}
       </KeyboardAvoidingView>
     </View>
   );

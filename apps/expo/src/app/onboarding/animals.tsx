@@ -494,6 +494,7 @@ const ReviewAnimalDetails = ({
             placeholder={blurhash}
             contentFit="cover"
             transition={1000}
+            alt="animal photo"
           />
         </View>
         <View className="py-4" />

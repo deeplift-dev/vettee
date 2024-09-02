@@ -15,6 +15,7 @@ const MarkdownDisplay = memo(
           ...styles,
           body: {
             color: textColor || "black",
+            paddingHorizontal: 20,
           },
         }}
       >
@@ -105,10 +106,5 @@ const styles = {
         fontFamily: "monospace",
       },
     }),
-  },
-  paragraph: {
-    marginTop: 2,
-    marginBottom: 2,
-    paddingVertical: 8,
   },
 };

@@ -1,5 +1,17 @@
 # @acme/expo
 
+## 1.4.0
+
+### Minor Changes
+
+- Saving conversations now
+
+## 1.3.0
+
+### Minor Changes
+
+- 9648a0a: Upgrade to Expo SDK 51
+
 ## 1.2.0
 
 ### Minor Changes

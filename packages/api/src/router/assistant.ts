@@ -49,26 +49,6 @@ export const assistantRouter = createTRPCRouter({
               ],
             },
           ],
-
-          /**
-           * Functions are not yet supported by the gpt-4v
-           * https://platform.openai.com/docs/guides/function-calling/supported-models
-           */
-          // functions: [
-          //   {
-          //     name: "out",
-          //     // here we define our function to get the result from the agent in JSON form
-          //     description:
-          //       "This is the function that returns the result of the agent",
-          //     // we use zod and a zod-to-json-schema converter to define the JSON Schema very easily
-          //     parameters: zodToJsonSchema(
-          //       z.object({
-          //         type: z.string(),
-          //         confidence: z.number().multipleOf(0.1),
-          //       }),
-          //     ),
-          //   }
-          // ]
         });
 
         return response;
@@ -85,7 +65,7 @@ export const assistantRouter = createTRPCRouter({
         yearOfBirth: z.string().min(1),
         messages: z.array(
           z.object({
-            role: z.enum(["system", "user", "assistant"]),
+            role: z.enum(["system", "user", "assistant", "function"]),
             content: z.string(),
           }),
         ),
