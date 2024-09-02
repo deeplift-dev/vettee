@@ -46,7 +46,7 @@ const ConversationTitle = ({
           >
             <Thinking size={16} color="#808080" />
             <Text fontSize={14} className="text-slate-500">
-              Creating title
+              Updating title
             </Text>
           </Animated.View>
         )}

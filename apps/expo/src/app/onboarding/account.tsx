@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import {
-  ActivityIndicator,
   Alert,
   Keyboard,
   KeyboardAvoidingView,
@@ -23,7 +22,6 @@ import * as yup from "yup";
 
 import { OnboardingHeader } from "~/components/ui/headers/onboarding-header";
 import BaseInput from "~/components/ui/inputs/input";
-import BaseSelect from "~/components/ui/inputs/select";
 import { PageContainer } from "~/components/ui/page-container";
 import { theme } from "~/styles";
 import { api } from "~/utils/api";
@@ -110,7 +108,6 @@ const IntroCard = ({ navigateToSlide }: IntroCardProps) => {
       router.push({ pathname: "/", params: { onboardingSuccess: "true" } });
     },
     onError: (error) => {
-      console.log("error----", error);
       if (error.data?.code === "UNAUTHORIZED")
         Alert.alert("Error", "You must be signed in to continue.");
     },

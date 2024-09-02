@@ -1,16 +1,31 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+
+import { api } from "~/utils/api";
 
 const PromptSuggestions = ({
   animal,
   promptSelected,
-  promptSuggestions,
 }: {
   animal: any;
   promptSelected: (description: string) => void;
-  promptSuggestions: any;
 }) => {
-  if (!promptSuggestions || promptSuggestions.length === 0) {
+  const {
+    mutate: getPromptSuggestions,
+    data: promptSuggestions,
+    isLoading,
+  } = api.assistant.getPromptSuggestions.useMutation();
+
+  useEffect(() => {
+    getPromptSuggestions({
+      species: animal.species,
+      name: animal.name,
+      yearOfBirth: animal.yearOfBirth,
+    });
+  }, [animal, getPromptSuggestions]);
+
+  if (isLoading || !promptSuggestions) {
     return (
       <View className="flex w-full pt-24">
         <Text className="text-center text-xl font-medium">
@@ -20,22 +35,45 @@ const PromptSuggestions = ({
     );
   }
 
+  const promptsData = JSON.parse(
+    promptSuggestions.choices?.[0]?.message?.content || "{}",
+  );
+  const prompts = promptsData.prompts || [];
+
+  if (!prompts || prompts.length === 0) {
+    return (
+      <View className="flex w-full pt-24">
+        <Text className="text-center text-xl font-medium">
+          No suggestions available
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <View className="flex w-full pt-24">
-      <View>
+      <Animated.View
+        entering={FadeIn.duration(500)}
+        exiting={FadeOut.duration(100)}
+      >
         <Text className="text-center text-xl font-medium">Quick questions</Text>
         <Text className="text-center text-base text-slate-500">
           Ask a question about your pet
         </Text>
-      </View>
+      </Animated.View>
       <View className="flex flex-row flex-wrap justify-between">
-        {promptSuggestions.prompts.map((prompt: any, index: number) => (
-          <View key={index} className="mb-4 h-32 w-[48%]">
+        {prompts.map((prompt: { description: string }, index: number) => (
+          <Animated.View
+            key={index}
+            className="mb-4 h-32 w-[48%]"
+            entering={FadeIn.duration(500).delay(index * 100)}
+            exiting={FadeOut.duration(100)}
+          >
             <PromptSuggestionCard
               prompt={prompt}
               onPromptSelected={promptSelected}
             />
-          </View>
+          </Animated.View>
         ))}
       </View>
     </View>
@@ -46,15 +84,16 @@ const PromptSuggestionCard = ({
   prompt,
   onPromptSelected,
 }: {
-  prompt: { logo: string; description: string };
+  prompt: { description: string };
   onPromptSelected: (description: string) => void;
 }) => {
   return (
     <TouchableOpacity
-      onPress={() => onPromptSelected(prompt.description)}
+      onPress={() => {
+        onPromptSelected(prompt.description);
+      }}
       className="mt-4 flex h-full w-full flex-col justify-center rounded-lg border border-gray-200 bg-white p-4"
     >
-      {/* <Text>{prompt.logo}</Text> */}
       <Text>{prompt.description}</Text>
     </TouchableOpacity>
   );

@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { View } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 
@@ -8,13 +8,15 @@ import ChatTool from "~/components/features/chat/chat-tool";
 import { api } from "~/utils/api";
 
 const ChatPage = () => {
-  const { animalId } = useLocalSearchParams<{
+  const { animalId, conversationId } = useLocalSearchParams<{
     animalId: string;
-    threadId: string;
+    conversationId: string;
     assistantId: string;
   }>();
 
   const chatMenuRef = useRef<ChatMenu>(null);
+
+  const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);
 
   const { data: animal, isLoading } = api.animal.getById.useQuery({
     id: animalId,
@@ -23,7 +25,17 @@ const ChatPage = () => {
   const { data: profile, isLoading: isProfileLoading } =
     api.profile.getCurrentUserProfile.useQuery();
 
-  if (isLoading || isProfileLoading) {
+  const { data: conversation, isLoading: isConversationLoading } =
+    api.conversation.getById.useQuery(
+      {
+        id: conversationId,
+      },
+      {
+        enabled: !!conversationId,
+      },
+    );
+
+  if (isLoading || isProfileLoading || isConversationLoading) {
     return (
       <View className="flex-1 items-center justify-center">
         <View className="h-20 w-20 rounded-full bg-gray-200" />
@@ -38,8 +50,16 @@ const ChatPage = () => {
         profile={profile}
         onPressTalkingAbout={() => chatMenuRef.current?.open()}
       />
-      {animal && profile && <ChatTool animal={animal} profile={profile} />}
-      <ChatMenu ref={chatMenuRef} />
+      {animal && profile && (
+        <ChatTool
+          animal={animal}
+          profile={profile}
+          conversation={conversation}
+          queryConversationId={conversationId}
+          selectedPrompt={selectedPrompt}
+        />
+      )}
+      <ChatMenu ref={chatMenuRef} animalId={animalId} />
     </View>
   );
 };

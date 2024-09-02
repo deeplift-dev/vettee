@@ -40,6 +40,7 @@ const IntroCard = () => {
                   source={image}
                   resizeMode="cover"
                   style={{ width: "100%", height: "100%" }}
+                  alt="Animal"
                 />
               </Box>
             ))}
@@ -62,6 +63,7 @@ const IntroCard = () => {
                   source={image}
                   resizeMode="cover"
                   style={{ width: "100%", height: "100%" }}
+                  alt="Animal"
                 />
               </Box>
             ))}

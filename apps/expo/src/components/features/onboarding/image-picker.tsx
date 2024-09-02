@@ -115,6 +115,7 @@ export default function ImagePicker({
             <Image
               className="h-10 w-10"
               source={require("../../../../assets/illustrations/album.png")}
+              alt="Album icon"
             />
             <Text pl="$2" fontFamily="$mono">
               Pick image from camera roll
@@ -129,6 +130,7 @@ export default function ImagePicker({
             <Image
               className="h-10 w-10"
               source={require("../../../../assets/illustrations/camera.png")}
+              alt="Camera icon"
             />
             <Text pl="$2" fontFamily="$mono">
               Take a photo

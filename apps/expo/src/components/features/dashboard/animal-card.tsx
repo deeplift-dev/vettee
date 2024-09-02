@@ -92,6 +92,7 @@ const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onEdit }) => {
           <Image
             source={{ uri: imageUrl }}
             style={{ width: "100%", height: "100%", borderRadius: 10 }}
+            alt="Animal avatar"
           />
         ) : (
           <LinearGradient

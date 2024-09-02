@@ -1,6 +1,5 @@
 import React from "react";
 import { Platform } from "react-native";
-import { SvgUri } from "react-native-svg";
 import { Image } from "expo-image";
 import { Center, Text, View, VStack } from "@gluestack-ui/themed";
 import AnimatedLottieView from "lottie-react-native";
@@ -23,6 +22,7 @@ const AnimalsCard = () => {
             contentFit="cover"
             transition={1000}
             style={{ width: 400, height: 500, marginTop: 20 }}
+            alt="All animals"
           />
         )}
         <View height="$3.5" />
