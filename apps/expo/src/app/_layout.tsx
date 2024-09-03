@@ -14,9 +14,12 @@ import { supabase } from "../utils/supabase";
 import "../styles.css";
 
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { SafeAreaView } from "react-native-safe-area-context";
 import config from "gluestack.config";
 import { cssInterop } from "nativewind";
+
+import "react-native-get-random-values";
+
+import { SafeAreaView } from "react-native-safe-area-context";
 
 cssInterop(SafeAreaView, { className: "style" });
 

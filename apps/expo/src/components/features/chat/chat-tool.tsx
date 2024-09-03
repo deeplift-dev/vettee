@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
   FlatList,
-  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -11,7 +10,6 @@ import {
 import { OpenAI, useChat } from "react-native-gen-ui";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { nanoid } from "nanoid";
-import { z } from "zod";
 
 import type { RouterOutputs } from "~/utils/api";
 import Typing from "~/components/ui/loaders/typing";
@@ -44,62 +42,23 @@ const openAi = new OpenAI({
   // You can even set a custom basePath of your SSE server
 });
 
-// const getAwarenessTool = {
-//   description: "Get awareness of the animal",
-//   // Parameters for the tool
-//   parameters: z.object({
-//     animalId: z.string(),
-//   }),
-//   // Render component for awareness - can yield loading state
-//   render: async function* (args) {
-//     // Fetch the awareness data (dummy data for now)
-//     const data = {
-//       awareness: "Low",
-//       animalId: args.animalId,
+// const useCameraTool = {
+//   description: "Use the camera to take a photo",
+//   // No parameters needed for this tool
+//   parameters: z.object({}),
+//   // Render component for using the camera - can yield loading state
+//   render: async function* () {
+//     // Placeholder for camera functionality
+//     const takePhoto = async () => {
+//       // Logic to open the camera and take a photo
+//       // This is a placeholder and should be replaced with actual camera functionality
+//       return {
+//         uri: "https://example.com/photo.jpg",
+//       };
 //     };
 
-//     yield {
-//       component: <Text>Loading...</Text>,
-//     };
-
-//     // Return the final result
-//     return {
-//       // The data will be seen by the model
-//       data,
-//       // The component will be rendered to the user
-//       component: (
-//         <View
-//           key={args.animalId}
-//           style={{
-//             padding: 20,
-//             borderRadius: 40,
-//             backgroundColor: "rgba(20, 20, 20, 0.05)",
-//           }}
-//         >
-//           <Text className="text-2xl font-bold text-blue-500">
-//             🐾 Awareness data: {data.awareness}
-//           </Text>
-//         </View>
-//       ),
-//     };
-//   },
-// };
-
-// const getNearestEmergencyVetTool = {
-//   description: "Get the nearest emergency vet",
-//   // Parameters for the tool
-//   parameters: z.object({
-//     location: z.string(),
-//   }),
-//   // Render component for nearest emergency vet - can yield loading state
-//   render: async function* (args) {
-//     // Fetch the nearest emergency vet data (dummy data for now)
-//     const data = {
-//       vetName: "Emergency Vet Clinic",
-//       address: "123 Pet Street, Pet City",
-//       contact: "123-456-7890",
-//       location: args.location,
-//     };
+//     // Simulate taking a photo
+//     const photo = await takePhoto();
 
 //     // Yield the loading state
 //     yield {
@@ -109,100 +68,52 @@ const openAi = new OpenAI({
 //     // Return the final result
 //     return {
 //       // The data will be seen by the model
-//       data,
+//       data: photo,
 //       // The component will be rendered to the user
 //       component: (
-//         <View
-//           key={args.location}
-//           style={{
-//             padding: 20,
-//             borderRadius: 40,
-//             backgroundColor: "rgba(20, 20, 20, 0.05)",
-//           }}
-//         >
-//           <Text className="text-2xl font-bold text-green-500">
-//             🏥 Nearest Emergency Vet: {data.vetName}
-//           </Text>
-//           <Text className="text-lg text-gray-700">Address: {data.address}</Text>
-//           <Text className="text-lg text-gray-700">Contact: {data.contact}</Text>
+//         <View className="w-full">
+//           <View className="w-full rounded-xl border-2 border-gray-100 bg-white p-1 shadow-sm">
+//             <Pressable
+//               onPress={() => {
+//                 /* dummy function */
+//               }}
+//             >
+//               <View className="flex w-full flex-row items-center rounded-lg border border-gray-200 px-4 py-4">
+//                 <Image
+//                   className="h-10 w-10"
+//                   source={require("../../../../assets/illustrations/album.png")}
+//                   alt="Album icon"
+//                 />
+//                 <Text pl="$2" fontFamily="$mono">
+//                   Pick image from camera roll
+//                 </Text>
+//               </View>
+//             </Pressable>
+//           </View>
+//           <View className="py-2" />
+//           <View className="rounded-xl border-2 border-gray-100 bg-white p-1 shadow-sm">
+//             <Pressable
+//               onPress={() => {
+//                 /* dummy function */
+//               }}
+//             >
+//               <View className="flex w-full flex-row items-center rounded-lg border border-gray-200 px-4 py-4">
+//                 <Image
+//                   className="h-10 w-10"
+//                   source={require("../../../../assets/illustrations/camera.png")}
+//                   alt="Camera icon"
+//                 />
+//                 <Text pl="$2" fontFamily="$mono">
+//                   Take a photo
+//                 </Text>
+//               </View>
+//             </Pressable>
+//           </View>
 //         </View>
 //       ),
 //     };
 //   },
 // };
-
-const useCameraTool = {
-  description: "Use the camera to take a photo",
-  // No parameters needed for this tool
-  parameters: z.object({}),
-  // Render component for using the camera - can yield loading state
-  render: async function* () {
-    // Placeholder for camera functionality
-    const takePhoto = async () => {
-      // Logic to open the camera and take a photo
-      // This is a placeholder and should be replaced with actual camera functionality
-      return {
-        uri: "https://example.com/photo.jpg",
-      };
-    };
-
-    // Simulate taking a photo
-    const photo = await takePhoto();
-
-    // Yield the loading state
-    yield {
-      component: <Text>Loading...</Text>,
-    };
-
-    // Return the final result
-    return {
-      // The data will be seen by the model
-      data: photo,
-      // The component will be rendered to the user
-      component: (
-        <View className="w-full">
-          <View className="w-full rounded-xl border-2 border-gray-100 bg-white p-1 shadow-sm">
-            <Pressable
-              onPress={() => {
-                /* dummy function */
-              }}
-            >
-              <View className="flex w-full flex-row items-center rounded-lg border border-gray-200 px-4 py-4">
-                <Image
-                  className="h-10 w-10"
-                  source={require("../../../../assets/illustrations/album.png")}
-                  alt="Album icon"
-                />
-                <Text pl="$2" fontFamily="$mono">
-                  Pick image from camera roll
-                </Text>
-              </View>
-            </Pressable>
-          </View>
-          <View className="py-2" />
-          <View className="rounded-xl border-2 border-gray-100 bg-white p-1 shadow-sm">
-            <Pressable
-              onPress={() => {
-                /* dummy function */
-              }}
-            >
-              <View className="flex w-full flex-row items-center rounded-lg border border-gray-200 px-4 py-4">
-                <Image
-                  className="h-10 w-10"
-                  source={require("../../../../assets/illustrations/camera.png")}
-                  alt="Camera icon"
-                />
-                <Text pl="$2" fontFamily="$mono">
-                  Take a photo
-                </Text>
-              </View>
-            </Pressable>
-          </View>
-        </View>
-      ),
-    };
-  },
-};
 
 const ChatTool: React.FC<ChatToolProps> = ({
   animal,
@@ -363,11 +274,6 @@ const ChatTool: React.FC<ChatToolProps> = ({
         }
       }
     },
-    tools: {
-      // getAwareness: getAwarenessTool,
-      // getNearestEmergencyVet: getNearestEmergencyVetTool,
-      useCamera: useCameraTool,
-    },
   });
 
   const isThinking = React.useMemo(
@@ -443,7 +349,7 @@ const ChatTool: React.FC<ChatToolProps> = ({
           <Typing />
         </View>
 
-        <View className="flex flex-row items-start gap-x-2 p-3">
+        <View className="flex flex-row items-start p-3">
           {/* Text input field */}
           <View className="grow basis-0">
             <ChatInput

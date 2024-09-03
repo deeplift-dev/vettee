@@ -35,7 +35,7 @@ importers:
         version: 0.2.0(react-native-reanimated@3.10.1)(react-native@0.74.5)(react@18.2.0)
       '@aws-amplify/react-native':
         specifier: ^1.0.10
-        version: 1.0.10(react-native-get-random-values@1.10.0)(react-native@0.74.5)
+        version: 1.0.10(react-native-get-random-values@1.11.0)(react-native@0.74.5)
       '@expo-google-fonts/dela-gothic-one':
         specifier: ^0.2.3
         version: 0.2.3
@@ -186,6 +186,9 @@ importers:
       react-native-gesture-handler:
         specifier: ~2.16.2
         version: 2.16.2(react-native@0.74.5)(react@18.2.0)
+      react-native-get-random-values:
+        specifier: ^1.11.0
+        version: 1.11.0(react-native@0.74.5)
       react-native-maps:
         specifier: ^1.14.0
         version: 1.14.0(react-native-web@0.19.10)(react-native@0.74.5)(react@18.2.0)
@@ -675,7 +678,7 @@ packages:
       tslib: 2.6.2
     dev: false
 
-  /@aws-amplify/react-native@1.0.10(react-native-get-random-values@1.10.0)(react-native@0.74.5):
+  /@aws-amplify/react-native@1.0.10(react-native-get-random-values@1.11.0)(react-native@0.74.5):
     resolution: {integrity: sha512-4Jk1LIwQ16Jt8V7qopozDhZccdsE6hZdRScnlnkCknAM/NeNng5NZxLCTImE5N258F6P/XM1F8vhfYzj2AoGTA==}
     peerDependencies:
       react-native: '>=0.70'
@@ -684,7 +687,7 @@ packages:
       base-64: 1.0.0
       buffer: 6.0.3
       react-native: 0.74.5(@babel/core@7.25.2)(@babel/preset-env@7.23.7)(@types/react@18.2.79)(react@18.2.0)
-      react-native-get-random-values: 1.10.0(react-native@0.74.5)
+      react-native-get-random-values: 1.11.0(react-native@0.74.5)
       react-native-url-polyfill: 2.0.0(react-native@0.74.5)
     dev: false
 
@@ -13883,8 +13886,8 @@ packages:
       react-native: 0.74.5(@babel/core@7.25.2)(@babel/preset-env@7.23.7)(@types/react@18.2.79)(react@18.2.0)
     dev: false
 
-  /react-native-get-random-values@1.10.0(react-native@0.74.5):
-    resolution: {integrity: sha512-gZ1zbXhbb8+Jy9qYTV8c4Nf45/VB4g1jmXuavY5rPfUn7x3ok9Vl3FTl0dnE92Z4FFtfbUNNwtSfcmomdtWg+A==}
+  /react-native-get-random-values@1.11.0(react-native@0.74.5):
+    resolution: {integrity: sha512-4BTbDbRmS7iPdhYLRcz3PGFIpFJBwNZg9g42iwa2P6FOv9vZj/xJc678RZXnLNZzd0qd7Q3CCF6Yd+CU2eoXKQ==}
     peerDependencies:
       react-native: '>=0.56'
     dependencies:
