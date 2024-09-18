@@ -81,9 +81,9 @@ const ChatMenu = forwardRef<ChatMenuRef, ChatMenuProps>((props, ref) => {
             refetchConversations={isOpen}
           />
         )}
-        <View className="flex flex-row items-center justify-between">
+        {/* <View className="flex flex-row items-center justify-between">
           <Text className="font-bold">Quick Actions</Text>
-        </View>
+        </View> */}
       </View>
     </BottomSheet>
   );
@@ -122,7 +122,7 @@ const RecentConversationsList = ({
     }
   }, [refetch, refetchConversations]);
 
-  if (!conversations || conversationsLoading || conversationsRefetching) {
+  if (!conversations || conversationsLoading) {
     return <ConversationListSkeleton />;
   }
 
@@ -131,20 +131,25 @@ const RecentConversationsList = ({
   }
 
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-      {conversations.map((conversation) => (
-        <View key={conversation.id} className="mr-4">
-          <TouchableOpacity
-            onPress={() =>
-              router.replace(
-                `/(tabs)/chat?conversationId=${conversation.id}&animalId=${conversation.animalId}`,
-              )
-            }
-          >
-            <ConversationCard conversation={conversation} />
-          </TouchableOpacity>
-        </View>
-      ))}
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{ paddingBottom: 100 }}
+    >
+      <View className="flex-row flex-wrap justify-between">
+        {conversations.map((conversation) => (
+          <View key={conversation.id} className="mb-4 w-[48%]">
+            <TouchableOpacity
+              onPress={() =>
+                router.replace(
+                  `/(tabs)/chat?conversationId=${conversation.id}&animalId=${conversation.animalId}`,
+                )
+              }
+            >
+              <ConversationCard conversation={conversation} />
+            </TouchableOpacity>
+          </View>
+        ))}
+      </View>
     </ScrollView>
   );
 };

@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Image, Pressable, StyleSheet, View } from "react-native";
 import Constants from "expo-constants";
 import * as ExpoImagePicker from "expo-image-picker";
-// import * as Clipboard from "expo-clipboard";
 import { Text } from "@gluestack-ui/themed";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import { Amplify } from "aws-amplify";

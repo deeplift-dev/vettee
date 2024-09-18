@@ -35,6 +35,7 @@ export const animal = pgTable("animal", {
   yearOfBirth: numeric("year_of_birth").notNull(),
   ownerId: varchar("owner_id", { length: 256 }),
   avatarUrl: varchar("avatar_url", { length: 256 }),
+  data: jsonb("data"),
   createdAt: timestamp("created_at")
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),

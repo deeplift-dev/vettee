@@ -157,6 +157,16 @@ const ChatTool: React.FC<ChatToolProps> = ({
     },
   });
 
+  const { mutate: synthesizeConversation } =
+    api.assistant.synthesizeConversation.useMutation({
+      onSuccess: (data) => {
+        // You can add additional logic here, such as updating the UI to reflect the synthesized data
+      },
+      onError: (error) => {
+        console.error("Error synthesizing conversation:", error);
+      },
+    });
+
   useEffect(() => {
     setInitConversationId(nanoid());
   }, []);
@@ -168,10 +178,7 @@ const ChatTool: React.FC<ChatToolProps> = ({
   }, [queryConversationId]);
 
   const onHandleSubmit = async (msg: string) => {
-    console.log("messageCount", messageCount);
     if (messageCount === 1) {
-      console.log("creating conversation");
-
       setShowPromptSuggestions(false);
       createConversation({
         id: initConversationId,
@@ -196,12 +203,22 @@ const ChatTool: React.FC<ChatToolProps> = ({
       });
     }
     handleSubmit(msg);
+
+    console.log("messageCount", messageCount);
+
+    if ((messageCount + 1) % 2 === 0) {
+      console.log("synthesizing conversation");
+      synthesizeConversation({
+        animalId: animal.id,
+        messages: messages.concat({ role: "user", content: msg }),
+      });
+    }
   };
 
   const { mutate: createConversation, isPending: isCreatingConversation } =
     api.conversation.create.useMutation({
       onSuccess: (data: Conversation) => {
-        setConversationId(data?.id);
+        setConversationId(data[0].id);
       },
     });
 
@@ -240,7 +257,7 @@ const ChatTool: React.FC<ChatToolProps> = ({
       console.error("Error while streaming:", error);
     },
     onSuccess: (data) => {
-      if (messageCount % 10 === 0 || messageCount === 2) {
+      if (messageCount % 10 === 0 || messageCount === 1) {
         getConversationTitle({
           species: animal.species,
           name: animal.name,
@@ -248,8 +265,6 @@ const ChatTool: React.FC<ChatToolProps> = ({
           messages: messages,
         });
       }
-
-      console.log("conversationId!!", data);
 
       if (messageCount > 0 && initConversationId) {
         const lastMessage = data[0];
@@ -261,9 +276,7 @@ const ChatTool: React.FC<ChatToolProps> = ({
               role: data[1]?.role || "assistant",
             },
           });
-          console.log("last message is a valid element", lastMessage);
         } else {
-          console.log("made it here");
           saveMessage({
             conversationId: initConversationId,
             message: {
@@ -298,7 +311,7 @@ const ChatTool: React.FC<ChatToolProps> = ({
         />
       </View>
       {showPromptSuggestions && !conversationId && (
-        <View className="absolute top-1/4 z-10 flex items-center justify-center">
+        <View className="absolute z-10 flex items-center justify-center">
           <View className="w-full px-4">
             <PromptSuggestions
               animal={animal}
@@ -339,7 +352,7 @@ const ChatTool: React.FC<ChatToolProps> = ({
       />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="mb-8 w-full"
+        className="z-20 mb-8 w-full"
         keyboardVerticalOffset={150}
       >
         <View
@@ -349,7 +362,7 @@ const ChatTool: React.FC<ChatToolProps> = ({
           <Typing />
         </View>
 
-        <View className="flex flex-row items-start p-3">
+        <View className="flex flex-row items-start gap-1 p-3">
           {/* Text input field */}
           <View className="grow basis-0">
             <ChatInput

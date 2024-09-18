@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { View } from "react-native";
+import { Keyboard, View } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 
 import ChatHeader from "~/components/features/chat/chat-header";
@@ -48,7 +48,10 @@ const ChatPage = () => {
       <ChatHeader
         animal={animal}
         profile={profile}
-        onPressTalkingAbout={() => chatMenuRef.current?.open()}
+        onPressTalkingAbout={() => {
+          Keyboard.dismiss();
+          chatMenuRef.current?.open();
+        }}
       />
       {animal && profile && (
         <ChatTool

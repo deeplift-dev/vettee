@@ -70,6 +70,12 @@ export default function Layout() {
           presentation: "modal",
         }}
       />
+      <Stack.Screen
+        name="animal/[slug]"
+        options={{
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 }

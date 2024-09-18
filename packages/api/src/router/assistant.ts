@@ -1,6 +1,8 @@
 import OpenAI from "openai";
 import { z } from "zod";
 
+import { eq, schema } from "@acme/db";
+
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { getConversationTitlePrompt } from "../utils/prompt-constants";
 
@@ -90,7 +92,6 @@ export const assistantRouter = createTRPCRouter({
                 input.messages,
                 input.species,
                 input.name,
-                input.yearOfBirth,
               ),
             },
           ],
@@ -160,6 +161,67 @@ export const assistantRouter = createTRPCRouter({
         return response;
       } catch (error) {
         console.log(error);
+      }
+    }),
+
+  synthesizeConversation: protectedProcedure
+    .input(
+      z.object({
+        animalId: z.string(),
+        messages: z.array(
+          z.object({
+            role: z.enum(["system", "user", "assistant", "function"]),
+            content: z.string(),
+          }),
+        ),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      console.log("made it here!!");
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      try {
+        const response = await openai.chat.completions.create({
+          model: "gpt-4",
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are an AI assistant that extracts key information about animals from conversations.",
+            },
+            {
+              role: "user",
+              content: `Please analyze the following conversation and extract key information about the animal. Return the data in JSON format with the following structure:
+              {
+                "weight": number (in kg),
+                "lastVaccinationDate": string (YYYY-MM-DD),
+                "dietaryRestrictions": string[],
+                "knownAllergies": string[],
+                "recentSymptoms": string[],
+                "behavioralNotes": string
+              }`,
+            },
+            ...input.messages,
+          ],
+        });
+
+        const extractedData = JSON.parse(
+          response.choices[0]?.message?.content || "{}",
+        );
+
+        console.log("extractedData", extractedData);
+
+        // Update the animal data in the database
+        await ctx.db
+          .update(schema.animal)
+          .set({
+            data: extractedData,
+          })
+          .where(eq(schema.animal.id, input.animalId));
+
+        return extractedData;
+      } catch (error) {
+        console.error("Error synthesizing conversation:", error);
+        throw new Error("Failed to synthesize conversation");
       }
     }),
 });
