@@ -73,7 +73,13 @@ export default function Layout() {
       <Stack.Screen
         name="animal/[slug]"
         options={{
-          headerShown: false,
+          headerShown: true,
+          headerTransparent: true,
+          headerStyle: {
+            backgroundColor: "transparent",
+          },
+          headerTitle: "",
+          headerBackTitle: "",
         }}
       />
     </Stack>

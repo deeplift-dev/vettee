@@ -9,12 +9,7 @@ import Animated, {
 import Carousel from "react-native-reanimated-carousel";
 import { View } from "@gluestack-ui/themed";
 
-import { theme } from "~/styles";
-import AnimalDash from "./cards/animal-dash";
-import AnimalsCard from "./cards/animals-card";
-import ChatCard from "./cards/chat-card";
 import IntroCard from "./cards/intro-card";
-import VetCard from "./cards/vet-card";
 
 type Cards = "intro" | "chat" | "vet" | "animals" | "animal-dash";
 
@@ -43,9 +38,9 @@ function ParallaxCarousel({ autoPlay = true }: ParallaxCarouselProps) {
           width: PAGE_WIDTH,
         }}
         loop
-        pagingEnabled={pagingEnabled}
+        pagingEnabled={false}
         snapEnabled={snapEnabled}
-        autoPlay={autoPlay}
+        autoPlay={false}
         autoPlayInterval={12000}
         onProgressChange={(_, absoluteProgress) =>
           (progressValue.value = absoluteProgress)
@@ -81,20 +76,7 @@ function ParallaxCarousel({ autoPlay = true }: ParallaxCarouselProps) {
                   alignSelf: "center",
                 }
           }
-        >
-          {cards.map((backgroundColor, index) => {
-            return (
-              <PaginationItem
-                backgroundColor={theme.colors.secondary}
-                animValue={progressValue}
-                index={index}
-                key={index}
-                isRotate={isVertical}
-                length={cards.length}
-              />
-            );
-          })}
-        </View>
+        ></View>
       )}
     </View>
   );
@@ -169,14 +151,14 @@ const CarouselItems = ({ activeCard }: CarouselItemsProps) => {
   switch (activeCard) {
     case "intro":
       return <IntroCard />;
-    case "chat":
-      return <ChatCard />;
-    case "vet":
-      return <VetCard />;
-    case "animals":
-      return <AnimalsCard />;
-    case "animal-dash":
-      return <AnimalDash />;
+    // case "chat":
+    //   return <ChatCard />;
+    // case "vet":
+    //   return <VetCard />;
+    // case "animals":
+    //   return <AnimalsCard />;
+    // case "animal-dash":
+    //   return <AnimalDash />;
     default:
       return <IntroCard />;
   }
