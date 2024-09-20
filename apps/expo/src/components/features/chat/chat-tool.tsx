@@ -168,12 +168,15 @@ const ChatTool: React.FC<ChatToolProps> = ({
     });
 
   useEffect(() => {
-    setInitConversationId(nanoid());
+    if (!conversationId) {
+      setInitConversationId(nanoid());
+    }
   }, []);
 
   useEffect(() => {
     if (queryConversationId) {
       setConversationId(queryConversationId);
+      setInitConversationId(queryConversationId);
     }
   }, [queryConversationId]);
 
@@ -204,10 +207,7 @@ const ChatTool: React.FC<ChatToolProps> = ({
     }
     handleSubmit(msg);
 
-    console.log("messageCount", messageCount);
-
     if ((messageCount + 1) % 2 === 0) {
-      console.log("synthesizing conversation");
       synthesizeConversation({
         animalId: animal.id,
         messages: messages.concat({ role: "user", content: msg }),

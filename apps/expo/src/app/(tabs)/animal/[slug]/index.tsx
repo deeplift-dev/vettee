@@ -17,7 +17,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { Link, useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import {
   Actionsheet,
@@ -26,7 +26,9 @@ import {
   ActionsheetDragIndicator,
   ActionsheetDragIndicatorWrapper,
   Button,
+  ButtonText,
 } from "@gluestack-ui/themed";
+import { useFocusEffect } from "@react-navigation/native";
 
 import ImagePicker from "~/components/features/onboarding/image-picker";
 import { api } from "~/utils/api";
@@ -41,10 +43,29 @@ export default function AnimalProfilePage() {
     data: animal,
     isLoading,
     error,
+    refetch,
   } = api.animal.getById.useQuery({ id: slug as string });
+  const { mutate: updateAnimal } = api.animal.updateAnimal.useMutation({
+    onSuccess: () => {
+      refetch();
+    },
+  });
 
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(50);
+
+  const handleSuccessfulUpload = async ({ fileName }: { fileName: string }) => {
+    try {
+      updateAnimal({
+        id: animal?.id!,
+        data: {
+          avatarUrl: fileName,
+        },
+      });
+    } catch (error) {
+      console.log("Error : ", error);
+    }
+  };
 
   useEffect(() => {
     if (animal) {
@@ -52,6 +73,12 @@ export default function AnimalProfilePage() {
       translateY.value = withSpring(0);
     }
   }, [animal]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      refetch();
+    }, [refetch]),
+  );
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -89,7 +116,11 @@ export default function AnimalProfilePage() {
         </Animated.View>
         <RecentConversations animalId={animal.id} />
       </View>
-      <ImageUploadSheet isOpen={isOpen} onClose={() => setIsOpen(false)} />
+      <ImageUploadSheet
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        handleSuccessfulUpload={handleSuccessfulUpload}
+      />
     </>
   );
 }
@@ -156,21 +187,31 @@ const ImageCarousel = ({
         <Ionicons name="image" size={24} color="black" />
       </Pressable>
       {imageLoaded ? (
-        <Image
-          source={{ uri: images[activeIndex] }}
-          style={{ width: "100%", height: "100%" }}
-          alt="Animal avatar"
-        />
+        <Animated.View
+          entering={FadeIn.duration(500)}
+          exiting={FadeOut.duration(100)}
+        >
+          <Image
+            source={{ uri: images[activeIndex] }}
+            style={{ width: "100%", height: "100%" }}
+            alt="Animal avatar"
+          />
+        </Animated.View>
       ) : (
-        <LinearGradient
-          start={{ x: 0, y: 0 }}
-          end={{ x: 0.1, y: 1 }}
-          colors={generateHarmoniousColors}
-          style={{
-            width: "100%",
-            height: "100%",
-          }}
-        />
+        <Animated.View
+          entering={FadeIn.duration(500)}
+          exiting={FadeOut.duration(100)}
+        >
+          <LinearGradient
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0.1, y: 1 }}
+            colors={generateHarmoniousColors || []}
+            style={{
+              width: "100%",
+              height: "100%",
+            }}
+          />
+        </Animated.View>
       )}
     </View>
   );
@@ -179,19 +220,30 @@ const ImageCarousel = ({
 const RecentConversations: React.FC<{ animalId: string }> = ({ animalId }) => {
   const router = useRouter();
 
-  const { data: conversationsResponse, isLoading: conversationsLoading } =
-    api.conversation.listForAnimal.useQuery(
-      {
-        limit: 10,
-        page: 1,
-        animalId,
-      },
-      {
-        enabled: true,
-      },
-    );
+  const {
+    data: conversationsResponse,
+    isLoading: conversationsLoading,
+    refetch,
+  } = api.conversation.listForAnimal.useQuery(
+    {
+      limit: 10,
+      page: 1,
+      animalId,
+    },
+    {
+      enabled: true,
+    },
+  );
 
   const conversations = conversationsResponse?.data || [];
+
+  // Use useFocusEffect to refetch conversations when the screen is focused
+  useFocusEffect(
+    React.useCallback(() => {
+      refetch();
+    }, [refetch]),
+  );
+
   if (conversationsLoading) {
     return (
       <View className="mt-4 p-4">
@@ -202,12 +254,28 @@ const RecentConversations: React.FC<{ animalId: string }> = ({ animalId }) => {
 
   return (
     <View className="mt-4 flex-1 p-4">
-      <Animated.View
-        entering={FadeIn.duration(500)}
-        exiting={FadeOut.duration(100)}
-      >
-        <Text className="mb-2 text-lg font-bold">Recent Conversations</Text>
-      </Animated.View>
+      {conversations.length > 0 && (
+        <Animated.View
+          entering={FadeIn.duration(500)}
+          exiting={FadeOut.duration(100)}
+        >
+          <View className="mb-2 flex-row items-center justify-between">
+            <Text className="text-lg font-bold">Recent Conversations</Text>
+            <Link asChild href={`/(tabs)/chat?animalId=${animalId}`}>
+              <Button
+                size="sm"
+                borderRadius="$xl"
+                backgroundColor="$black"
+                softShadow="1"
+              >
+                <ButtonText fontFamily="$mono" color="$white">
+                  Start a New Chat
+                </ButtonText>
+              </Button>
+            </Link>
+          </View>
+        </Animated.View>
+      )}
       {conversations.length > 0 ? (
         <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
           {conversations.map((conversation, index) => (
@@ -235,13 +303,22 @@ const RecentConversations: React.FC<{ animalId: string }> = ({ animalId }) => {
           ))}
         </ScrollView>
       ) : (
-        <View className="flex-1 justify-center">
-          <Text className="mb-4 text-gray-500">No recent conversations</Text>
-          <Button
-            onPress={() => router.push(`/(tabs)/chat?animalId=${animalId}`)}
-          >
-            Start a New Chat
-          </Button>
+        <View className="flex-1">
+          <Text className="mb-6 text-center text-gray-800">
+            No recent conversations
+          </Text>
+          <Link asChild href={`/(tabs)/chat?animalId=${animalId}`}>
+            <Button
+              size="md"
+              borderRadius="$xl"
+              backgroundColor="$black"
+              softShadow="1"
+            >
+              <ButtonText fontFamily="$mono" color="$white">
+                Start a New Chat
+              </ButtonText>
+            </Button>
+          </Link>
         </View>
       )}
     </View>
@@ -251,11 +328,19 @@ const RecentConversations: React.FC<{ animalId: string }> = ({ animalId }) => {
 interface ImageUploadSheetProps {
   isOpen: boolean;
   onClose: () => void;
+  handleSuccessfulUpload: ({
+    fileName,
+    url,
+  }: {
+    fileName: string;
+    url: string;
+  }) => void;
 }
 
 const ImageUploadSheet: React.FC<ImageUploadSheetProps> = ({
   isOpen,
   onClose,
+  handleSuccessfulUpload,
 }) => {
   return (
     <Actionsheet isOpen={isOpen} onClose={onClose}>
@@ -269,9 +354,14 @@ const ImageUploadSheet: React.FC<ImageUploadSheetProps> = ({
             <ActionsheetDragIndicator />
           </ActionsheetDragIndicatorWrapper>
           <ImagePicker
-            onUploadComplete={() => {
-              // Handle upload complete
-              onClose();
+            onUploadComplete={(params) => {
+              if (params.url) {
+                handleSuccessfulUpload({
+                  fileName: params.fileName,
+                  url: params.url,
+                });
+                onClose();
+              }
             }}
             setIsLoading={() => {
               // Handle loading state

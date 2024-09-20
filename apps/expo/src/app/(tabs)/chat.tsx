@@ -14,6 +14,8 @@ const ChatPage = () => {
     assistantId: string;
   }>();
 
+  console.log("conversationId", conversationId);
+
   const chatMenuRef = useRef<ChatMenu>(null);
 
   const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);

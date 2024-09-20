@@ -1,8 +1,6 @@
 import OpenAI from "openai";
 import { z } from "zod";
 
-import { eq, schema } from "@acme/db";
-
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { getConversationTitlePrompt } from "../utils/prompt-constants";
 
@@ -177,7 +175,6 @@ export const assistantRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      console.log("made it here!!");
       const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
       try {
         const response = await openai.chat.completions.create({
@@ -204,21 +201,21 @@ export const assistantRouter = createTRPCRouter({
           ],
         });
 
-        const extractedData = JSON.parse(
-          response.choices[0]?.message?.content || "{}",
-        );
+        // const extractedData = JSON.parse(
+        //   response.choices[0]?.message?.content || "{}",
+        // );
 
-        console.log("extractedData", extractedData);
+        // console.log("extractedData", extractedData);
 
-        // Update the animal data in the database
-        await ctx.db
-          .update(schema.animal)
-          .set({
-            data: extractedData,
-          })
-          .where(eq(schema.animal.id, input.animalId));
+        // // Update the animal data in the database
+        // await ctx.db
+        //   .update(schema.animal)
+        //   .set({
+        //     data: extractedData,
+        //   })
+        //   .where(eq(schema.animal.id, input.animalId));
 
-        return extractedData;
+        return response;
       } catch (error) {
         console.error("Error synthesizing conversation:", error);
         throw new Error("Failed to synthesize conversation");
