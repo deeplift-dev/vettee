@@ -22,7 +22,7 @@ export default function ProfileButton() {
     "Unknown";
 
   return (
-    <Link href="/modal">
+    <Link href="/top-menu">
       <Avatar bgColor="$green200" size="md" borderRadius="$full">
         <AvatarImage source={{ uri: user?.user_metadata.avatar_url }} />
         <AvatarFallbackText color="$black">{name}</AvatarFallbackText>

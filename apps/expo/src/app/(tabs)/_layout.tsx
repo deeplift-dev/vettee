@@ -82,6 +82,10 @@ export default function Layout() {
           headerBackTitle: "",
         }}
       />
+      <Stack.Screen
+        name="top-menu"
+        options={{ headerShown: false, presentation: "modal" }}
+      />
     </Stack>
   );
 }

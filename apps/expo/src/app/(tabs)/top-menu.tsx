@@ -43,7 +43,7 @@ const SettingsMenus = () => {
   return (
     <VStack w="$full" h="$4/5" justifyContent="space-between">
       <VStack w="$full">
-        <View
+        {/* <View
           mb="$2"
           borderRadius={10}
           px="$4"
@@ -59,7 +59,7 @@ const SettingsMenus = () => {
           <Text w="$full" fontFamily="$mono">
             Security & Privacy
           </Text>
-        </View>
+        </View> */}
         <TouchableOpacity onPress={() => supabase.auth.signOut()}>
           <View px="$4" py="$4" bg="$blueGray200" w="$full">
             <Text w="$full" fontFamily="$mono">
