@@ -45,9 +45,6 @@ const OddvalFont = localFont({
   variable: "--font-oddval",
 });
 
-console.log("SaansFont", SaansFont.variable);
-console.log("OddvalFont", OddvalFont.variable);
-
 export const metadata: Metadata = {
   title: "Vettee",
   description: "The ultimate companion for your companions.",

@@ -14,7 +14,7 @@ const PromptSuggestions = ({
   const {
     mutate: getPromptSuggestions,
     data: promptSuggestions,
-    isLoading,
+    isPending,
   } = api.assistant.getPromptSuggestions.useMutation();
 
   useEffect(() => {
@@ -25,7 +25,7 @@ const PromptSuggestions = ({
     });
   }, [animal, getPromptSuggestions]);
 
-  if (isLoading || !promptSuggestions) {
+  if (isPending || !promptSuggestions) {
     return (
       <View className="flex w-full pt-4">
         <Text className="text-center text-xl font-medium">
@@ -35,10 +35,17 @@ const PromptSuggestions = ({
     );
   }
 
-  const promptsData = JSON.parse(
-    promptSuggestions.choices?.[0]?.message?.content || "{}",
-  );
-  const prompts = promptsData.prompts || [];
+  console.log("promptSuggestions", promptSuggestions);
+
+  let prompts = [];
+  try {
+    const promptsData = JSON.parse(
+      promptSuggestions.choices?.[0]?.message?.content || "{}",
+    );
+    prompts = promptsData.prompts || [];
+  } catch (error) {
+    console.error("Error parsing prompt suggestions:", error);
+  }
 
   if (!prompts || prompts.length === 0) {
     return (

@@ -14,7 +14,9 @@ export const getConversationTitlePrompt = (
   species: string,
   name: string,
 ) =>
-  `Generate a conversation title for a conversation with about an ${species} named ${name}. The title should be short and most importantly accurately summarise the conversation based on the messages provided. No word play or puns please. Keep it under 40 characters. Dont return the title in quotes. Only return the title. Don't use the year of birth in the title. Consider the following conversation context:\n\n${messages
+  `Generate a conversation title for a conversation about an ${species} named ${name}. The title should be short (under 40 characters) and accurately summarize the conversation based SOLELY on the following messages. Do not use any information not present in these messages. No word play, puns, or year of birth. Return only the title, without quotes. Here are the specific messages to consider:\n\n${messages
+    .slice(1)
     .map((m) => `${m.role}: ${m.content}`)
-    .join("\n")}
-`;
+    .join(
+      "\n",
+    )}\n\nBased strictly on these messages, generate an appropriate title.`;

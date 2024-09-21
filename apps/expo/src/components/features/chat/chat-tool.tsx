@@ -206,13 +206,6 @@ const ChatTool: React.FC<ChatToolProps> = ({
       });
     }
     handleSubmit(msg);
-
-    if ((messageCount + 1) % 2 === 0) {
-      synthesizeConversation({
-        animalId: animal.id,
-        messages: messages.concat({ role: "user", content: msg }),
-      });
-    }
   };
 
   const { mutate: createConversation, isPending: isCreatingConversation } =
@@ -257,12 +250,16 @@ const ChatTool: React.FC<ChatToolProps> = ({
       console.error("Error while streaming:", error);
     },
     onSuccess: (data) => {
+      const updatedMessages = [...messages];
+      if (data[0]) {
+        updatedMessages.push(data[0]);
+      }
       if (messageCount % 10 === 0 || messageCount === 1) {
         getConversationTitle({
           species: animal.species,
           name: animal.name,
           yearOfBirth: animal.yearOfBirth,
-          messages: messages,
+          messages: updatedMessages,
         });
       }
 
@@ -285,6 +282,13 @@ const ChatTool: React.FC<ChatToolProps> = ({
             },
           });
         }
+      }
+      console.log("messageCount", messageCount);
+      if (messageCount > 1) {
+        synthesizeConversation({
+          animalId: animal.id,
+          messages: updatedMessages,
+        });
       }
     },
   });

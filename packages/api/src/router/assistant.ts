@@ -1,6 +1,8 @@
 import OpenAI from "openai";
 import { z } from "zod";
 
+import { eq, schema } from "@acme/db";
+
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { getConversationTitlePrompt } from "../utils/prompt-constants";
 
@@ -76,7 +78,7 @@ export const assistantRouter = createTRPCRouter({
       try {
         const response = await openai.chat.completions.create({
           stream: false,
-          model: "gpt-3.5-turbo",
+          model: "gpt-4o",
           max_tokens: 50,
           messages: [
             {
@@ -127,8 +129,9 @@ export const assistantRouter = createTRPCRouter({
       try {
         const response = await openai.chat.completions.create({
           stream: false,
-          model: "gpt-4",
+          model: "gpt-4o",
           max_tokens: 300,
+          response_format: { type: "json_object" },
           messages: [
             {
               role: "user",
@@ -178,7 +181,8 @@ export const assistantRouter = createTRPCRouter({
       const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
       try {
         const response = await openai.chat.completions.create({
-          model: "gpt-4",
+          model: "gpt-4o",
+          response_format: { type: "json_object" },
           messages: [
             {
               role: "system",
@@ -187,33 +191,58 @@ export const assistantRouter = createTRPCRouter({
             },
             {
               role: "user",
-              content: `Please analyze the following conversation and extract key information about the animal. Return the data in JSON format with the following structure:
+              content: `Analyze the conversation, extracting key animal info in order of questions asked. Prioritize user-provided data; treat assistant info as suggestions. Use this JSON structure:
               {
                 "weight": number (in kg),
-                "lastVaccinationDate": string (YYYY-MM-DD),
                 "dietaryRestrictions": string[],
+                "currentDiet": string[],
+                "dietaryPreferences": string[],
+                "currentMedications": string[],
+                "pastMedicalHistory": string[],
+                "currentMedications": string[],
+                "pastMedicalHistory": string[],
                 "knownAllergies": string[],
                 "recentSymptoms": string[],
-                "behavioralNotes": string
-              }`,
+                "behavioralNotes": string[],
+                "suggestedDiet": string[],
+                "suggestedMedications": string[],
+                "suggestedTests": string[],
+              }
+
+              Here's the conversation to analyze:
+              ${JSON.stringify(input.messages)}`,
             },
-            ...input.messages,
           ],
         });
 
-        // const extractedData = JSON.parse(
-        //   response.choices[0]?.message?.content || "{}",
-        // );
+        const extractedData = JSON.parse(
+          response.choices[0]?.message?.content || "{}",
+        );
 
-        // console.log("extractedData", extractedData);
+        // Fetch the current animal data
+        const animal = await ctx.db.query.animal.findFirst({
+          where: eq(schema.animal.id, input.animalId),
+        });
 
-        // // Update the animal data in the database
-        // await ctx.db
-        //   .update(schema.animal)
-        //   .set({
-        //     data: extractedData,
-        //   })
-        //   .where(eq(schema.animal.id, input.animalId));
+        if (!animal) {
+          throw new Error("Animal not found");
+        }
+
+        // Merge the extracted data with existing data
+        const mergedData = {
+          ...animal.data,
+          ...extractedData,
+        };
+
+        console.log("mergedData", mergedData);
+
+        // Update the animal data in the database
+        await ctx.db
+          .update(schema.animal)
+          .set({
+            data: mergedData,
+          })
+          .where(eq(schema.animal.id, input.animalId));
 
         return response;
       } catch (error) {
