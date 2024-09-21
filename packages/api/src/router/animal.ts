@@ -59,4 +59,13 @@ export const animalRouter = createTRPCRouter({
         .set(updateData)
         .where(eq(schema.animal.id, input.id));
     }),
+
+  getSynthesizedData: publicProcedure
+    .input(z.object({ animalId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const result = await ctx.db.query.animalSynthesizedData.findFirst({
+        where: eq(schema.animalSynthesizedData.animalId, input.animalId),
+      });
+      return result ?? { animalId: input.animalId, data: null };
+    }),
 });

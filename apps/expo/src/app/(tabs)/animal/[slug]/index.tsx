@@ -114,6 +114,7 @@ export default function AnimalProfilePage() {
             {animal.species}
           </Text>
         </Animated.View>
+        <SynthesizedData animalId={animal.id} />
         <RecentConversations animalId={animal.id} />
       </View>
       <ImageUploadSheet
@@ -370,5 +371,83 @@ const ImageUploadSheet: React.FC<ImageUploadSheetProps> = ({
         </ActionsheetContent>
       </KeyboardAvoidingView>
     </Actionsheet>
+  );
+};
+
+const SynthesizedData: React.FC<{ animalId: string }> = ({ animalId }) => {
+  const {
+    data: synthesizedData,
+    isLoading,
+    error,
+  } = api.animal.getSynthesizedData.useQuery(
+    {
+      animalId,
+    },
+    {
+      enabled: true,
+    },
+  );
+
+  if (isLoading) {
+    return (
+      <View className="p-4">
+        <Text>Loading pet health summary...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return null;
+  }
+
+  if (!synthesizedData) {
+    return (
+      <View className="p-4">
+        <Text>No health summary available for this pet.</Text>
+      </View>
+    );
+  }
+
+  console.log("synthesizedData", synthesizedData);
+
+  return (
+    <View className="p-4">
+      <Text className="mb-2 text-lg font-bold">Pet Health Summary</Text>
+      {Object.entries(synthesizedData.data).map(([key, value]) => {
+        if (Array.isArray(value) && value.length > 0) {
+          return (
+            <View key={key}>
+              <Text className="mt-2 font-semibold">
+                {key
+                  .split(/(?=[A-Z])/)
+                  .join(" ")
+                  .replace(/^\w/, (c) => c.toUpperCase())}
+                :
+              </Text>
+              {value.map((item: string, index: number) => (
+                <Text key={index}>
+                  • {item.charAt(0).toUpperCase() + item.slice(1)}
+                </Text>
+              ))}
+            </View>
+          );
+        } else if (
+          typeof value === "number" ||
+          (typeof value === "string" && value.trim() !== "")
+        ) {
+          return (
+            <Text key={key}>
+              {key
+                .split(/(?=[A-Z])/)
+                .join(" ")
+                .replace(/^\w/, (c) => c.toUpperCase())}
+              : {value}
+              {key === "weight" ? " kg" : ""}
+            </Text>
+          );
+        }
+        return null;
+      })}
+    </View>
   );
 };

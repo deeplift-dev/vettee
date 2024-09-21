@@ -1,3 +1,4 @@
+import { nanoid } from "nanoid";
 import OpenAI from "openai";
 import { z } from "zod";
 
@@ -187,7 +188,7 @@ export const assistantRouter = createTRPCRouter({
             {
               role: "system",
               content:
-                "You are an AI assistant that extracts key information about animals from conversations.",
+                "You are an AI assistant that extracts key information about animals from conversations. I want you to be really specific and detailed in your analysis.",
             },
             {
               role: "user",
@@ -215,34 +216,42 @@ export const assistantRouter = createTRPCRouter({
           ],
         });
 
+        console.log("response", response);
+
         const extractedData = JSON.parse(
           response.choices[0]?.message?.content || "{}",
         );
 
-        // Fetch the current animal data
-        const animal = await ctx.db.query.animal.findFirst({
-          where: eq(schema.animal.id, input.animalId),
-        });
+        // Fetch the current animal synthesized data
+        const existingSynthesizedData =
+          await ctx.db.query.animalSynthesizedData.findFirst({
+            where: eq(schema.animalSynthesizedData.animalId, input.animalId),
+          });
 
-        if (!animal) {
-          throw new Error("Animal not found");
+        const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+        console.log("extractedData", extractedData);
+
+        if (
+          !existingSynthesizedData ||
+          new Date(existingSynthesizedData.updatedAt) < oneDayAgo
+        ) {
+          // Create a new entry or update if older than a day
+          await ctx.db
+            .insert(schema.animalSynthesizedData)
+            .values({
+              id: existingSynthesizedData?.id || nanoid(),
+              animalId: input.animalId,
+              data: extractedData,
+            })
+            .onConflictDoUpdate({
+              target: [schema.animalSynthesizedData.id],
+              set: {
+                data: extractedData,
+                updatedAt: new Date(),
+              },
+            });
         }
-
-        // Merge the extracted data with existing data
-        const mergedData = {
-          ...animal.data,
-          ...extractedData,
-        };
-
-        console.log("mergedData", mergedData);
-
-        // Update the animal data in the database
-        await ctx.db
-          .update(schema.animal)
-          .set({
-            data: mergedData,
-          })
-          .where(eq(schema.animal.id, input.animalId));
 
         return response;
       } catch (error) {

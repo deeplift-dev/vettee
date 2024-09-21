@@ -68,3 +68,25 @@ export const conversationRelations = relations(conversation, ({ one }) => ({
     references: [animal.id],
   }),
 }));
+
+export const animalSynthesizedData = pgTable("animal_synthesized_data", {
+  id: varchar("id", { length: 256 }).primaryKey(),
+  animalId: varchar("animal_id", { length: 256 }).notNull(),
+  data: jsonb("data").notNull(),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+});
+
+export const animalSynthesizedDataRelations = relations(
+  animalSynthesizedData,
+  ({ one }) => ({
+    animal: one(animal, {
+      fields: [animalSynthesizedData.animalId],
+      references: [animal.id],
+    }),
+  }),
+);
