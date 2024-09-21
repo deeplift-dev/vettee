@@ -1,5 +1,11 @@
 # @acme/expo
 
+## 1.5.0
+
+### Minor Changes
+
+- Build out MVP of Profile page and synthesizing.
+
 ## 1.4.1
 
 ### Patch Changes
