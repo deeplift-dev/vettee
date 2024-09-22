@@ -14,7 +14,7 @@ const PromptSuggestions = ({
   const {
     mutate: getPromptSuggestions,
     data: promptSuggestions,
-    isLoading,
+    isPending,
   } = api.assistant.getPromptSuggestions.useMutation();
 
   useEffect(() => {
@@ -25,9 +25,9 @@ const PromptSuggestions = ({
     });
   }, [animal, getPromptSuggestions]);
 
-  if (isLoading || !promptSuggestions) {
+  if (isPending || !promptSuggestions) {
     return (
-      <View className="flex w-full pt-24">
+      <View className="flex w-full pt-4">
         <Text className="text-center text-xl font-medium">
           Loading suggestions...
         </Text>
@@ -35,14 +35,21 @@ const PromptSuggestions = ({
     );
   }
 
-  const promptsData = JSON.parse(
-    promptSuggestions.choices?.[0]?.message?.content || "{}",
-  );
-  const prompts = promptsData.prompts || [];
+  console.log("promptSuggestions", promptSuggestions);
+
+  let prompts = [];
+  try {
+    const promptsData = JSON.parse(
+      promptSuggestions.choices?.[0]?.message?.content || "{}",
+    );
+    prompts = promptsData.prompts || [];
+  } catch (error) {
+    console.error("Error parsing prompt suggestions:", error);
+  }
 
   if (!prompts || prompts.length === 0) {
     return (
-      <View className="flex w-full pt-24">
+      <View className="pt-18 flex w-full">
         <Text className="text-center text-xl font-medium">
           No suggestions available
         </Text>
@@ -65,7 +72,7 @@ const PromptSuggestions = ({
         {prompts.map((prompt: { description: string }, index: number) => (
           <Animated.View
             key={index}
-            className="mb-4 h-32 w-[48%]"
+            className="mb-4 h-28 w-[48%]"
             entering={FadeIn.duration(500).delay(index * 100)}
             exiting={FadeOut.duration(100)}
           >
@@ -92,7 +99,7 @@ const PromptSuggestionCard = ({
       onPress={() => {
         onPromptSelected(prompt.description);
       }}
-      className="mt-4 flex h-full w-full flex-col justify-center rounded-lg border border-gray-200 bg-white p-4"
+      className="mt-4 flex h-full w-full flex-col justify-center rounded-lg border border-gray-200 bg-white p-2"
     >
       <Text>{prompt.description}</Text>
     </TouchableOpacity>
