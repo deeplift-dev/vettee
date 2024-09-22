@@ -1,5 +1,11 @@
 # @acme/expo
 
+## 1.5.0
+
+### Minor Changes
+
+- Add chat synthesis and profile screen
+
 ## 1.4.1
 
 ### Patch Changes
