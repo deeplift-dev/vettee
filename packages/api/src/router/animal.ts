@@ -33,4 +33,39 @@ export const animalRouter = createTRPCRouter({
         where: eq(schema.animal.id, input.id),
       });
     }),
+
+  updateAnimal: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        data: z
+          .object({
+            id: z.string().optional(),
+            name: z.string().optional(),
+            species: z.string().optional(),
+            avatarUrl: z.string().optional(),
+            yearOfBirth: z.number().int().min(1950).optional(),
+          })
+          .strict(),
+      }),
+    )
+    .mutation(({ ctx, input }) => {
+      const updateData = {
+        ...input.data,
+        yearOfBirth: input.data.yearOfBirth?.toString(),
+      };
+      return ctx.db
+        .update(schema.animal)
+        .set(updateData)
+        .where(eq(schema.animal.id, input.id));
+    }),
+
+  getSynthesizedData: publicProcedure
+    .input(z.object({ animalId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const result = await ctx.db.query.animalSynthesizedData.findFirst({
+        where: eq(schema.animalSynthesizedData.animalId, input.animalId),
+      });
+      return result ?? { animalId: input.animalId, data: null };
+    }),
 });

@@ -70,6 +70,22 @@ export default function Layout() {
           presentation: "modal",
         }}
       />
+      <Stack.Screen
+        name="animal/[slug]"
+        options={{
+          headerShown: true,
+          headerTransparent: true,
+          headerStyle: {
+            backgroundColor: "transparent",
+          },
+          headerTitle: "",
+          headerBackTitle: "",
+        }}
+      />
+      <Stack.Screen
+        name="top-menu"
+        options={{ headerShown: false, presentation: "modal" }}
+      />
     </Stack>
   );
 }

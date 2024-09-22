@@ -8,7 +8,6 @@ import Animated, { FadeIn } from "react-native-reanimated";
 
 import { cn } from "~/utils/chat/cn";
 import ChatBubble from "./chat-bubble";
-import MessageToolbar from "./message-toolbar";
 
 interface ChatMessageProps {
   message: ChatCompletionMessageOrReactElement;
@@ -49,7 +48,7 @@ const ChatMessage = ({
       entering={FadeIn.duration(500)}
     >
       <MessageContent message={message} />
-      {!React.isValidElement(message) &&
+      {/* {!React.isValidElement(message) &&
         (message as ChatCompletionMessageParam).role !== "system" && (
           <MessageToolbar
             message={message as ChatCompletionMessageParam}
@@ -57,7 +56,7 @@ const ChatMessage = ({
             onReplyPress={handleReplyPress}
             onSharePress={handleSharePress}
           />
-        )}
+        )} */}
       {isLastMessage && error && (
         <View className="self-start rounded-2xl bg-red-100 px-5 py-4">
           <Text className="text-red-500">{error.message}</Text>
