@@ -1,5 +1,8 @@
+import { nanoid } from "nanoid";
 import OpenAI from "openai";
 import { z } from "zod";
+
+import { eq, schema } from "@acme/db";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { getConversationTitlePrompt } from "../utils/prompt-constants";
@@ -76,7 +79,7 @@ export const assistantRouter = createTRPCRouter({
       try {
         const response = await openai.chat.completions.create({
           stream: false,
-          model: "gpt-3.5-turbo",
+          model: "gpt-4o",
           max_tokens: 50,
           messages: [
             {
@@ -90,7 +93,6 @@ export const assistantRouter = createTRPCRouter({
                 input.messages,
                 input.species,
                 input.name,
-                input.yearOfBirth,
               ),
             },
           ],
@@ -128,8 +130,9 @@ export const assistantRouter = createTRPCRouter({
       try {
         const response = await openai.chat.completions.create({
           stream: false,
-          model: "gpt-4",
+          model: "gpt-4o",
           max_tokens: 300,
+          response_format: { type: "json_object" },
           messages: [
             {
               role: "user",
@@ -160,6 +163,100 @@ export const assistantRouter = createTRPCRouter({
         return response;
       } catch (error) {
         console.log(error);
+      }
+    }),
+
+  synthesizeConversation: protectedProcedure
+    .input(
+      z.object({
+        animalId: z.string(),
+        messages: z.array(
+          z.object({
+            role: z.enum(["system", "user", "assistant", "function"]),
+            content: z.string(),
+          }),
+        ),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      try {
+        const response = await openai.chat.completions.create({
+          model: "gpt-4o",
+          response_format: { type: "json_object" },
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are an AI assistant that extracts key information about animals from conversations. I want you to be really specific and detailed in your analysis.",
+            },
+            {
+              role: "user",
+              content: `Analyze the conversation, extracting key animal info in order of questions asked. Prioritize user-provided data; treat assistant info as suggestions. Use this JSON structure:
+              {
+                "weight": number (in kg),
+                "dietaryRestrictions": string[],
+                "currentDiet": string[],
+                "dietaryPreferences": string[],
+                "currentMedications": string[],
+                "pastMedicalHistory": string[],
+                "currentMedications": string[],
+                "pastMedicalHistory": string[],
+                "knownAllergies": string[],
+                "recentSymptoms": string[],
+                "behavioralNotes": string[],
+                "suggestedDiet": string[],
+                "suggestedMedications": string[],
+                "suggestedTests": string[],
+              }
+
+              Here's the conversation to analyze:
+              ${JSON.stringify(input.messages)}`,
+            },
+          ],
+        });
+
+        console.log("response", response);
+
+        const extractedData = JSON.parse(
+          response.choices[0]?.message?.content || "{}",
+        );
+
+        // Fetch the current animal synthesized data
+        const existingSynthesizedData =
+          await ctx.db.query.animalSynthesizedData.findFirst({
+            where: eq(schema.animalSynthesizedData.animalId, input.animalId),
+          });
+
+        const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+        console.log("extractedData", extractedData);
+
+        if (
+          !existingSynthesizedData ||
+          new Date(existingSynthesizedData.updatedAt) < oneDayAgo
+        ) {
+          // Create a new entry or update if older than a day
+          await ctx.db
+            .insert(schema.animalSynthesizedData)
+            .values({
+              id: existingSynthesizedData?.id || nanoid(),
+              animalId: input.animalId,
+              data: extractedData,
+            })
+            .onConflictDoUpdate({
+              target: [schema.animalSynthesizedData.id],
+              set: {
+                data: extractedData,
+                updatedAt: new Date(),
+              },
+            });
+        }
+
+        return response;
+      } catch (error) {
+        console.error("Error synthesizing conversation:", error);
+        throw new Error("Failed to synthesize conversation");
       }
     }),
 });

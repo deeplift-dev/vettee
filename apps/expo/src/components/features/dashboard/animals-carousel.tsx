@@ -1,9 +1,7 @@
 import React from "react";
 import { Pressable, ScrollView, useWindowDimensions, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
-import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "expo-router";
-import { Feather } from "@expo/vector-icons";
 import { PlusCircleIcon } from "lucide-react-native";
 
 import type { RouterOutputs } from "@acme/api";
@@ -114,27 +112,6 @@ const AnimalsCarousel: React.FC<AnimalsCarouselProps> = ({
             <AnimalCard animal={animal} onEdit={() => handleEdit(animal.id)} />
           </Animated.View>
         ))}
-        <Pressable
-          onPress={() => navigation.navigate("animal-create")}
-          className="mr-2 flex h-64 w-52 flex-col items-center justify-center rounded-xl border-2 border-dashed border-emerald-300 bg-gray-200"
-        >
-          <LinearGradient
-            start={{ x: 0, y: 0 }}
-            end={{ x: 0.1, y: 1 }}
-            colors={["#00FFED", "#00B8BA"]}
-            style={{
-              width: "100%",
-              height: "100%",
-              position: "absolute",
-              borderRadius: 10,
-              opacity: 0.01,
-            }}
-          />
-          <Feather name="plus-circle" size={24} color="#00B8BA" />
-          <Text className="mt-4 text-center font-bold text-[#00B8BA]">
-            Add New Animal
-          </Text>
-        </Pressable>
       </ScrollView>
     </View>
   );
