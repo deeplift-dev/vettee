@@ -7,7 +7,7 @@
  * The pieces you will need to use are documented accordingly near the end
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { initTRPC, TRPCError } from "@trpc/server";
+import { initTRPC } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
@@ -38,8 +38,6 @@ export const createTRPCContext = async (opts: {
   const user = token
     ? await supabase.auth.getUser(token)
     : await supabase.auth.getUser();
-
-  const source = opts.headers.get("x-trpc-source") ?? "unknown";
 
   return {
     user: user.data.user,

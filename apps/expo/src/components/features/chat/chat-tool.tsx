@@ -1,12 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  FlatList,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  View,
-} from "react-native";
+import { FlatList, Pressable, ScrollView, View } from "react-native";
 import { OpenAI, useChat } from "react-native-gen-ui";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { nanoid } from "nanoid";
@@ -315,7 +308,7 @@ const ChatTool: React.FC<ChatToolProps> = ({
         />
       </View>
       {showPromptSuggestions && !conversationId && (
-        <View className="absolute z-10 flex items-center justify-center">
+        <View className="z-10 flex items-center justify-center">
           <View className="w-full px-4">
             <PromptSuggestions
               animal={animal}
@@ -354,77 +347,66 @@ const ChatTool: React.FC<ChatToolProps> = ({
           }`
         }
       />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="z-20 mb-8 w-full"
-        keyboardVerticalOffset={150}
-      >
-        <View
-          className="px-2"
-          style={{ display: isThinking ? "flex" : "none" }}
+      <View className="px-2" style={{ display: isThinking ? "flex" : "none" }}>
+        <Typing />
+      </View>
+
+      <View className="flex flex-row items-start gap-1 p-3">
+        {/* Text input field */}
+        <View className="grow basis-0">
+          <ChatInput
+            input={input}
+            onInputChange={onInputChange}
+            onZapPress={handleZapPress}
+          />
+        </View>
+
+        {/* Submit button */}
+        <View className="shrink-0">
+          <ChatSubmitButton
+            isLoading={isLoading}
+            isStreaming={isStreaming}
+            input={input}
+            handleSubmit={async (msg) => {
+              await onHandleSubmit(msg);
+            }}
+          />
+        </View>
+      </View>
+
+      {isBottomViewVisible && (
+        <Animated.View
+          className="relative mx-4 mt-2"
+          entering={FadeIn.duration(300)}
+          exiting={FadeOut.duration(300)}
         >
-          <Typing />
-        </View>
-
-        <View className="flex flex-row items-start gap-1 p-3">
-          {/* Text input field */}
-          <View className="grow basis-0">
-            <ChatInput
-              input={input}
-              onInputChange={onInputChange}
-              onZapPress={handleZapPress}
-            />
-          </View>
-
-          {/* Submit button */}
-          <View className="shrink-0">
-            <ChatSubmitButton
-              isLoading={isLoading}
-              isStreaming={isStreaming}
-              input={input}
-              handleSubmit={async (msg) => {
-                await onHandleSubmit(msg);
-              }}
-            />
-          </View>
-        </View>
-
-        {isBottomViewVisible && (
-          <Animated.View
-            className="relative mx-4 mt-2"
-            entering={FadeIn.duration(300)}
-            exiting={FadeOut.duration(300)}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            className="flex flex-row"
           >
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              className="flex flex-row"
+            <Animated.View
+              className="flex h-24 justify-center rounded-lg border border-slate-300 bg-white px-2"
+              entering={FadeIn.duration(300).delay(100)}
+              exiting={FadeOut.duration(300)}
             >
-              <Animated.View
-                className="flex h-24 justify-center rounded-lg border border-slate-300 bg-white px-2"
-                entering={FadeIn.duration(300).delay(100)}
-                exiting={FadeOut.duration(300)}
-              >
-                <Text className="mb-1 text-sm font-bold">
-                  Critical Response
-                </Text>
-                <Text fontSize={14}>
-                  Use for serious concerns about pet health
-                </Text>
-              </Animated.View>
-              <Animated.View
-                className="ml-1 flex h-24 justify-center rounded-lg border border-slate-300 bg-white px-2"
-                entering={FadeIn.duration(300).delay(200)}
-                exiting={FadeOut.duration(300)}
-              >
-                <Text className="mb-1 text-sm font-bold">Add Vet</Text>
-                <Text fontSize={14}>Add a real vet to the chat</Text>
-              </Animated.View>
-            </ScrollView>
-            <View className="absolute right-0 top-0 h-full w-16 bg-gradient-to-l from-white to-transparent" />
-          </Animated.View>
-        )}
-      </KeyboardAvoidingView>
+              <Text className="mb-1 text-sm font-bold">Critical Response</Text>
+              <Text fontSize={14}>
+                Use for serious concerns about pet health
+              </Text>
+            </Animated.View>
+            <Animated.View
+              className="ml-1 flex h-24 justify-center rounded-lg border border-slate-300 bg-white px-2"
+              entering={FadeIn.duration(300).delay(200)}
+              exiting={FadeOut.duration(300)}
+            >
+              <Text className="mb-1 text-sm font-bold">Add Vet</Text>
+              <Text fontSize={14}>Add a real vet to the chat</Text>
+            </Animated.View>
+          </ScrollView>
+          <View className="absolute right-0 top-0 h-full w-16 bg-gradient-to-l from-white to-transparent" />
+        </Animated.View>
+      )}
     </View>
   );
 };

@@ -14,8 +14,8 @@
   "dependencies": {
     "@acme/db": "workspace:^0.2.0",
     "@supabase/supabase-js": "^2.39.0",
-    "@trpc/client": "next",
-    "@trpc/server": "next",
+    "@trpc/client": "11.0.0-alpha-next-2023-11-24-13-58-38.113",
+    "@trpc/server": "11.0.0-alpha-next-2023-11-24-13-58-38.113",
     "nanoid": "^5.0.4",
     "openai": "^4.25.0",
     "superjson": "2.2.1",

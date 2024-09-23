@@ -400,15 +400,13 @@ const SynthesizedData: React.FC<{ animalId: string }> = ({ animalId }) => {
     return null;
   }
 
-  if (!synthesizedData) {
+  if (!synthesizedData?.data) {
     return (
       <View className="p-4">
         <Text>No health summary available for this pet.</Text>
       </View>
     );
   }
-
-  console.log("synthesizedData", synthesizedData);
 
   return (
     <View className="p-4">

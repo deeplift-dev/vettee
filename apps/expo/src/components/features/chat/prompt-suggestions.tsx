@@ -35,8 +35,6 @@ const PromptSuggestions = ({
     );
   }
 
-  console.log("promptSuggestions", promptSuggestions);
-
   let prompts = [];
   try {
     const promptsData = JSON.parse(
@@ -58,14 +56,14 @@ const PromptSuggestions = ({
   }
 
   return (
-    <View className="flex w-full pt-24">
+    <View className="flex w-full pt-5">
       <Animated.View
         entering={FadeIn.duration(500)}
         exiting={FadeOut.duration(100)}
       >
         <Text className="text-center text-xl font-medium">Quick questions</Text>
         <Text className="text-center text-base text-slate-500">
-          Ask a question about your pet
+          Ask a question about {animal.name}
         </Text>
       </Animated.View>
       <View className="flex flex-row flex-wrap justify-between">
