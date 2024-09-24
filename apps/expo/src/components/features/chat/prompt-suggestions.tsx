@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
+import { Skeleton } from "~/components/ui/skeleton";
 import { api } from "~/utils/api";
 
 const PromptSuggestions = ({
@@ -27,15 +28,29 @@ const PromptSuggestions = ({
 
   if (isPending || !promptSuggestions) {
     return (
-      <View className="flex w-full pt-4">
-        <Text className="text-center text-xl font-medium">
-          Loading suggestions...
-        </Text>
+      <View className="flex w-full pt-6">
+        <View className="mb-4 flex flex-row justify-center">
+          <View className="flex w-1/2 flex-row items-center justify-center">
+            <Skeleton count={1} height={20} />
+          </View>
+        </View>
+        <View className="flex flex-row flex-wrap justify-between">
+          <View className="mb-4 w-[48%]">
+            <Skeleton height={80} />
+          </View>
+          <View className="mb-4 w-[48%]">
+            <Skeleton height={80} />
+          </View>
+          <View className="mb-4 w-[48%]">
+            <Skeleton height={80} />
+          </View>
+          <View className="mb-4 w-[48%]">
+            <Skeleton height={80} />
+          </View>
+        </View>
       </View>
     );
   }
-
-  console.log("promptSuggestions", promptSuggestions);
 
   let prompts = [];
   try {
@@ -58,14 +73,14 @@ const PromptSuggestions = ({
   }
 
   return (
-    <View className="flex w-full pt-24">
+    <View className="flex w-full pt-5">
       <Animated.View
         entering={FadeIn.duration(500)}
         exiting={FadeOut.duration(100)}
       >
         <Text className="text-center text-xl font-medium">Quick questions</Text>
         <Text className="text-center text-base text-slate-500">
-          Ask a question about your pet
+          Ask a question about {animal.name}
         </Text>
       </Animated.View>
       <View className="flex flex-row flex-wrap justify-between">

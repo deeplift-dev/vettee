@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { Keyboard, View } from "react-native";
+import { Keyboard, KeyboardAvoidingView, Platform, View } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 
 import ChatHeader from "~/components/features/chat/chat-header";
@@ -44,7 +44,11 @@ const ChatPage = () => {
   }
 
   return (
-    <View className="flex-1">
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      className="flex-1"
+      keyboardVerticalOffset={80}
+    >
       <ChatHeader
         animal={animal}
         profile={profile}
@@ -63,7 +67,7 @@ const ChatPage = () => {
         />
       )}
       <ChatMenu ref={chatMenuRef} animalId={animalId} />
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 

@@ -27,10 +27,16 @@ import {
   ActionsheetDragIndicatorWrapper,
   Button,
   ButtonText,
+  Tabs,
+  TabsTab,
+  TabsTabList,
+  TabsTabPanel,
+  TabsTabPanels,
 } from "@gluestack-ui/themed";
 import { useFocusEffect } from "@react-navigation/native";
 
 import ImagePicker from "~/components/features/onboarding/image-picker";
+import { Skeleton } from "~/components/ui/skeleton";
 import { api } from "~/utils/api";
 import { downloadPresignedUrl } from "~/utils/helpers/images";
 import { supabase } from "~/utils/supabase";
@@ -38,7 +44,6 @@ import { supabase } from "~/utils/supabase";
 export default function AnimalProfilePage() {
   const { slug } = useLocalSearchParams();
   const [isOpen, setIsOpen] = useState(false);
-  const router = useRouter();
   const {
     data: animal,
     isLoading,
@@ -114,8 +119,30 @@ export default function AnimalProfilePage() {
             {animal.species}
           </Text>
         </Animated.View>
-        <SynthesizedData animalId={animal.id} />
-        <RecentConversations animalId={animal.id} />
+        <Tabs>
+          <TabsTabList>
+            <TabsTab>
+              <View className="flex-row items-center gap-1 rounded-full bg-slate-200 px-2 py-1">
+                <Ionicons name="chatbubbles-outline" size={20} color="black" />
+                <Text>Recent Conversations</Text>
+              </View>
+            </TabsTab>
+            <TabsTab>
+              <View className="flex-row items-center gap-1 rounded-full bg-slate-200 px-2 py-1">
+                <Ionicons name="medical-outline" size={20} color="black" />
+                <Text>Health Summary</Text>
+              </View>
+            </TabsTab>
+          </TabsTabList>
+          <TabsTabPanels>
+            <TabsTabPanel>
+              <RecentConversations animalId={animal.id} />
+            </TabsTabPanel>
+            <TabsTabPanel>
+              <SynthesizedData animalId={animal.id} />
+            </TabsTabPanel>
+          </TabsTabPanels>
+        </Tabs>
       </View>
       <ImageUploadSheet
         isOpen={isOpen}
@@ -238,7 +265,6 @@ const RecentConversations: React.FC<{ animalId: string }> = ({ animalId }) => {
 
   const conversations = conversationsResponse?.data || [];
 
-  // Use useFocusEffect to refetch conversations when the screen is focused
   useFocusEffect(
     React.useCallback(() => {
       refetch();
@@ -247,14 +273,15 @@ const RecentConversations: React.FC<{ animalId: string }> = ({ animalId }) => {
 
   if (conversationsLoading) {
     return (
-      <View className="mt-4 p-4">
-        <Text>Loading conversations...</Text>
+      <View className="p-4">
+        <Skeleton className="mb-4" count={1} />
+        <Skeleton count={5} height={40} />
       </View>
     );
   }
 
   return (
-    <View className="mt-4 flex-1 p-4">
+    <View className="p-4">
       {conversations.length > 0 && (
         <Animated.View
           entering={FadeIn.duration(500)}
@@ -278,7 +305,7 @@ const RecentConversations: React.FC<{ animalId: string }> = ({ animalId }) => {
         </Animated.View>
       )}
       {conversations.length > 0 ? (
-        <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
+        <ScrollView contentContainerStyle={{ paddingBottom: 350 }}>
           {conversations.map((conversation, index) => (
             <Animated.View
               key={conversation.id}
@@ -304,7 +331,7 @@ const RecentConversations: React.FC<{ animalId: string }> = ({ animalId }) => {
           ))}
         </ScrollView>
       ) : (
-        <View className="flex-1">
+        <View className="flex-1 justify-center">
           <Text className="mb-6 text-center text-gray-800">
             No recent conversations
           </Text>
@@ -390,7 +417,7 @@ const SynthesizedData: React.FC<{ animalId: string }> = ({ animalId }) => {
 
   if (isLoading) {
     return (
-      <View className="p-4">
+      <View className="h-60 p-4">
         <Text>Loading pet health summary...</Text>
       </View>
     );
@@ -400,23 +427,29 @@ const SynthesizedData: React.FC<{ animalId: string }> = ({ animalId }) => {
     return null;
   }
 
-  if (!synthesizedData) {
+  if (!synthesizedData?.data) {
     return (
-      <View className="p-4">
+      <View className="h-60 p-4">
         <Text>No health summary available for this pet.</Text>
       </View>
     );
   }
 
-  console.log("synthesizedData", synthesizedData);
-
   return (
-    <View className="p-4">
-      <Text className="mb-2 text-lg font-bold">Pet Health Summary</Text>
-      {Object.entries(synthesizedData.data).map(([key, value]) => {
+    <ScrollView className="p-4">
+      <Animated.Text
+        entering={FadeIn.duration(500)}
+        className="mb-2 text-lg font-bold"
+      >
+        Pet Health Summary
+      </Animated.Text>
+      {Object.entries(synthesizedData.data).map(([key, value], index) => {
         if (Array.isArray(value) && value.length > 0) {
           return (
-            <View key={key}>
+            <Animated.View
+              key={key}
+              entering={FadeIn.duration(500).delay(index * 100)}
+            >
               <Text className="mt-2 font-semibold">
                 {key
                   .split(/(?=[A-Z])/)
@@ -424,30 +457,38 @@ const SynthesizedData: React.FC<{ animalId: string }> = ({ animalId }) => {
                   .replace(/^\w/, (c) => c.toUpperCase())}
                 :
               </Text>
-              {value.map((item: string, index: number) => (
-                <Text key={index}>
+              {value.map((item: string, itemIndex: number) => (
+                <Animated.Text
+                  key={itemIndex}
+                  entering={FadeIn.duration(500).delay(
+                    (index * value.length + itemIndex) * 100,
+                  )}
+                >
                   • {item.charAt(0).toUpperCase() + item.slice(1)}
-                </Text>
+                </Animated.Text>
               ))}
-            </View>
+            </Animated.View>
           );
         } else if (
           typeof value === "number" ||
           (typeof value === "string" && value.trim() !== "")
         ) {
           return (
-            <Text key={key}>
+            <Animated.Text
+              key={key}
+              entering={FadeIn.duration(500).delay(index * 100)}
+            >
               {key
                 .split(/(?=[A-Z])/)
                 .join(" ")
                 .replace(/^\w/, (c) => c.toUpperCase())}
               : {value}
               {key === "weight" ? " kg" : ""}
-            </Text>
+            </Animated.Text>
           );
         }
         return null;
       })}
-    </View>
+    </ScrollView>
   );
 };

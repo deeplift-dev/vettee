@@ -216,8 +216,6 @@ export const assistantRouter = createTRPCRouter({
           ],
         });
 
-        console.log("response", response);
-
         const extractedData = JSON.parse(
           response.choices[0]?.message?.content || "{}",
         );
@@ -229,8 +227,6 @@ export const assistantRouter = createTRPCRouter({
           });
 
         const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-
-        console.log("extractedData", extractedData);
 
         if (
           !existingSynthesizedData ||

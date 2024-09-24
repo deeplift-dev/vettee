@@ -1,5 +1,17 @@
 # @acme/expo
 
+## 1.5.2
+
+### Patch Changes
+
+- Add loading skeleton, add tabs to profile screen
+
+## 1.5.1
+
+### Patch Changes
+
+- Update TRPC packages
+
 ## 1.5.0
 
 ### Minor Changes
