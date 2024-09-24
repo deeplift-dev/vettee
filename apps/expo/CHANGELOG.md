@@ -1,5 +1,11 @@
 # @acme/expo
 
+## 1.5.1
+
+### Patch Changes
+
+- Update TRPC packages
+
 ## 1.5.0
 
 ### Minor Changes
