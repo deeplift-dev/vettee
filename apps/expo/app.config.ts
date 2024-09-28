@@ -57,7 +57,7 @@ const defineConfig = (): ExpoConfig => ({
       "@react-native-google-signin/google-signin",
       {
         iosUrlScheme:
-          "com.googleusercontent.apps.771883429050-q6knaj9nvvkuijv1efv0s7q182npn7ti",
+          "com.googleusercontent.apps.453189080641-abmvft47sgljcgdk170opausutsnkl60",
       },
     ],
   ],

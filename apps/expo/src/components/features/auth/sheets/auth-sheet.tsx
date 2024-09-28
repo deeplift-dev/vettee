@@ -20,6 +20,10 @@ import {
   View,
   VStack,
 } from "@gluestack-ui/themed";
+import {
+  GoogleSignin,
+  statusCodes,
+} from "@react-native-google-signin/google-signin";
 
 import { BaseButton } from "~/components/ui/buttons/base-button";
 import { supabase } from "~/utils/supabase";
@@ -163,7 +167,47 @@ const IntroCard = ({ nextStep }: { nextStep: (step: AuthStep) => void }) => {
     }
   };
 
-  const signInWithGoogle = async () => {};
+  const signInWithGoogle = async () => {
+    try {
+      await GoogleSignin.hasPlayServices();
+      const response = await GoogleSignin.signIn();
+
+      if (response?.idToken) {
+        // Sign in with Supabase using the Google ID token
+        const { data, error } = await supabase.auth.signInWithIdToken({
+          provider: "google",
+          token: response.idToken,
+        });
+
+        if (error) {
+          console.error("Error signing in with Google:", error);
+          Alert.alert(
+            "Sign-in Error",
+            "An error occurred while signing in with Google. Please try again.",
+          );
+        } else if (data && data.user) {
+          console.log("Successfully signed in with Google");
+          router.replace("/(tabs)");
+        }
+      } else {
+        console.warn("Google sign-in was cancelled or failed");
+      }
+    } catch (error: any) {
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        console.log("Google sign-in was cancelled");
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        console.log("Google sign-in operation already in progress");
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        Alert.alert("Error", "Play services not available or outdated");
+      } else {
+        console.error("Error in Google sign-in:", error);
+        Alert.alert(
+          "Sign-in Error",
+          "An unexpected error occurred. Please try again.",
+        );
+      }
+    }
+  };
 
   return (
     <View width="$full">
@@ -195,7 +239,7 @@ const IntroCard = ({ nextStep }: { nextStep: (step: AuthStep) => void }) => {
           </BaseButton>
           <BaseButton
             icon={<FontAwesome5 name="google" size={24} color="white" />}
-            onPress={() => router.replace("/(tabs)")}
+            onPress={signInWithGoogle}
           >
             Continue with Google
           </BaseButton>
