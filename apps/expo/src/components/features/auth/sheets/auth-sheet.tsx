@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { KeyboardAvoidingView, Platform } from "react-native";
+import { Alert, KeyboardAvoidingView, Platform } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { makeRedirectUri } from "expo-auth-session";
 import * as QueryParams from "expo-auth-session/build/QueryParams";
 import { router } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { Ionicons } from "@expo/vector-icons";
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import {
   Actionsheet,
   ActionsheetBackdrop,
@@ -95,37 +96,74 @@ const AuthButton = ({
 
 const IntroCard = ({ nextStep }: { nextStep: (step: AuthStep) => void }) => {
   const signInWithFacebook = async () => {
-    const redirectTo = makeRedirectUri();
+    try {
+      const redirectTo = makeRedirectUri();
+      console.log("Redirect URI:", redirectTo);
 
-    const createSessionFromUrl = async (url: string) => {
-      const { params, errorCode } = QueryParams.getQueryParams(url);
+      const createSessionFromUrl = async (url: string) => {
+        console.log("Creating session from URL:", url);
+        const { params, errorCode } = QueryParams.getQueryParams(url);
 
-      if (errorCode) throw new Error(errorCode);
-      const { code } = params;
+        if (errorCode) {
+          console.error("Error code in URL:", errorCode);
+          throw new Error(errorCode);
+        }
 
-      if (!code) return;
+        const { code } = params;
+        if (!code) {
+          console.warn("No code found in URL params");
+          return;
+        }
 
-      const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+        console.log("Exchanging code for session");
+        const { data, error } =
+          await supabase.auth.exchangeCodeForSession(code);
 
-      if (error) throw error;
+        if (error) {
+          console.error("Error exchanging code for session:", error);
+          throw error;
+        }
 
-      router.replace("/(tabs)");
-    };
+        console.log("Session created successfully");
+        router.replace("/(tabs)");
+      };
 
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: "facebook",
-    });
+      console.log("Initiating OAuth sign-in with Facebook");
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "facebook",
+      });
 
-    const res = await WebBrowser.openAuthSessionAsync(
-      data?.url ?? "",
-      redirectTo,
-    );
+      if (error) {
+        console.error("Error initiating OAuth sign-in:", error);
+        throw error;
+      }
 
-    if (res.type === "success") {
-      const { url } = res;
-      await createSessionFromUrl(url);
+      if (!data?.url) {
+        console.error("No URL returned from signInWithOAuth");
+        throw new Error("No URL returned from signInWithOAuth");
+      }
+
+      console.log("Opening auth session in WebBrowser");
+      const res = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
+
+      console.log("WebBrowser result:", res);
+      if (res.type === "success") {
+        const { url } = res;
+        await createSessionFromUrl(url);
+      } else {
+        console.warn("WebBrowser session was not successful:", res.type);
+      }
+    } catch (error) {
+      console.error("Error in signInWithFacebook:", error);
+      // Handle the error appropriately, e.g., show an alert to the user
+      Alert.alert(
+        "Sign-in Error",
+        "An error occurred while signing in with Facebook. Please try again.",
+      );
     }
   };
+
+  const signInWithGoogle = async () => {};
 
   return (
     <View width="$full">
@@ -149,20 +187,21 @@ const IntroCard = ({ nextStep }: { nextStep: (step: AuthStep) => void }) => {
               <Text color="$white">Continue with Apple</Text>
             </HStack>
           </AuthButton> */}
-          {/* <AuthButton onPress={signInWithFacebook}>
-            <HStack space="md" alignItems="center" justifyContent="center">
-              <Entypo name="facebook-with-circle" size={24} color="white" />
-              <Text color="$white">Continue with Facebook</Text>
-            </HStack>
-          </AuthButton>
-          <AuthButton onPress={() => router.replace("/(tabs)")}>
-            <HStack space="md" alignItems="center" justifyContent="center">
-              <Text color="$white">Continue with Google</Text>
-            </HStack>
-          </AuthButton> */}
+          <BaseButton
+            icon={<FontAwesome5 name="facebook" size={24} color="white" />}
+            onPress={signInWithFacebook}
+          >
+            Continue with Facebook
+          </BaseButton>
+          <BaseButton
+            icon={<FontAwesome5 name="google" size={24} color="white" />}
+            onPress={() => router.replace("/(tabs)")}
+          >
+            Continue with Google
+          </BaseButton>
         </VStack>
         <Divider my="$0.5" />
-        <BaseButton onPress={() => nextStep("email")}>
+        <BaseButton variant="outline" onPress={() => nextStep("email")}>
           Continue with email
         </BaseButton>
       </VStack>

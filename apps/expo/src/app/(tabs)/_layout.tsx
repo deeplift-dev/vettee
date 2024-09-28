@@ -21,7 +21,7 @@ export default function Layout() {
   const {
     data: profile,
     isLoading: loadingProfile,
-    error,
+    error: profileError,
   } = api.profile.byId.useQuery(
     { id: session?.user?.id },
     { enabled: isAuthed },
@@ -36,6 +36,10 @@ export default function Layout() {
       setHasOnboarded(!!onboarded);
     }
   }, [profile, searchParams]);
+
+  if (profileError) {
+    return <Redirect href="/onboarding/account" />;
+  }
 
   // if (isLoading || loadingProfile) {
   //   return <LoadingFullscreen />;

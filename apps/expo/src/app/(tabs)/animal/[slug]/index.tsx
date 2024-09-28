@@ -120,14 +120,14 @@ export default function AnimalProfilePage() {
           </Text>
         </Animated.View>
         <Tabs>
-          <TabsTabList>
-            <TabsTab>
+          <TabsTabList className="flex flex-row space-x-1 px-2">
+            <TabsTab className="px-1">
               <View className="flex-row items-center gap-1 rounded-full bg-slate-200 px-2 py-1">
                 <Ionicons name="chatbubbles-outline" size={20} color="black" />
                 <Text>Recent Conversations</Text>
               </View>
             </TabsTab>
-            <TabsTab>
+            <TabsTab className="px-1">
               <View className="flex-row items-center gap-1 rounded-full bg-slate-200 px-2 py-1">
                 <Ionicons name="medical-outline" size={20} color="black" />
                 <Text>Health Summary</Text>

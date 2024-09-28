@@ -14,6 +14,7 @@ import ChatMessage from "./chat-message";
 import ChatSubmitButton from "./chat-submit-button";
 import ConversationTitle from "./conversation-title";
 import { PromptSuggestions } from "./prompt-suggestions";
+import { useCameraTool } from "./tools/camera-tool";
 
 type Conversation = RouterOutputs["conversation"]["create"];
 type ConversationMessage = RouterOutputs["conversation"]["saveMessage"];
@@ -34,79 +35,6 @@ const openAi = new OpenAI({
   model: process.env.EXPO_PUBLIC_OPENAI_MODEL || "gpt-4o",
   // You can even set a custom basePath of your SSE server
 });
-
-// const useCameraTool = {
-//   description: "Use the camera to take a photo",
-//   // No parameters needed for this tool
-//   parameters: z.object({}),
-//   // Render component for using the camera - can yield loading state
-//   render: async function* () {
-//     // Placeholder for camera functionality
-//     const takePhoto = async () => {
-//       // Logic to open the camera and take a photo
-//       // This is a placeholder and should be replaced with actual camera functionality
-//       return {
-//         uri: "https://example.com/photo.jpg",
-//       };
-//     };
-
-//     // Simulate taking a photo
-//     const photo = await takePhoto();
-
-//     // Yield the loading state
-//     yield {
-//       component: <Text>Loading...</Text>,
-//     };
-
-//     // Return the final result
-//     return {
-//       // The data will be seen by the model
-//       data: photo,
-//       // The component will be rendered to the user
-//       component: (
-//         <View className="w-full">
-//           <View className="w-full rounded-xl border-2 border-gray-100 bg-white p-1 shadow-sm">
-//             <Pressable
-//               onPress={() => {
-//                 /* dummy function */
-//               }}
-//             >
-//               <View className="flex w-full flex-row items-center rounded-lg border border-gray-200 px-4 py-4">
-//                 <Image
-//                   className="h-10 w-10"
-//                   source={require("../../../../assets/illustrations/album.png")}
-//                   alt="Album icon"
-//                 />
-//                 <Text pl="$2" fontFamily="$mono">
-//                   Pick image from camera roll
-//                 </Text>
-//               </View>
-//             </Pressable>
-//           </View>
-//           <View className="py-2" />
-//           <View className="rounded-xl border-2 border-gray-100 bg-white p-1 shadow-sm">
-//             <Pressable
-//               onPress={() => {
-//                 /* dummy function */
-//               }}
-//             >
-//               <View className="flex w-full flex-row items-center rounded-lg border border-gray-200 px-4 py-4">
-//                 <Image
-//                   className="h-10 w-10"
-//                   source={require("../../../../assets/illustrations/camera.png")}
-//                   alt="Camera icon"
-//                 />
-//                 <Text pl="$2" fontFamily="$mono">
-//                   Take a photo
-//                 </Text>
-//               </View>
-//             </Pressable>
-//           </View>
-//         </View>
-//       ),
-//     };
-//   },
-// };
 
 const ChatTool: React.FC<ChatToolProps> = ({
   animal,
@@ -213,6 +141,8 @@ const ChatTool: React.FC<ChatToolProps> = ({
       onSuccess: (data: ConversationMessage) => {},
     });
 
+  const { cameraToolObject, isLoading: isCameraToolLoading } = useCameraTool();
+
   const {
     input,
     error,
@@ -223,6 +153,7 @@ const ChatTool: React.FC<ChatToolProps> = ({
     onInputChange,
   } = useChat({
     openAi,
+    tools: [cameraToolObject],
     initialMessages: conversation?.messages?.length
       ? conversation?.messages.map((msg) => ({
           content: msg.content || "",
@@ -276,11 +207,15 @@ const ChatTool: React.FC<ChatToolProps> = ({
           });
         }
       }
-      console.log("messageCount", messageCount);
+      console.log("messageCount", updatedMessages);
+
       if (messageCount > 1) {
+        const filteredMessages = updatedMessages.filter(
+          (msg) => typeof msg === "object" && "content" in msg && "role" in msg,
+        );
         synthesizeConversation({
           animalId: animal.id,
-          messages: updatedMessages,
+          messages: filteredMessages,
         });
       }
     },

@@ -1,5 +1,5 @@
 import React from "react";
-import { ActivityIndicator, Text, TouchableOpacity } from "react-native";
+import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 import clsx from "clsx";
 
 type ButtonVariant =
@@ -17,6 +17,7 @@ interface BaseButtonProps {
   style?: object;
   disabled?: boolean;
   isLoading?: boolean;
+  icon?: React.ReactNode; // New prop for the icon
 }
 
 export function BaseButton({
@@ -26,6 +27,7 @@ export function BaseButton({
   style,
   disabled,
   isLoading = false,
+  icon, // New prop
 }: BaseButtonProps) {
   const isTextChild = typeof children === "string";
 
@@ -54,13 +56,16 @@ export function BaseButton({
       onPress={onPress}
       disabled={disabled || isLoading}
     >
-      {isLoading ? (
-        <ActivityIndicator size="small" color="#ffffff" />
-      ) : isTextChild ? (
-        <Text className={textClassName}>{children}</Text>
-      ) : (
-        children
-      )}
+      <View className="relative flex w-full flex-row items-center justify-center">
+        {icon && <View className="mr-2">{icon}</View>}
+        {isLoading ? (
+          <ActivityIndicator size="small" color="#ffffff" />
+        ) : isTextChild ? (
+          <Text className={textClassName}>{children}</Text>
+        ) : (
+          children
+        )}
+      </View>
     </TouchableOpacity>
   );
 }

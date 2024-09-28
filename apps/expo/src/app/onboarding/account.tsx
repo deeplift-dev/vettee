@@ -9,21 +9,15 @@ import {
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { Redirect, useRouter } from "expo-router";
-import {
-  Button,
-  ButtonSpinner,
-  ButtonText,
-  Text,
-  VStack,
-} from "@gluestack-ui/themed";
+import { Text, VStack } from "@gluestack-ui/themed";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Controller, useForm } from "react-hook-form";
 import * as yup from "yup";
 
+import { BaseButton } from "~/components/ui/buttons/base-button";
 import { OnboardingHeader } from "~/components/ui/headers/onboarding-header";
 import BaseInput from "~/components/ui/inputs/input";
 import { PageContainer } from "~/components/ui/page-container";
-import { theme } from "~/styles";
 import { api } from "~/utils/api";
 
 const ExperienceOptions = [
@@ -142,7 +136,7 @@ const IntroCard = ({ navigateToSlide }: IntroCardProps) => {
     <VStack w="$full" px="$2">
       <CardHeader
         title="Hello! What's your name?"
-        subtitle="Enter your full legal name to streamline communication with your local veterinary services."
+        subtitle="We'll use this to personalize your experience."
       />
       <Controller
         control={control}
@@ -180,15 +174,13 @@ const IntroCard = ({ navigateToSlide }: IntroCardProps) => {
         )}
         name="lastName"
       />
-      <View className="align-center w-full pb-12">
-        <NavigationControls
-          canProgress={isPending ? false : true}
-          canGoBack={false}
-          currentIndex={0}
-          onSubmit={handleSubmit(onSubmit)}
-          isLoading={isPending}
-        />
-      </View>
+      <BaseButton
+        onPress={handleSubmit(onSubmit)}
+        isLoading={isPending}
+        disabled={isPending}
+      >
+        Continue
+      </BaseButton>
     </VStack>
   );
 };
@@ -201,72 +193,6 @@ interface NavigationControlsProps {
   canGoBack: boolean;
   isLoading?: boolean;
 }
-
-const NavigationControls = ({
-  currentIndex,
-  navigateToSlide,
-  onSubmit,
-  canProgress = true,
-  canGoBack = true,
-  isLoading = false,
-}: NavigationControlsProps) => {
-  const previousSlide = () => {
-    if (currentIndex === 0) {
-      return;
-    }
-
-    navigateToSlide(currentIndex - 1);
-  };
-
-  const nextSlide = () => {
-    if (currentIndex === 3) {
-      return;
-    }
-
-    navigateToSlide(currentIndex + 1);
-  };
-
-  return (
-    <View
-      className={`flex w-full flex-row justify-center ${
-        currentIndex !== 0 && "justify-between"
-      }`}
-    >
-      {isLoading ? (
-        <ButtonSpinner />
-      ) : (
-        <>
-          {currentIndex !== 0 && (
-            <Button
-              size="xl"
-              bg={theme.colors.primary}
-              width="$full"
-              disabled={!canGoBack}
-              onPress={() => previousSlide()}
-            >
-              <ButtonText fontFamily="$mono" color="$black">
-                Back
-              </ButtonText>
-            </Button>
-          )}
-          <Button
-            size="xl"
-            bg="$black"
-            w="$full"
-            isDisabled={!canProgress}
-            onPress={() => {
-              onSubmit ? onSubmit() : nextSlide();
-            }}
-          >
-            <Text fontFamily="$mono" color="white">
-              Continue
-            </Text>
-          </Button>
-        </>
-      )}
-    </View>
-  );
-};
 
 const CardHeader = ({
   title,
