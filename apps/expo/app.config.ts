@@ -53,13 +53,6 @@ const defineConfig = (): ExpoConfig => ({
     "expo-router",
     "./expo-plugins/with-modify-gradle.js",
     "expo-apple-authentication",
-    [
-      "@react-native-google-signin/google-signin",
-      {
-        iosUrlScheme:
-          "com.googleusercontent.apps.453189080641-abmvft47sgljcgdk170opausutsnkl60",
-      },
-    ],
   ],
 });
 

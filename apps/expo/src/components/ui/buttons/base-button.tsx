@@ -32,7 +32,7 @@ export function BaseButton({
   const isTextChild = typeof children === "string";
 
   const buttonClassName = clsx(
-    "bg-slate-900 py-4 rounded-2xl items-center justify-center", // default styles
+    "bg-slate-900 py-4 rounded-2xl", // removed items-center and justify-center
     {
       "bg-white border-gray-300 border": variant === "primary",
       "bg-slate-500 text-black": variant === "secondary",
@@ -56,15 +56,18 @@ export function BaseButton({
       onPress={onPress}
       disabled={disabled || isLoading}
     >
-      <View className="relative flex w-full flex-row items-center justify-center">
-        {icon && <View className="mr-2">{icon}</View>}
-        {isLoading ? (
-          <ActivityIndicator size="small" color="#ffffff" />
-        ) : isTextChild ? (
-          <Text className={textClassName}>{children}</Text>
-        ) : (
-          children
-        )}
+      <View className="flex flex-row items-center justify-between px-4">
+        <View className="w-8">{icon && icon}</View>
+        <View className="flex-1 items-center">
+          {isLoading ? (
+            <ActivityIndicator size="small" color="#ffffff" />
+          ) : isTextChild ? (
+            <Text className={textClassName}>{children}</Text>
+          ) : (
+            children
+          )}
+        </View>
+        <View className="w-6" />
       </View>
     </TouchableOpacity>
   );

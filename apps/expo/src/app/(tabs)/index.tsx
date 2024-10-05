@@ -1,5 +1,6 @@
 import React from "react";
 import { SafeAreaView } from "react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link, Stack, useFocusEffect } from "expo-router";
 import {
@@ -31,6 +32,8 @@ const Index = () => {
     }, [refetch]),
   );
 
+  const AnimatedBox = Animated.createAnimatedComponent(Box);
+
   return (
     <View h="$full" w="$full">
       <LinearGradient
@@ -53,7 +56,11 @@ const Index = () => {
           </>
         ) : (
           <Center h="$2/3" w="$full">
-            <Box w="$full" px="$10">
+            <AnimatedBox
+              entering={FadeInDown.duration(200).springify()}
+              w="$full"
+              px="$10"
+            >
               <Box bg="$white" w="$full" p="$4" borderRadius="$lg">
                 <VStack>
                   <Text fontFamily="$mono" fontSize="$2xl" mb="$2">
@@ -74,7 +81,7 @@ const Index = () => {
                   </Link>
                 </VStack>
               </Box>
-            </Box>
+            </AnimatedBox>
           </Center>
         )}
       </SafeAreaView>

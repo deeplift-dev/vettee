@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Alert, KeyboardAvoidingView, Platform } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import * as AppleAuthentication from "expo-apple-authentication";
 import { makeRedirectUri } from "expo-auth-session";
 import * as QueryParams from "expo-auth-session/build/QueryParams";
 import { router } from "expo-router";
@@ -14,26 +15,22 @@ import {
   ActionsheetDragIndicator,
   ActionsheetDragIndicatorWrapper,
   Box,
-  Button,
   Divider,
+  Input,
+  InputField,
   Text,
   View,
   VStack,
 } from "@gluestack-ui/themed";
-import {
-  GoogleSignin,
-  statusCodes,
-} from "@react-native-google-signin/google-signin";
 
 import { BaseButton } from "~/components/ui/buttons/base-button";
 import { supabase } from "~/utils/supabase";
-import LoginFrom from "../forms/login-form";
 
 interface AuthSheetProps {
   trigger: React.ReactNode;
 }
 
-type AuthStep = "intro" | "email" | "password" | "name";
+type AuthStep = "intro" | "email";
 
 export default function AuthSheet({ trigger }: AuthSheetProps) {
   const [showActionsheet, setShowActionsheet] = useState(false);
@@ -47,11 +44,7 @@ export default function AuthSheet({ trigger }: AuthSheetProps) {
           {trigger}
         </TouchableOpacity>
       )}
-      <Actionsheet
-        isOpen={showActionsheet}
-        onClose={handleClose}
-        // zIndex={999}
-      >
+      <Actionsheet isOpen={showActionsheet} onClose={handleClose}>
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={{ width: "100%" }}
@@ -71,32 +64,6 @@ export default function AuthSheet({ trigger }: AuthSheetProps) {
     </Box>
   );
 }
-
-const AuthButton = ({
-  children,
-  bg,
-  textColor,
-  onPress,
-}: {
-  children: React.ReactNode;
-  bg?: string;
-  textColor?: string;
-  onPress?: () => void;
-}) => {
-  return (
-    <Button
-      bg={bg ?? "$black"}
-      size="xl"
-      height={55}
-      rounded="$2xl"
-      borderWidth={1}
-      borderColor="$backgroundLight300"
-      onPress={onPress}
-    >
-      {children}
-    </Button>
-  );
-};
 
 const IntroCard = ({ nextStep }: { nextStep: (step: AuthStep) => void }) => {
   const signInWithFacebook = async () => {
@@ -167,40 +134,50 @@ const IntroCard = ({ nextStep }: { nextStep: (step: AuthStep) => void }) => {
     }
   };
 
-  const signInWithGoogle = async () => {
-    try {
-      await GoogleSignin.hasPlayServices();
-      const response = await GoogleSignin.signIn();
+  const signInWithApple = async () => {
+    if (Platform.OS !== "ios") {
+      Alert.alert(
+        "Not Available",
+        "Apple Sign In is only available on iOS devices.",
+      );
+      return;
+    }
 
-      if (response?.idToken) {
-        // Sign in with Supabase using the Google ID token
-        const { data, error } = await supabase.auth.signInWithIdToken({
-          provider: "google",
-          token: response.idToken,
+    try {
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+
+      if (credential.identityToken) {
+        const {
+          error,
+          data: { user },
+        } = await supabase.auth.signInWithIdToken({
+          provider: "apple",
+          token: credential.identityToken,
         });
 
         if (error) {
-          console.error("Error signing in with Google:", error);
+          console.error("Error signing in with Apple:", error);
           Alert.alert(
             "Sign-in Error",
-            "An error occurred while signing in with Google. Please try again.",
+            "An error occurred while signing in with Apple. Please try again.",
           );
-        } else if (data && data.user) {
-          console.log("Successfully signed in with Google");
+        } else if (user) {
+          console.log("Successfully signed in with Apple");
           router.replace("/(tabs)");
         }
       } else {
-        console.warn("Google sign-in was cancelled or failed");
+        throw new Error("No identityToken.");
       }
     } catch (error: any) {
-      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        console.log("Google sign-in was cancelled");
-      } else if (error.code === statusCodes.IN_PROGRESS) {
-        console.log("Google sign-in operation already in progress");
-      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        Alert.alert("Error", "Play services not available or outdated");
+      if (error.code === "ERR_REQUEST_CANCELED") {
+        console.log("Apple sign-in was cancelled");
       } else {
-        console.error("Error in Google sign-in:", error);
+        console.error("Error in Apple sign-in:", error);
         Alert.alert(
           "Sign-in Error",
           "An unexpected error occurred. Please try again.",
@@ -216,36 +193,30 @@ const IntroCard = ({ nextStep }: { nextStep: (step: AuthStep) => void }) => {
           Get started
         </Text>
         <Text textAlign="left" mb={20}>
-          Sign in to your account to continue. Or create a new account.
+          Sign in or create an account to continue.
         </Text>
         <VStack space="sm" justifyContent="space-between">
-          {/* <AuthButton onPress={() => router.replace("/(tabs)")}>
-            <HStack
-              space="md"
-              alignItems="center"
-              justifyContent="center"
-              width="100%"
-              height="100%" // Added to center vertically
-            >
-              <AntDesign name="apple1" size={24} color="white" />
-              <Text color="$white">Continue with Apple</Text>
-            </HStack>
-          </AuthButton> */}
           <BaseButton
             icon={<FontAwesome5 name="facebook" size={24} color="white" />}
             onPress={signInWithFacebook}
           >
             Continue with Facebook
           </BaseButton>
-          <BaseButton
-            icon={<FontAwesome5 name="google" size={24} color="white" />}
-            onPress={signInWithGoogle}
-          >
-            Continue with Google
-          </BaseButton>
+          {Platform.OS === "ios" && (
+            <BaseButton
+              icon={<FontAwesome5 name="apple" size={24} color="white" />}
+              onPress={signInWithApple}
+            >
+              Continue with Apple
+            </BaseButton>
+          )}
         </VStack>
         <Divider my="$0.5" />
-        <BaseButton variant="outline" onPress={() => nextStep("email")}>
+        <BaseButton
+          disabled={true}
+          variant="outline"
+          onPress={() => nextStep("email")}
+        >
           Continue with email
         </BaseButton>
       </VStack>
@@ -254,6 +225,41 @@ const IntroCard = ({ nextStep }: { nextStep: (step: AuthStep) => void }) => {
 };
 
 const EmailForm = ({ nextStep }: { nextStep: (step: AuthStep) => void }) => {
+  const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSignInWithMagicLink = async () => {
+    if (!email) {
+      Alert.alert("Error", "Please enter your email address");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const redirectTo = makeRedirectUri();
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: redirectTo,
+        },
+      });
+
+      if (error) throw error;
+
+      Alert.alert(
+        "Check your email",
+        "We've sent you a magic link to sign in to your account.",
+      );
+      nextStep("intro");
+    } catch (error) {
+      console.error("Error sending magic link:", error);
+      Alert.alert("Error", error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <View width="$full" position="relative">
       <TouchableOpacity onPress={() => nextStep("intro")}>
@@ -263,12 +269,29 @@ const EmailForm = ({ nextStep }: { nextStep: (step: AuthStep) => void }) => {
       </TouchableOpacity>
       <VStack space="md" px={20} pt={10}>
         <Text textAlign="left" size="2xl" fontWeight="$medium" color="$black">
-          Sign in with email
+          Sign in or Sign up
         </Text>
         <Text textAlign="left" mb={20}>
-          Sign in to your account to continue. Or create a new account.
+          Enter your email to receive a magic link for instant access.
         </Text>
-        <LoginFrom />
+        <VStack space="xl">
+          <VStack space="xs">
+            <Text lineHeight="$xs">Email</Text>
+            <Input size="xl">
+              <InputField
+                autoCapitalize="none"
+                autoComplete="off"
+                keyboardType="email-address"
+                type="text"
+                onChangeText={setEmail}
+                lineHeight="$lg"
+              />
+            </Input>
+          </VStack>
+        </VStack>
+        <BaseButton onPress={handleSignInWithMagicLink} isLoading={isLoading}>
+          Send Magic Link
+        </BaseButton>
       </VStack>
     </View>
   );
