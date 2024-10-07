@@ -60,6 +60,12 @@ export const animalRouter = createTRPCRouter({
         .where(eq(schema.animal.id, input.id));
     }),
 
+  deleteAnimal: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(({ ctx, input }) => {
+      return ctx.db.delete(schema.animal).where(eq(schema.animal.id, input.id));
+    }),
+
   getSynthesizedData: publicProcedure
     .input(z.object({ animalId: z.string() }))
     .query(async ({ ctx, input }) => {

@@ -85,12 +85,12 @@ const AnimalsCarousel: React.FC<AnimalsCarouselProps> = ({
         className="mb-6 w-full flex-row items-center justify-between px-5"
         entering={FadeIn.duration(800)}
       >
-        <Text variant="subtitle" className="font-medium text-slate-700">
+        <Text variant="title" className="font-medium text-slate-700">
           My animals
         </Text>
         <Pressable
           onPress={() => navigation.navigate("animal-create")}
-          className="flex flex-row items-center gap-x-2 rounded-xl border border-slate-300 bg-slate-900 px-3 py-3 shadow-sm"
+          className="flex flex-row items-center gap-x-2 rounded-xl bg-slate-900 px-3 py-3"
         >
           <PlusCircleIcon size={20} color="#ffff" />
           <Text className="font-semibold text-slate-50">Add animal</Text>

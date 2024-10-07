@@ -1,22 +1,3 @@
-import { Ionicons } from "@expo/vector-icons";
-import {
-  Actionsheet,
-  ActionsheetBackdrop,
-  ActionsheetContent,
-  ActionsheetDragIndicator,
-  ActionsheetDragIndicatorWrapper,
-  Button,
-  ButtonText,
-  Tabs,
-  TabsTab,
-  TabsTabList,
-  TabsTabPanel,
-  TabsTabPanels,
-} from "@gluestack-ui/themed";
-import { useFocusEffect } from "@react-navigation/native";
-import { Image } from "expo-image";
-import { LinearGradient } from "expo-linear-gradient";
-import { Link, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -34,6 +15,25 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
+import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
+import { Link, useLocalSearchParams, useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import {
+  Actionsheet,
+  ActionsheetBackdrop,
+  ActionsheetContent,
+  ActionsheetDragIndicator,
+  ActionsheetDragIndicatorWrapper,
+  Button,
+  ButtonText,
+  Tabs,
+  TabsTab,
+  TabsTabList,
+  TabsTabPanel,
+  TabsTabPanels,
+} from "@gluestack-ui/themed";
+import { useFocusEffect } from "@react-navigation/native";
 
 import ImagePicker from "~/components/features/onboarding/image-picker";
 import { Skeleton } from "~/components/ui/skeleton";
@@ -43,7 +43,8 @@ import { supabase } from "~/utils/supabase";
 
 export default function AnimalProfilePage() {
   const { slug } = useLocalSearchParams();
-  const [isOpen, setIsOpen] = useState(false);
+  const [imageUploadOpen, setImageUploadOpen] = useState(false);
+  const [editAnimalOpen, setEditAnimalOpen] = useState(false);
   const {
     data: animal,
     isLoading,
@@ -110,7 +111,11 @@ export default function AnimalProfilePage() {
   return (
     <>
       <View className="h-[350px] w-full">
-        <ImageCarousel animal={animal} setIsOpen={setIsOpen} />
+        <ImageCarousel
+          animal={animal}
+          setImageUploadOpen={setImageUploadOpen}
+          setEditAnimalOpen={setEditAnimalOpen}
+        />
       </View>
       <View className="flex-1 bg-white">
         <Animated.View style={animatedStyle} className="p-4">
@@ -145,8 +150,14 @@ export default function AnimalProfilePage() {
         </Tabs>
       </View>
       <ImageUploadSheet
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
+        isOpen={imageUploadOpen}
+        onClose={() => setImageUploadOpen(false)}
+        handleSuccessfulUpload={handleSuccessfulUpload}
+      />
+      <EditAnimalSheet
+        animal={animal}
+        isOpen={editAnimalOpen}
+        onClose={() => setEditAnimalOpen(false)}
         handleSuccessfulUpload={handleSuccessfulUpload}
       />
     </>
@@ -155,10 +166,12 @@ export default function AnimalProfilePage() {
 
 const ImageCarousel = ({
   animal,
-  setIsOpen,
+  setImageUploadOpen,
+  setEditAnimalOpen,
 }: {
   animal: any;
-  setIsOpen: (isOpen: boolean) => void;
+  setImageUploadOpen: (isOpen: boolean) => void;
+  setEditAnimalOpen: (isOpen: boolean) => void;
 }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [images, setImages] = useState<string[]>([]);
@@ -208,11 +221,23 @@ const ImageCarousel = ({
     <View className="h-full w-full">
       <Pressable
         onPress={() => {
-          setIsOpen(true);
+          setImageUploadOpen(true);
         }}
         className="absolute bottom-4 right-4 z-10 rounded-full bg-white p-3"
       >
         <Ionicons name="image" size={24} color="black" />
+      </Pressable>
+      <Pressable
+        onPress={() => {
+          setEditAnimalOpen(true);
+        }}
+        className="absolute bottom-4 left-4 z-10 rounded-full bg-white p-3"
+      >
+        <Ionicons
+          name="ellipsis-horizontal-circle-outline"
+          size={24}
+          color="black"
+        />
       </Pressable>
       {imageLoaded ? (
         <Animated.View
@@ -354,6 +379,7 @@ const RecentConversations: React.FC<{ animalId: string }> = ({ animalId }) => {
 };
 
 interface ImageUploadSheetProps {
+  animal: any;
   isOpen: boolean;
   onClose: () => void;
   handleSuccessfulUpload: ({
@@ -381,20 +407,74 @@ export const ImageUploadSheet: React.FC<ImageUploadSheetProps> = ({
           <ActionsheetDragIndicatorWrapper>
             <ActionsheetDragIndicator />
           </ActionsheetDragIndicatorWrapper>
-          <ImagePicker
-            onUploadComplete={(params) => {
-              if (params.url) {
-                handleSuccessfulUpload({
-                  fileName: params.fileName,
-                  url: params.url,
-                });
-                onClose();
-              }
-            }}
-            setIsLoading={() => {
-              // Handle loading state
-            }}
-          />
+          <View className="w-full">
+            <Text className="mb-4 text-left text-2xl font-medium text-slate-900">
+              Upload image
+            </Text>
+            <ImagePicker
+              onUploadComplete={(params) => {
+                if (params.url) {
+                  handleSuccessfulUpload({
+                    fileName: params.fileName,
+                    url: params.url,
+                  });
+                  onClose();
+                }
+              }}
+              setIsLoading={() => {
+                // Handle loading state
+              }}
+            />
+          </View>
+        </ActionsheetContent>
+      </KeyboardAvoidingView>
+    </Actionsheet>
+  );
+};
+
+export const EditAnimalSheet: React.FC<ImageUploadSheetProps> = ({
+  isOpen,
+  onClose,
+  handleSuccessfulUpload,
+  animal,
+}) => {
+  const router = useRouter();
+  const { mutate: deleteAnimal, isPending } =
+    api.animal.deleteAnimal.useMutation({
+      onSuccess: () => {
+        onClose();
+        router.push("/(tabs)");
+      },
+    });
+
+  return (
+    <Actionsheet isOpen={isOpen} onClose={onClose}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ width: "100%" }}
+      >
+        <ActionsheetBackdrop />
+        <ActionsheetContent pb="$8" zIndex={999}>
+          <ActionsheetDragIndicatorWrapper>
+            <ActionsheetDragIndicator />
+          </ActionsheetDragIndicatorWrapper>
+          <View className="w-full">
+            <Text className="mb-4 text-left text-2xl font-medium text-slate-900">
+              Manage Animal
+            </Text>
+            <Button
+              onPress={() => deleteAnimal({ id: animal.id })}
+              size="md"
+              borderRadius="$xl"
+              backgroundColor="$red600"
+              softShadow="1"
+              isDisabled={isPending}
+            >
+              <ButtonText fontFamily="$mono" color="$white">
+                Delete Animal
+              </ButtonText>
+            </Button>
+          </View>
         </ActionsheetContent>
       </KeyboardAvoidingView>
     </Actionsheet>

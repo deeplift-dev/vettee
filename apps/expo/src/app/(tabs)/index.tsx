@@ -1,3 +1,8 @@
+import React from "react";
+import { SafeAreaView } from "react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
+import { LinearGradient } from "expo-linear-gradient";
+import { Link, Stack, useFocusEffect } from "expo-router";
 import {
   Box,
   Button,
@@ -7,11 +12,6 @@ import {
   View,
   VStack,
 } from "@gluestack-ui/themed";
-import { LinearGradient } from "expo-linear-gradient";
-import { Link, Stack, useFocusEffect } from "expo-router";
-import React from "react";
-import { SafeAreaView } from "react-native";
-import Animated, { FadeInDown } from "react-native-reanimated";
 
 import AnimalsCarousel from "~/components/features/dashboard/animals-carousel";
 import { HomeHeader } from "~/components/ui/headers/dashboard-header";
