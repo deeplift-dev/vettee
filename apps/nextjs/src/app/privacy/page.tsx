@@ -17,12 +17,13 @@ export default function PrivacyPolicyPage() {
           <div className="text-center text-gray-500 max-w-[600px] mx-auto">
             Your privacy is important to us. This privacy policy document outlines the types of personal information that is received and collected by Vettee and how it is used.
           </div>
+          <div className="text-center text-gray-400 text-sm mt-8">Last updated: 7th October 2024</div>
         </section>
         <article className="prose lg:prose-xl max-w-3xl mx-auto pb-24">
           <p>
             Vetttee (“we”, “us”, or “our”) is committed to protecting and respecting your privacy. This Privacy Policy outlines how we collect, use, disclose, and safeguard your information when you use the Vetttee mobile application (“App”). Please read this Privacy Policy carefully. If you do not agree with the terms of this Privacy Policy, please do not use the App.
           </p>
-          <h2>1. Information We Collect</h2>
+          <h2 className="mt-4">1. Information We Collect</h2>
           <h3>a. Personal Information</h3>
           <p>
             We may collect personal information that you voluntarily provide to us when you register or use the App, including but not limited to:
@@ -47,7 +48,7 @@ export default function PrivacyPolicyPage() {
           <p>
             We may use cookies, beacons, and similar tracking technologies to collect and store information. You can control your cookie settings through your device or browser settings.
           </p>
-          <h2>2. How We Use Your Information</h2>
+          <h2 className="mt-4">2. How We Use Your Information</h2>
           <p>
             We use the information we collect in the following ways:
           </p>
@@ -60,7 +61,7 @@ export default function PrivacyPolicyPage() {
             <li>To analyze usage trends and improve the App’s features.</li>
             <li>To comply with legal obligations and enforce our Terms of Service.</li>
           </ul>
-          <h2>3. Sharing Your Information</h2>
+          <h2 className="mt-4">3. Sharing Your Information</h2>
           <p>
             We do not share your personal information with third parties except in the following circumstances:
           </p>
@@ -69,19 +70,19 @@ export default function PrivacyPolicyPage() {
             <li>Legal Obligations: We may disclose your information if required to do so by law or in response to valid legal requests by public authorities.</li>
             <li>Business Transfers: If we are involved in a merger, acquisition, or asset sale, your information may be transferred as part of that transaction.</li>
           </ul>
-          <h2>4. Data Security</h2>
+          <h2 className="mt-4">4. Data Security</h2>
           <p>
             We implement appropriate technical and organizational measures to safeguard your information from unauthorized access, alteration, disclosure, or destruction. While we strive to protect your personal data, no method of transmission over the internet or electronic storage is completely secure. We cannot guarantee absolute security.
           </p>
-          <h2>5. Data Retention</h2>
+          <h2 className="mt-4">5. Data Retention</h2>
           <p>
             We retain your personal information only for as long as is necessary for the purposes set out in this Privacy Policy, or as required by law. Once the data is no longer needed, we will delete or anonymize it.
           </p>
-          <h2>6. Children’s Privacy</h2>
+          <h2 className="mt-4">6. Children’s Privacy</h2>
           <p>
             The App is not intended for use by individuals under the age of 13. We do not knowingly collect personal information from children under 13. If we become aware that we have collected such information, we will take steps to delete it as soon as possible.
           </p>
-          <h2>7. Your Rights and Choices</h2>
+          <h2 className="mt-4">7. Your Rights and Choices</h2>
           <p>
             Depending on your jurisdiction, you may have the right to:
           </p>
@@ -93,11 +94,11 @@ export default function PrivacyPolicyPage() {
           <p>
             To exercise these rights, please contact us using the information provided in the “Contact Us” section below.
           </p>
-          <h2>8. Changes to This Privacy Policy</h2>
+          <h2 className="mt-4">8. Changes to This Privacy Policy</h2>
           <p>
             We may update this Privacy Policy from time to time. Any changes will be posted within the App, and the “Last Updated” date at the top will reflect the effective date of the updated policy. We encourage you to review this policy periodically for any changes.
           </p>
-          <h2>9. Contact Us</h2>
+          <h2 className="mt-4">9. Contact Us</h2>
           <p>
             If you have any questions or concerns about this Privacy Policy or our data practices, please contact us at:
           </p>
