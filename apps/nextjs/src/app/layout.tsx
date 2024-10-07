@@ -3,8 +3,8 @@ import localFont from "next/font/local";
 
 import "~/styles/globals.css";
 
-import { cache } from "react";
 import { headers } from "next/headers";
+import { cache } from "react";
 
 import { TRPCReactProvider } from "~/trpc/react";
 
@@ -70,7 +70,7 @@ const getHeaders = cache(async () => headers());
 export default function Layout(props: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${OddvalFont.variable} ${SaansFont.variable}`}>
-      <body className="font-sans">
+      <body className="font-sans bg-gray-50">
         <TRPCReactProvider headersPromise={getHeaders()}>
           {props.children}
         </TRPCReactProvider>
