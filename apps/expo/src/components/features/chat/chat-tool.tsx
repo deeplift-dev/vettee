@@ -1,20 +1,23 @@
+import { nanoid } from "nanoid";
 import React, { useEffect, useState } from "react";
-import { FlatList, Pressable, ScrollView, View } from "react-native";
+import { ActivityIndicator, FlatList, Pressable, ScrollView, View } from "react-native";
 import { OpenAI, useChat } from "react-native-gen-ui";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import { nanoid } from "nanoid";
 
-import type { RouterOutputs } from "~/utils/api";
+import { Image } from "expo-image";
+import { z } from "zod";
 import Typing from "~/components/ui/loaders/typing";
 import Text from "~/components/ui/text";
+import type { RouterOutputs } from "~/utils/api";
 import { api } from "~/utils/api";
 import { initThreadPrompt } from "~/utils/chat/prompt-constants";
+import ImagePicker from "../onboarding/image-picker";
 import ChatInput from "./chat-input";
 import ChatMessage from "./chat-message";
 import ChatSubmitButton from "./chat-submit-button";
 import ConversationTitle from "./conversation-title";
 import { PromptSuggestions } from "./prompt-suggestions";
-
+import { useCameraTool } from "./tools/camera-tool";
 type Conversation = RouterOutputs["conversation"]["create"];
 type ConversationMessage = RouterOutputs["conversation"]["saveMessage"];
 interface ChatToolProps {
@@ -31,82 +34,9 @@ interface ChatToolProps {
 
 const openAi = new OpenAI({
   apiKey: process.env.EXPO_PUBLIC_OPENAI_API_KEY,
-  model: process.env.EXPO_PUBLIC_OPENAI_MODEL || "gpt-4o",
+  model: "gpt-4o",
   // You can even set a custom basePath of your SSE server
 });
-
-// const useCameraTool = {
-//   description: "Use the camera to take a photo",
-//   // No parameters needed for this tool
-//   parameters: z.object({}),
-//   // Render component for using the camera - can yield loading state
-//   render: async function* () {
-//     // Placeholder for camera functionality
-//     const takePhoto = async () => {
-//       // Logic to open the camera and take a photo
-//       // This is a placeholder and should be replaced with actual camera functionality
-//       return {
-//         uri: "https://example.com/photo.jpg",
-//       };
-//     };
-
-//     // Simulate taking a photo
-//     const photo = await takePhoto();
-
-//     // Yield the loading state
-//     yield {
-//       component: <Text>Loading...</Text>,
-//     };
-
-//     // Return the final result
-//     return {
-//       // The data will be seen by the model
-//       data: photo,
-//       // The component will be rendered to the user
-//       component: (
-//         <View className="w-full">
-//           <View className="w-full rounded-xl border-2 border-gray-100 bg-white p-1 shadow-sm">
-//             <Pressable
-//               onPress={() => {
-//                 /* dummy function */
-//               }}
-//             >
-//               <View className="flex w-full flex-row items-center rounded-lg border border-gray-200 px-4 py-4">
-//                 <Image
-//                   className="h-10 w-10"
-//                   source={require("../../../../assets/illustrations/album.png")}
-//                   alt="Album icon"
-//                 />
-//                 <Text pl="$2" fontFamily="$mono">
-//                   Pick image from camera roll
-//                 </Text>
-//               </View>
-//             </Pressable>
-//           </View>
-//           <View className="py-2" />
-//           <View className="rounded-xl border-2 border-gray-100 bg-white p-1 shadow-sm">
-//             <Pressable
-//               onPress={() => {
-//                 /* dummy function */
-//               }}
-//             >
-//               <View className="flex w-full flex-row items-center rounded-lg border border-gray-200 px-4 py-4">
-//                 <Image
-//                   className="h-10 w-10"
-//                   source={require("../../../../assets/illustrations/camera.png")}
-//                   alt="Camera icon"
-//                 />
-//                 <Text pl="$2" fontFamily="$mono">
-//                   Take a photo
-//                 </Text>
-//               </View>
-//             </Pressable>
-//           </View>
-//         </View>
-//       ),
-//     };
-//   },
-// };
 
 const ChatTool: React.FC<ChatToolProps> = ({
   animal,
@@ -173,7 +103,7 @@ const ChatTool: React.FC<ChatToolProps> = ({
     }
   }, [queryConversationId]);
 
-  const onHandleSubmit = async (msg: string) => {
+  const onHandleSubmit = async (msg: string | { type: string; text?: string; image_url?: { url: string } }[]) => {
     if (messageCount === 1) {
       setShowPromptSuggestions(false);
       createConversation({
@@ -213,6 +143,8 @@ const ChatTool: React.FC<ChatToolProps> = ({
       onSuccess: (data: ConversationMessage) => {},
     });
 
+  const { cameraToolObject, isLoading: isCameraToolLoading } = useCameraTool();
+
   const {
     input,
     error,
@@ -223,6 +155,31 @@ const ChatTool: React.FC<ChatToolProps> = ({
     onInputChange,
   } = useChat({
     openAi,
+    tools: {
+      imageRenderer: {
+        description: "Render an image in the chat",
+        parameters: z.object({
+          image: z.string(),
+        }),
+        render: async function* (args) {
+          yield <ActivityIndicator size="small" color="#0000ff" />;
+          console.log("args", args);
+
+          return {
+            component: (
+              <Image
+                source={{ uri: args.image }}
+                style={{ width: 200, height: 200 }}
+              />
+            ),
+            data: {
+              instruction: "Display the provided image.",
+              imageUrl: args.image,
+            },
+          };
+        },
+      },
+    },
     initialMessages: conversation?.messages?.length
       ? conversation?.messages.map((msg) => ({
           content: msg.content || "",
@@ -276,11 +233,14 @@ const ChatTool: React.FC<ChatToolProps> = ({
           });
         }
       }
-      console.log("messageCount", messageCount);
+
       if (messageCount > 1) {
+        const filteredMessages = updatedMessages.filter(
+          (msg) => typeof msg === "object" && "content" in msg && "role" in msg,
+        );
         synthesizeConversation({
           animalId: animal.id,
-          messages: updatedMessages,
+          messages: filteredMessages,
         });
       }
     },
@@ -294,10 +254,17 @@ const ChatTool: React.FC<ChatToolProps> = ({
   const messageCount = messages.length;
 
   const [isBottomViewVisible, setIsBottomViewVisible] = useState(false);
+  const [isCameraVisible, setIsCameraVisible] = useState(false);
 
   const handleZapPress = (isVisible: boolean) => {
     setIsBottomViewVisible(isVisible);
   };
+
+  const handleCameraPress = () => {
+    setIsCameraVisible(!isCameraVisible);
+  };
+
+  console.log("messages", messages);
 
   return (
     <View className="flex-1">
@@ -340,12 +307,7 @@ const ChatTool: React.FC<ChatToolProps> = ({
             </Pressable>
           </Animated.View>
         )}
-        keyExtractor={(item, index) =>
-          `message-${index}-${
-            item.id ||
-            (item.content ? item.content.substring(0, 10) : "no-content")
-          }`
-        }
+        keyExtractor={(item, index) => `message-${index}`}
       />
       <View className="px-2" style={{ display: isThinking ? "flex" : "none" }}>
         <Typing />
@@ -358,6 +320,8 @@ const ChatTool: React.FC<ChatToolProps> = ({
             input={input}
             onInputChange={onInputChange}
             onZapPress={handleZapPress}
+            onCameraPress={handleCameraPress}
+            cameraOpen={isCameraVisible}
           />
         </View>
 
@@ -373,7 +337,26 @@ const ChatTool: React.FC<ChatToolProps> = ({
           />
         </View>
       </View>
-
+      {isCameraVisible && (
+        <Animated.View
+          className="relative mx-4 mb-4"
+          entering={FadeIn.duration(300)}
+          exiting={FadeOut.duration(300)}
+        >
+          <ImagePicker
+            onUploadComplete={(uploadParams) => {
+              setIsCameraVisible(false);
+              onHandleSubmit([
+                {
+                  type: "image_url",
+                  image_url: {
+                    url: uploadParams.url,
+                  },
+                },
+              ])
+            }}
+          />
+        </Animated.View>)}
       {isBottomViewVisible && (
         <Animated.View
           className="relative mx-4 mt-2"
@@ -395,14 +378,20 @@ const ChatTool: React.FC<ChatToolProps> = ({
                 Use for serious concerns about pet health
               </Text>
             </Animated.View>
-            <Animated.View
-              className="ml-1 flex h-24 justify-center rounded-lg border border-slate-300 bg-white px-2"
-              entering={FadeIn.duration(300).delay(200)}
-              exiting={FadeOut.duration(300)}
+            <Pressable
+              onPress={async () => {
+                console.log("Add Vet");
+              }}
             >
-              <Text className="mb-1 text-sm font-bold">Add Vet</Text>
-              <Text fontSize={14}>Add a real vet to the chat</Text>
-            </Animated.View>
+              <Animated.View
+                className="ml-1 flex h-24 justify-center rounded-lg border border-slate-300 bg-white px-2"
+                entering={FadeIn.duration(300).delay(200)}
+                exiting={FadeOut.duration(300)}
+              >
+                <Text className="mb-1 text-sm font-bold">Add Vet</Text>
+                <Text fontSize={14}>Add a real vet to the chat</Text>
+              </Animated.View>
+            </Pressable>
           </ScrollView>
           <View className="absolute right-0 top-0 h-full w-16 bg-gradient-to-l from-white to-transparent" />
         </Animated.View>

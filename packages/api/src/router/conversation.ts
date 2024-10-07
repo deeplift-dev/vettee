@@ -15,7 +15,20 @@ export const conversationRouter = createTRPCRouter({
         messages: z.array(
           z.object({
             role: z.enum(["system", "user", "assistant", "function"]),
-            content: z.string(),
+            content: z.union([
+              z.string(),
+              z.array(
+                z.object({
+                  type: z.string(),
+                  text: z.string().optional(),
+                  image_url: z
+                    .object({
+                      url: z.string().url(),
+                    })
+                    .optional(),
+                }),
+              ),
+            ]),
             created_at: z.string(),
             id: z.string(),
           }),
@@ -124,7 +137,20 @@ export const conversationRouter = createTRPCRouter({
         message: z.union([
           z.object({
             role: z.enum(["system", "user", "assistant", "function"]),
-            content: z.string(),
+            content: z.union([
+              z.string(),
+              z.array(
+                z.object({
+                  type: z.string(),
+                  text: z.string().optional(),
+                  image_url: z
+                    .object({
+                      url: z.string().url(),
+                    })
+                    .optional(),
+                })
+              ),
+            ]),
           }),
           z.object({
             type: z.literal("jsx"),

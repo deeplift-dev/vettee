@@ -1,5 +1,5 @@
 import React from "react";
-import { ActivityIndicator, Text, TouchableOpacity } from "react-native";
+import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 import clsx from "clsx";
 
 type ButtonVariant =
@@ -17,6 +17,7 @@ interface BaseButtonProps {
   style?: object;
   disabled?: boolean;
   isLoading?: boolean;
+  icon?: React.ReactNode; // New prop for the icon
 }
 
 export function BaseButton({
@@ -26,11 +27,12 @@ export function BaseButton({
   style,
   disabled,
   isLoading = false,
+  icon, // New prop
 }: BaseButtonProps) {
   const isTextChild = typeof children === "string";
 
   const buttonClassName = clsx(
-    "bg-slate-900 py-4 rounded-2xl items-center justify-center", // default styles
+    "bg-slate-900 py-4 rounded-2xl", // removed items-center and justify-center
     {
       "bg-white border-gray-300 border": variant === "primary",
       "bg-slate-500 text-black": variant === "secondary",
@@ -54,13 +56,19 @@ export function BaseButton({
       onPress={onPress}
       disabled={disabled || isLoading}
     >
-      {isLoading ? (
-        <ActivityIndicator size="small" color="#ffffff" />
-      ) : isTextChild ? (
-        <Text className={textClassName}>{children}</Text>
-      ) : (
-        children
-      )}
+      <View className="flex flex-row items-center justify-between px-4">
+        <View className="w-8">{icon && icon}</View>
+        <View className="flex-1 items-center">
+          {isLoading ? (
+            <ActivityIndicator size="small" color="#ffffff" />
+          ) : isTextChild ? (
+            <Text className={textClassName}>{children}</Text>
+          ) : (
+            children
+          )}
+        </View>
+        <View className="w-6" />
+      </View>
     </TouchableOpacity>
   );
 }

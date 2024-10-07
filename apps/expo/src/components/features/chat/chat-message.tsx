@@ -1,11 +1,13 @@
+import React, { useState } from "react";
+import { Pressable, Text, View } from "react-native";
 import type {
   ChatCompletionMessageOrReactElement,
   ChatCompletionMessageParam,
 } from "react-native-gen-ui";
-import React from "react";
-import { Text, View } from "react-native";
+import ImageViewing from "react-native-image-viewing";
 import Animated, { FadeIn } from "react-native-reanimated";
 
+import { Image } from "expo-image";
 import { cn } from "~/utils/chat/cn";
 import ChatBubble from "./chat-bubble";
 
@@ -25,6 +27,8 @@ const ChatMessage = ({
   error,
 }: ChatMessageProps) => {
   const [key, setKey] = React.useState(0);
+  const [isViewerVisible, setIsViewerVisible] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   const handleLikePress = () => {
     console.log("Like pressed");
@@ -47,16 +51,20 @@ const ChatMessage = ({
       className={cn("flex", !isLastMessage && "pb-4")}
       entering={FadeIn.duration(500)}
     >
-      <MessageContent message={message} />
-      {/* {!React.isValidElement(message) &&
-        (message as ChatCompletionMessageParam).role !== "system" && (
-          <MessageToolbar
-            message={message as ChatCompletionMessageParam}
-            onLikePress={handleLikePress}
-            onReplyPress={handleReplyPress}
-            onSharePress={handleSharePress}
-          />
-        )} */}
+      <MessageContent
+        message={message}
+        onImagePress={(url) => {
+          console.log("url", url);
+          setImageUrl(url);
+          setIsViewerVisible(true);
+        }}
+      />
+      <ImageViewing
+        images={imageUrl ? [{ uri: imageUrl }] : []}
+        imageIndex={0}
+        visible={isViewerVisible}
+        onRequestClose={() => setIsViewerVisible(false)}
+      />
       {isLastMessage && error && (
         <View className="self-start rounded-2xl bg-red-100 px-5 py-4">
           <Text className="text-red-500">{error.message}</Text>
@@ -69,11 +77,27 @@ const ChatMessage = ({
 // The chat message component
 const MessageContent = ({
   message,
+  onImagePress,
 }: {
   message: ChatCompletionMessageOrReactElement;
+  onImagePress: (url: string) => void;
 }) => {
   if (message == null) {
     return null;
+  }
+  if (message.content[0].type === "image_url" && message.content[0].image_url.url) {
+    return (
+      <Pressable onPress={() => onImagePress(message.content[0].image_url.url)}>
+        <View className="flex w-full h-64 rounded-xl bg-white items-center justify-center">
+          <Image
+            source={{ uri: message.content[0].image_url.url }}
+            style={{ width: "100%", height: "100%", flex: 1, borderRadius: 16 }}
+            contentFit="cover"
+            transition={1000}
+          />
+        </View>
+      </Pressable>
+    );
   }
 
   if (React.isValidElement(message)) {

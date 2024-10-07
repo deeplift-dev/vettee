@@ -1,7 +1,7 @@
+import { Camera, X } from "lucide-react-native";
 import React, { useState } from "react";
 import { Platform, TextInput, TouchableOpacity, View } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import { Camera, X, Zap } from "lucide-react-native";
 
 import { cn } from "~/utils/chat/cn";
 
@@ -9,17 +9,28 @@ interface ChatInputProps {
   input: string;
   onInputChange: (text: string) => void;
   onZapPress: (isVisible: boolean) => void;
+  onCameraPress: (isVisible: boolean) => void;
+  cameraOpen: boolean;
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({
   input,
   onInputChange,
   onZapPress,
+  onCameraPress,
+  cameraOpen,
 }) => {
   const [isZapActive, setIsZapActive] = useState(false);
+  const [isCameraActive, setIsCameraActive] = useState(cameraOpen);
 
   const handleTextChange = (text: string) => {
     onInputChange(text);
+  };
+
+  const handleCameraPress = () => {
+    const newCameraState = !isCameraActive;
+    setIsCameraActive(newCameraState);
+    onCameraPress(newCameraState);
   };
 
   const handleZapPress = () => {
@@ -30,7 +41,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
   const handleClosePress = () => {
     setIsZapActive(false);
-    onZapPress(false); // Add this line to hide the bottom view
+    setIsCameraActive(false);
+    onZapPress(false);
+    onCameraPress(false);
   };
 
   return (
@@ -52,18 +65,18 @@ const ChatInput: React.FC<ChatInputProps> = ({
           placeholder="Message"
           autoFocus={true}
         />
-        {!input && !isZapActive && (
+        {!input && !isZapActive && !isCameraActive && (
           <>
             <Animated.View
               entering={FadeIn}
               exiting={FadeOut}
-              className="absolute right-14 top-1/2 -translate-y-1/2 transform"
+              className="absolute right-3 top-1/2 -translate-y-1/2 transform"
             >
-              <TouchableOpacity>
+              <TouchableOpacity onPress={handleCameraPress}>
                 <Camera size={24} className="text-slate-900" />
               </TouchableOpacity>
             </Animated.View>
-            <Animated.View
+            {/* <Animated.View
               entering={FadeIn}
               exiting={FadeOut}
               className="absolute right-3 top-1/2 -translate-y-1/2 transform"
@@ -71,10 +84,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
               <TouchableOpacity onPress={handleZapPress}>
                 <Zap size={24} className="text-slate-900" />
               </TouchableOpacity>
-            </Animated.View>
+            </Animated.View> */}
           </>
         )}
-        {isZapActive && (
+        {isZapActive || isCameraActive && (
           <Animated.View
             entering={FadeIn}
             exiting={FadeOut}

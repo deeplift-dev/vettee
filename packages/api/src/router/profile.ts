@@ -1,8 +1,10 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { desc, eq, schema } from "@acme/db";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { supabaseAdmin } from "../utils/supabase-admin";
 
 export const profileRouter = createTRPCRouter({
   byId: protectedProcedure
@@ -76,4 +78,34 @@ export const profileRouter = createTRPCRouter({
 
       return newProfile.id;
     }),
+  deleteProfile: protectedProcedure.mutation(async ({ ctx }) => {
+    try {
+      // Soft delete the user using Supabase Admin API
+      const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(
+        ctx.user.id,
+      );
+
+      if (deleteError) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to delete user account",
+          cause: deleteError,
+        });
+      }
+
+      // Delete the profile from your database
+      await ctx.db
+        .delete(schema.profile)
+        .where(eq(schema.profile.id, ctx.user.id));
+
+      return { success: true, message: "User account deleted successfully" };
+    } catch (error) {
+      console.error("Error deleting profile:", error);
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "An error occurred while deleting the user account",
+        cause: error,
+      });
+    }
+  }),
 });

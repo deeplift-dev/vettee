@@ -1,3 +1,22 @@
+import { Ionicons } from "@expo/vector-icons";
+import {
+  Actionsheet,
+  ActionsheetBackdrop,
+  ActionsheetContent,
+  ActionsheetDragIndicator,
+  ActionsheetDragIndicatorWrapper,
+  Button,
+  ButtonText,
+  Tabs,
+  TabsTab,
+  TabsTabList,
+  TabsTabPanel,
+  TabsTabPanels,
+} from "@gluestack-ui/themed";
+import { useFocusEffect } from "@react-navigation/native";
+import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
+import { Link, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -15,25 +34,6 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
-import { Image } from "expo-image";
-import { LinearGradient } from "expo-linear-gradient";
-import { Link, useLocalSearchParams, useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import {
-  Actionsheet,
-  ActionsheetBackdrop,
-  ActionsheetContent,
-  ActionsheetDragIndicator,
-  ActionsheetDragIndicatorWrapper,
-  Button,
-  ButtonText,
-  Tabs,
-  TabsTab,
-  TabsTabList,
-  TabsTabPanel,
-  TabsTabPanels,
-} from "@gluestack-ui/themed";
-import { useFocusEffect } from "@react-navigation/native";
 
 import ImagePicker from "~/components/features/onboarding/image-picker";
 import { Skeleton } from "~/components/ui/skeleton";
@@ -120,14 +120,14 @@ export default function AnimalProfilePage() {
           </Text>
         </Animated.View>
         <Tabs>
-          <TabsTabList>
-            <TabsTab>
+          <TabsTabList className="flex flex-row space-x-1 px-2">
+            <TabsTab className="px-1">
               <View className="flex-row items-center gap-1 rounded-full bg-slate-200 px-2 py-1">
                 <Ionicons name="chatbubbles-outline" size={20} color="black" />
                 <Text>Recent Conversations</Text>
               </View>
             </TabsTab>
-            <TabsTab>
+            <TabsTab className="px-1">
               <View className="flex-row items-center gap-1 rounded-full bg-slate-200 px-2 py-1">
                 <Ionicons name="medical-outline" size={20} color="black" />
                 <Text>Health Summary</Text>
@@ -365,7 +365,7 @@ interface ImageUploadSheetProps {
   }) => void;
 }
 
-const ImageUploadSheet: React.FC<ImageUploadSheetProps> = ({
+export const ImageUploadSheet: React.FC<ImageUploadSheetProps> = ({
   isOpen,
   onClose,
   handleSuccessfulUpload,
