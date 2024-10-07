@@ -1,5 +1,11 @@
 # @acme/expo
 
+## 1.6.0
+
+### Minor Changes
+
+- Add authentication options
+
 ## 1.5.2
 
 ### Patch Changes
