@@ -1,5 +1,11 @@
 # @acme/expo
 
+## 1.7.0
+
+### Minor Changes
+
+- Add ability to delete animal
+
 ## 1.6.0
 
 ### Minor Changes
