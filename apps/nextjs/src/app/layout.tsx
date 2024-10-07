@@ -49,7 +49,7 @@ console.log("SaansFont", SaansFont.variable);
 console.log("OddvalFont", OddvalFont.variable);
 
 export const metadata: Metadata = {
-  title: "Vettee",
+  title: "Vettee | Your companion in pet care.",
   description: "The ultimate companion for your companions.",
   openGraph: {
     title: "Vettee",
