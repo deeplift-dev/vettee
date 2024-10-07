@@ -1,13 +1,13 @@
-import type { Control, FieldErrors, UseFormWatch } from "react-hook-form";
+import { Button, HStack, Text, View, VStack } from "@gluestack-ui/themed";
+import { Image } from "expo-image";
+import { Redirect, useNavigation } from "expo-router";
+import LottieView from "lottie-react-native";
 import React, { useRef, useState } from "react";
+import type { Control, FieldErrors, UseFormWatch } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { ActivityIndicator, Alert, Keyboard } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
-import { Image } from "expo-image";
-import { Redirect, useNavigation } from "expo-router";
-import { Button, HStack, Text, View, VStack } from "@gluestack-ui/themed";
-import LottieView from "lottie-react-native";
-import { Controller, useForm } from "react-hook-form";
 
 import ImagePicker from "~/components/features/onboarding/image-picker";
 import { OnboardingHeader } from "~/components/ui/headers/onboarding-header";
@@ -223,6 +223,11 @@ const BasicAnimalInfoCard = ({
   setValue,
   watch,
 }: CarouselItemProps) => {
+  // Watch the fields to trigger re-render when any of them change
+  const animalName = watch("animalName");
+  const animalType = watch("animalType");
+  const animalAge = watch("animalAge");
+
   return (
     <Animated.View
       entering={FadeInDown.duration(500)}
@@ -313,7 +318,7 @@ const BasicAnimalInfoCard = ({
         <View className="align-center w-full py-12">
           <NavigationControls
             currentIndex={1}
-            canProgress={isValid}
+            canProgress={!!(isValid && animalName && animalType && animalAge)}
             navigateToSlide={navigateToSlide}
           />
         </View>
@@ -577,8 +582,8 @@ const ReviewAnimalDetails = ({
 interface NavigationControlsProps {
   currentIndex: number;
   navigateToSlide: (index: number) => void;
-  canProgress: boolean;
-  canGoBack: boolean;
+  canProgress?: boolean;
+  canGoBack?: boolean;
 }
 
 const NavigationControls = ({

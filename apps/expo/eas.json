@@ -34,7 +34,8 @@
       "env": {
         "EXPO_PUBLIC_API_URL": "https://vettee.vercel.app",
         "EXPO_PUBLIC_SUPABASE_URL": "https://jtgxffbpsnibgzbhaewx.supabase.co",
-        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0Z3hmZmJwc25pYmd6YmhhZXd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDQxNjgyMTUsImV4cCI6MjAxOTc0NDIxNX0.2UZpmFONpwMmpoeaNU6p2iFK0n0atEtYm4I7YFURF6w"
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0Z3hmZmJwc25pYmd6YmhhZXd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDQxNjgyMTUsImV4cCI6MjAxOTc0NDIxNX0.2UZpmFONpwMmpoeaNU6p2iFK0n0atEtYm4I7YFURF6w",
+        "EXPO_PUBLIC_SUPABASE_SERVICE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0Z3hmZmJwc25pYmd6YmhhZXd4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcwNDE2ODIxNSwiZXhwIjoyMDE5NzQ0MjE1fQ.MqTKigfvcGgKPfXacNR_WB5Z87xEhVI8dWN-XIwd4yQ"
       },
       "ios": {
         "simulator": false
