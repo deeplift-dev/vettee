@@ -192,6 +192,9 @@ importers:
       react-native-get-random-values:
         specifier: ^1.11.0
         version: 1.11.0(react-native@0.74.5)
+      react-native-image-viewing:
+        specifier: ^0.2.2
+        version: 0.2.2(react-native@0.74.5)(react@18.2.0)
       react-native-maps:
         specifier: ^1.14.0
         version: 1.18.0(react-native-web@0.19.12)(react-native@0.74.5)(react@18.2.0)
@@ -13814,6 +13817,16 @@ packages:
       react: 18.2.0
       react-fast-compare: 3.2.2
       shallowequal: 1.1.0
+    dev: false
+
+  /react-native-image-viewing@0.2.2(react-native@0.74.5)(react@18.2.0):
+    resolution: {integrity: sha512-osWieG+p/d2NPbAyonOMubttajtYEYiRGQaJA54slFxZ69j1V4/dCmcrVQry47ktVKy8/qpFwCpW1eT6MH5T2Q==}
+    peerDependencies:
+      react: '>=16.11.0'
+      react-native: '>=0.61.3'
+    dependencies:
+      react: 18.2.0
+      react-native: 0.74.5(@babel/core@7.25.2)(@babel/preset-env@7.25.4)(@types/react@18.3.10)(react@18.2.0)
     dev: false
 
   /react-native-maps@1.18.0(react-native-web@0.19.12)(react-native@0.74.5)(react@18.2.0):

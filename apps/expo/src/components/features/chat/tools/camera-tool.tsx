@@ -1,8 +1,8 @@
-import { useCallback, useRef, useState } from "react";
-import { Image, Pressable, View } from "react-native";
+import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import Constants from "expo-constants";
 import * as ExpoImagePicker from "expo-image-picker";
-import { useSupabaseClient } from "@supabase/auth-helpers-react";
+import { useCallback, useRef, useState } from "react";
+import { Image, Pressable, View } from "react-native";
 import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
 
@@ -53,12 +53,14 @@ export const useCameraTool = () => {
       resetState();
 
       return {
-        data: {
-          type: "image_url",
+        data: [
+          {type: "image_url",
           image_url: {
             url: urlResult,
+            detail: "high",
           },
         },
+        ],
         component: urlResult ? (
           <View>
             <Image

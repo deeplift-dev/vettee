@@ -1,3 +1,22 @@
+import { Ionicons } from "@expo/vector-icons";
+import {
+  Actionsheet,
+  ActionsheetBackdrop,
+  ActionsheetContent,
+  ActionsheetDragIndicator,
+  ActionsheetDragIndicatorWrapper,
+  Button,
+  ButtonText,
+  Tabs,
+  TabsTab,
+  TabsTabList,
+  TabsTabPanel,
+  TabsTabPanels,
+} from "@gluestack-ui/themed";
+import { useFocusEffect } from "@react-navigation/native";
+import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
+import { Link, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -15,25 +34,6 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
-import { Image } from "expo-image";
-import { LinearGradient } from "expo-linear-gradient";
-import { Link, useLocalSearchParams, useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import {
-  Actionsheet,
-  ActionsheetBackdrop,
-  ActionsheetContent,
-  ActionsheetDragIndicator,
-  ActionsheetDragIndicatorWrapper,
-  Button,
-  ButtonText,
-  Tabs,
-  TabsTab,
-  TabsTabList,
-  TabsTabPanel,
-  TabsTabPanels,
-} from "@gluestack-ui/themed";
-import { useFocusEffect } from "@react-navigation/native";
 
 import ImagePicker from "~/components/features/onboarding/image-picker";
 import { Skeleton } from "~/components/ui/skeleton";
@@ -365,7 +365,7 @@ interface ImageUploadSheetProps {
   }) => void;
 }
 
-const ImageUploadSheet: React.FC<ImageUploadSheetProps> = ({
+export const ImageUploadSheet: React.FC<ImageUploadSheetProps> = ({
   isOpen,
   onClose,
   handleSuccessfulUpload,

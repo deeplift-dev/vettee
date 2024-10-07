@@ -1,10 +1,10 @@
-import { useState } from "react";
-import { Image, Pressable, StyleSheet, View } from "react-native";
-import Constants from "expo-constants";
-import * as ExpoImagePicker from "expo-image-picker";
 import { Text } from "@gluestack-ui/themed";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import { Amplify } from "aws-amplify";
+import Constants from "expo-constants";
+import * as ExpoImagePicker from "expo-image-picker";
+import { useState } from "react";
+import { ActivityIndicator, Image, Pressable, StyleSheet, View } from "react-native";
 import { v4 as uuidv4 } from "uuid";
 
 import { downloadPresignedUrl, uploadImage } from "~/utils/helpers/images";
@@ -14,7 +14,7 @@ Amplify.configure(amplifyconfig);
 
 interface ImagePickerProps {
   onUploadComplete: (params: { fileName: string; url: string }) => void;
-  setIsLoading: (isLoading: boolean) => void;
+  setIsLoading?: (isLoading: boolean) => void;
 }
 
 export default function ImagePicker({
@@ -22,6 +22,7 @@ export default function ImagePicker({
   setIsLoading,
 }: ImagePickerProps) {
   const [image, setImage] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const supabase = useSupabaseClient();
 
@@ -71,7 +72,7 @@ export default function ImagePicker({
     }
 
     try {
-      setIsLoading(true);
+      setIsUploading(true);
       const img = await fetchImageFromUri(pickerResult.assets[0].uri);
       const fileExtension = pickerResult.assets[0].uri.split(".").pop();
       const uniqueFileName = `${uuidv4()}.${fileExtension}`;
@@ -93,7 +94,7 @@ export default function ImagePicker({
       console.log(e);
       alert("Something went wrong. Please try again.");
     } finally {
-      setIsLoading(false);
+      setIsUploading(false);
     }
   };
 
@@ -107,28 +108,35 @@ export default function ImagePicker({
   return (
     <View className="w-full">
       <View className="w-full p-1">
-        <Pressable onPress={pickImage}>
-          <View className="flex w-full flex-row items-center rounded-lg border border-gray-200 px-4 py-4">
-            <Image
-              className="h-10 w-10"
-              source={require("../../../../assets/illustrations/album.png")}
-              alt="Album icon"
-            />
+        <Pressable onPress={pickImage} disabled={isUploading}>
+          <View className="flex w-full flex-row items-center rounded-lg border bg-white border-gray-200 px-4 py-4">
+            {isUploading ? (
+              <ActivityIndicator size="small" color="#0000ff" />
+            ) : (
+              <Image
+                className="h-10 w-10"
+                source={require("../../../../assets/illustrations/album.png")}
+                alt="Album icon"
+              />
+            )}
             <Text pl="$2" fontFamily="$mono">
               Pick image from camera roll
             </Text>
           </View>
         </Pressable>
       </View>
-      <View className="py-2" />
-      <View className="rounded-xl bg-white p-1">
-        <Pressable onPress={takePhoto}>
-          <View className="flex w-full flex-row items-center rounded-lg border border-gray-200 px-4 py-4">
-            <Image
-              className="h-10 w-10"
-              source={require("../../../../assets/illustrations/camera.png")}
-              alt="Camera icon"
-            />
+      <View className="rounded-xl p-1">
+        <Pressable onPress={takePhoto} disabled={isUploading}>
+          <View className="flex w-full flex-row items-center rounded-lg bg-white border border-gray-200 px-4 py-4">
+            {isUploading ? (
+              <ActivityIndicator size="small" color="#0000ff" />
+            ) : (
+              <Image
+                className="h-10 w-10"
+                source={require("../../../../assets/illustrations/camera.png")}
+                alt="Camera icon"
+              />
+            )}
             <Text pl="$2" fontFamily="$mono">
               Take a photo
             </Text>

@@ -1,6 +1,3 @@
-import React from "react";
-import { Alert, SafeAreaView } from "react-native";
-import { router } from "expo-router";
 import {
   Box,
   Button,
@@ -11,6 +8,9 @@ import {
   VStack,
 } from "@gluestack-ui/themed";
 import { useSessionContext } from "@supabase/auth-helpers-react";
+import { router } from "expo-router";
+import React from "react";
+import { Alert, SafeAreaView } from "react-native";
 
 import { api } from "~/utils/api";
 import { supabase } from "~/utils/supabase";
@@ -79,30 +79,28 @@ export default function AccountSettings() {
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView>
         <VStack space="xl" p="$4">
-          <ModalHeading>Account details</ModalHeading>
-          <VStack space="md">
-            <Box>
-              <Text fontWeight="$medium">Email</Text>
-              <Text>{profile.email}</Text>
+          <ModalHeading>Account Details</ModalHeading>
+          <VStack space="md" bg="$gray100" p="$4" borderRadius="$lg">
+            <Box mb="$4">
+              <Text fontWeight="$bold" fontSize="$lg" color="$gray700">Email</Text>
+              <Text fontSize="$md" color="$gray900">{profile.email}</Text>
             </Box>
-            <Box>
-              <Text fontWeight="$medium">Name</Text>
-              <Text>{`${profile.firstName ?? ""} ${
-                profile.lastName ?? ""
-              }`}</Text>
+            <Box mb="$4">
+              <Text fontWeight="$bold" fontSize="$lg" color="$gray700">Name</Text>
+              <Text fontSize="$md" color="$gray900">{`${profile.firstName ?? ""} ${profile.lastName ?? ""}`}</Text>
             </Box>
             {profile.mobileNumber && (
-              <Box>
-                <Text fontWeight="$medium">Mobile Number</Text>
-                <Text>{profile.mobileNumber}</Text>
+              <Box mb="$4">
+                <Text fontWeight="$bold" fontSize="$lg" color="$gray700">Mobile Number</Text>
+                <Text fontSize="$md" color="$gray900">{profile.mobileNumber}</Text>
               </Box>
             )}
-            <Box>
-              <Text fontWeight="$medium">Joined</Text>
-              <Text>{new Date(profile.createdAt).toLocaleDateString()}</Text>
+            <Box mb="$4">
+              <Text fontWeight="$bold" fontSize="$lg" color="$gray700">Joined</Text>
+              <Text fontSize="$md" color="$gray900">{new Date(profile.createdAt).toLocaleDateString()}</Text>
             </Box>
           </VStack>
-          <Divider />
+          <Divider my="$4" />
           <Button
             rounded="$2xl"
             size="xl"
@@ -111,7 +109,7 @@ export default function AccountSettings() {
             onPress={handleDeleteAccount}
             isDisabled={deletingProfile}
           >
-            <Text fontFamily="$mono" color="white">
+            <Text fontFamily="$mono" color="white" fontWeight="$bold">
               Delete Account
             </Text>
           </Button>

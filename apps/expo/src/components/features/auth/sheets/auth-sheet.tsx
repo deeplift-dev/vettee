@@ -1,11 +1,3 @@
-import { useState } from "react";
-import { Alert, KeyboardAvoidingView, Platform } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
-import * as AppleAuthentication from "expo-apple-authentication";
-import { makeRedirectUri } from "expo-auth-session";
-import * as QueryParams from "expo-auth-session/build/QueryParams";
-import { router } from "expo-router";
-import * as WebBrowser from "expo-web-browser";
 import { Ionicons } from "@expo/vector-icons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import {
@@ -22,6 +14,16 @@ import {
   View,
   VStack,
 } from "@gluestack-ui/themed";
+import * as AppleAuthentication from "expo-apple-authentication";
+import { makeRedirectUri } from "expo-auth-session";
+import * as QueryParams from "expo-auth-session/build/QueryParams";
+import * as Linking from 'expo-linking';
+import { useURL } from "expo-linking";
+import { router } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
+import { useEffect, useState } from "react";
+import { Alert, KeyboardAvoidingView, Platform } from "react-native";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 import { BaseButton } from "~/components/ui/buttons/base-button";
 import { supabase } from "~/utils/supabase";
@@ -30,7 +32,7 @@ interface AuthSheetProps {
   trigger: React.ReactNode;
 }
 
-type AuthStep = "intro" | "email";
+type AuthStep = "intro" | "email" | "waiting";
 
 export default function AuthSheet({ trigger }: AuthSheetProps) {
   const [showActionsheet, setShowActionsheet] = useState(false);
@@ -57,6 +59,7 @@ export default function AuthSheet({ trigger }: AuthSheetProps) {
             <AuthSteps
               activeStep={activeStep}
               nextStep={(step) => setActiveStep(step)}
+              onClose={handleClose}
             />
           </ActionsheetContent>
         </KeyboardAvoidingView>
@@ -69,55 +72,43 @@ const IntroCard = ({ nextStep }: { nextStep: (step: AuthStep) => void }) => {
   const signInWithFacebook = async () => {
     try {
       const redirectTo = makeRedirectUri();
-      console.log("Redirect URI:", redirectTo);
 
       const createSessionFromUrl = async (url: string) => {
-        console.log("Creating session from URL:", url);
         const { params, errorCode } = QueryParams.getQueryParams(url);
 
         if (errorCode) {
-          console.error("Error code in URL:", errorCode);
           throw new Error(errorCode);
         }
 
         const { code } = params;
         if (!code) {
-          console.warn("No code found in URL params");
           return;
         }
 
-        console.log("Exchanging code for session");
         const { data, error } =
           await supabase.auth.exchangeCodeForSession(code);
 
         if (error) {
-          console.error("Error exchanging code for session:", error);
           throw error;
         }
 
-        console.log("Session created successfully");
         router.replace("/(tabs)");
       };
 
-      console.log("Initiating OAuth sign-in with Facebook");
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "facebook",
       });
 
       if (error) {
-        console.error("Error initiating OAuth sign-in:", error);
         throw error;
       }
 
       if (!data?.url) {
-        console.error("No URL returned from signInWithOAuth");
         throw new Error("No URL returned from signInWithOAuth");
       }
 
-      console.log("Opening auth session in WebBrowser");
       const res = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
 
-      console.log("WebBrowser result:", res);
       if (res.type === "success") {
         const { url } = res;
         await createSessionFromUrl(url);
@@ -125,7 +116,6 @@ const IntroCard = ({ nextStep }: { nextStep: (step: AuthStep) => void }) => {
         console.warn("WebBrowser session was not successful:", res.type);
       }
     } catch (error) {
-      console.error("Error in signInWithFacebook:", error);
       // Handle the error appropriately, e.g., show an alert to the user
       Alert.alert(
         "Sign-in Error",
@@ -213,7 +203,6 @@ const IntroCard = ({ nextStep }: { nextStep: (step: AuthStep) => void }) => {
         </VStack>
         <Divider my="$0.5" />
         <BaseButton
-          disabled={true}
           variant="outline"
           onPress={() => nextStep("email")}
         >
@@ -247,11 +236,7 @@ const EmailForm = ({ nextStep }: { nextStep: (step: AuthStep) => void }) => {
 
       if (error) throw error;
 
-      Alert.alert(
-        "Check your email",
-        "We've sent you a magic link to sign in to your account.",
-      );
-      nextStep("intro");
+      nextStep("waiting");
     } catch (error) {
       console.error("Error sending magic link:", error);
       Alert.alert("Error", error.message);
@@ -297,17 +282,75 @@ const EmailForm = ({ nextStep }: { nextStep: (step: AuthStep) => void }) => {
   );
 };
 
+const WaitingForMagicLink = ({ nextStep, onClose }: { nextStep: (step: AuthStep) => void, onClose: () => void }) => {
+  const url = useURL();
+
+  const createSessionFromUrl = async (url: string) => {
+    const { params, errorCode } = QueryParams.getQueryParams(url);
+
+    if (errorCode) {
+      console.error("Error code in URL:", errorCode);
+      throw new Error(errorCode);
+    }
+
+    const { code } = params;
+    if (!code) {
+      return;
+    }
+
+    console.log("Exchanging code for session");
+    const { data, error } =
+      await supabase.auth.exchangeCodeForSession(code);
+
+    if (error) {
+      throw error;
+    }
+
+    onClose();
+    router.replace("/(tabs)");
+  };
+
+  useEffect(() => {
+    if (url == null) return;
+    const parsedUrl = Linking.parse(url.replace('#', '?'));
+    const { code } = parsedUrl.queryParams;
+    if (code) {
+      createSessionFromUrl(url);
+    }
+  }, [url]);
+
+  return (
+    <View width="$full" position="relative">
+      <TouchableOpacity onPress={() => nextStep("email")}>
+        <Text px={20}>
+          <Ionicons name="arrow-back-outline" size={24} color="black" />
+        </Text>
+      </TouchableOpacity>
+      <VStack space="md" px={20} pt={10}>
+        <Text textAlign="left" size="2xl" fontWeight="$medium" color="$black">
+          Check your email
+        </Text>
+        <Text textAlign="left" mb={20}>
+          We've sent you a magic link to sign in to your account.
+        </Text>
+      </VStack>
+    </View>
+  );
+};
+
 interface AuthStepsProps {
   activeStep: AuthStep;
   nextStep?: (authStep: AuthStep) => void;
 }
 
-const AuthSteps = ({ activeStep, nextStep }: AuthStepsProps) => {
+const AuthSteps = ({ activeStep, nextStep, onClose }: AuthStepsProps) => {
   switch (activeStep) {
     case "intro":
       return <IntroCard nextStep={nextStep} />;
     case "email":
       return <EmailForm nextStep={nextStep} />;
+    case "waiting":
+      return <WaitingForMagicLink nextStep={nextStep} onClose={onClose} />;
     default:
       return <IntroCard nextStep={nextStep} />;
   }
