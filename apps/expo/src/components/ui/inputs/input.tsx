@@ -1,18 +1,13 @@
 import type { TextInputProps } from "react-native";
 import {
-  AlertCircleIcon,
   Box,
   FormControl,
-  FormControlError,
-  FormControlErrorIcon,
-  FormControlErrorText,
   FormControlHelper,
   FormControlHelperText,
   FormControlLabel,
   FormControlLabelText,
   Input,
   InputField,
-  Text,
 } from "@gluestack-ui/themed";
 
 interface BaseInputProps extends TextInputProps {
@@ -46,7 +41,7 @@ export default function BaseInput(props: BaseInputProps) {
           </FormControlLabelText>
         </FormControlLabel>
         <Box borderWidth={0.2} borderColor="$blue50" borderRadius={10}>
-          <Input size="lg" borderRadius={2} backgroundColor="white" py={0}>
+          <Input size="lg" borderRadius={10} backgroundColor="white" py={0}>
             <InputField
               onBlur={props.onBlur}
               lineHeight="$sm"

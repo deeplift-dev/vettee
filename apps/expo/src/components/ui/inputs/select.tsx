@@ -1,5 +1,3 @@
-import { SafeAreaView } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
 import {
   AlertCircleIcon,
   Box,
@@ -11,7 +9,6 @@ import {
   FormControlHelperText,
   FormControlLabel,
   FormControlLabelText,
-  ScrollView,
   Select,
   SelectBackdrop,
   SelectContent,
@@ -65,7 +62,7 @@ export default function BaseSelect(props: SelectProps) {
               variant="outline"
               size="xl"
               height={45}
-              borderRadius={5}
+              borderRadius={10}
               backgroundColor="white"
               py={0}
             >

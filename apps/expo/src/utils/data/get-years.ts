@@ -6,7 +6,7 @@ interface YearOption {
 const getYears = (): YearOption[] => {
   const currentYear = new Date().getFullYear();
   const years: YearOption[] = [];
-  for (let i = currentYear; i >= 1800; i--) {
+  for (let i = currentYear; i >= 1910; i--) {
     years.push({ label: i.toString(), value: i.toString() });
   }
   return years;

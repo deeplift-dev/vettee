@@ -1,13 +1,13 @@
-import { Button, HStack, Text, View, VStack } from "@gluestack-ui/themed";
-import { Image } from "expo-image";
-import { Redirect, useNavigation } from "expo-router";
-import LottieView from "lottie-react-native";
-import React, { useRef, useState } from "react";
 import type { Control, FieldErrors, UseFormWatch } from "react-hook-form";
-import { Controller, useForm } from "react-hook-form";
+import React, { useRef, useState } from "react";
 import { ActivityIndicator, Alert, Keyboard } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
+import { Image } from "expo-image";
+import { Redirect, useNavigation } from "expo-router";
+import { Button, HStack, Text, View, VStack } from "@gluestack-ui/themed";
+import LottieView from "lottie-react-native";
+import { Controller, useForm } from "react-hook-form";
 
 import ImagePicker from "~/components/features/onboarding/image-picker";
 import { OnboardingHeader } from "~/components/ui/headers/onboarding-header";
@@ -89,7 +89,7 @@ const CarouselBody = () => {
     },
   });
 
-  const { mutate: createAnimal, isLoading: isCreatingAnimal } =
+  const { mutate: createAnimal, isPending: isCreatingAnimal } =
     api.animal.create.useMutation({
       onSuccess: async (data) => {
         navigation.navigate("index");
@@ -235,7 +235,7 @@ const BasicAnimalInfoCard = ({
     >
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* <DismissKeyboard> */}
-        <View>
+        <Animated.View entering={FadeInDown.duration(500)}>
           <Text
             fontFamily="$mono"
             fontSize="$2xl"
@@ -245,7 +245,7 @@ const BasicAnimalInfoCard = ({
           >
             Starting with the easy stuff
           </Text>
-        </View>
+        </Animated.View>
         <VStack className="p-4">
           <Animated.View entering={FadeInDown.duration(500).delay(100)}>
             <Controller
@@ -318,7 +318,7 @@ const BasicAnimalInfoCard = ({
         <View className="align-center w-full py-12">
           <NavigationControls
             currentIndex={1}
-            canProgress={!!(isValid && animalName && animalType && animalAge)}
+            canProgress={!!(animalName && animalType && animalAge)}
             navigateToSlide={navigateToSlide}
           />
         </View>
