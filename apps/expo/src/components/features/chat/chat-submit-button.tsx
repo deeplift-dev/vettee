@@ -1,7 +1,7 @@
 import React from "react";
 import { TouchableOpacity } from "react-native";
+import { AntDesign } from "@expo/vector-icons";
 import LottieView from "lottie-react-native";
-import { ArrowUp } from "lucide-react-native";
 
 import TypingAnimation from "../../../../assets/animations/loading/typing.json";
 
@@ -39,7 +39,7 @@ const ChatSubmitButton = ({
         />
       ) : (
         <>
-          <ArrowUp className="text-slate-900" size={22} />
+          <AntDesign name="arrowup" size={24} color="black" />
         </>
       )}
     </TouchableOpacity>

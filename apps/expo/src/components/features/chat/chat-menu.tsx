@@ -12,10 +12,10 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { useRouter } from "expo-router";
+import { AntDesign } from "@expo/vector-icons";
 import { View } from "@gluestack-ui/themed";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { formatDistanceToNow } from "date-fns";
-import { Settings2Icon, XIcon } from "lucide-react-native";
 
 import type { RouterOutputs } from "~/utils/api";
 import Text from "~/components/ui/text";
@@ -64,11 +64,11 @@ const ChatMenu = forwardRef<ChatMenuRef, ChatMenuProps>((props, ref) => {
           className="border-t border-gray-800 shadow"
           onPress={closeBottomSheet}
         >
-          <XIcon size={26} color="black" />
+          <AntDesign name="close" size={26} color="black" />
         </TouchableOpacity>
         <Text className="text-center font-bold">Menu</Text>
         <View>
-          <Settings2Icon size={26} color="black" />
+          <AntDesign name="setting" size={26} color="black" />
         </View>
       </View>
       <View className="flex flex-col gap-6 p-4">

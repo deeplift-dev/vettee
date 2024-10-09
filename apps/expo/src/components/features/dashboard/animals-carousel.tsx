@@ -2,7 +2,7 @@ import React from "react";
 import { Pressable, ScrollView, useWindowDimensions, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { useNavigation } from "expo-router";
-import { PlusCircleIcon } from "lucide-react-native";
+import { AntDesign } from "@expo/vector-icons";
 
 import type { RouterOutputs } from "@acme/api";
 
@@ -92,7 +92,7 @@ const AnimalsCarousel: React.FC<AnimalsCarouselProps> = ({
           onPress={() => navigation.navigate("animal-create")}
           className="flex flex-row items-center gap-x-2 rounded-xl bg-slate-900 px-3 py-3"
         >
-          <PlusCircleIcon size={20} color="#ffff" />
+          <AntDesign name="plus" size={20} color="#ffff" />
           <Text className="font-semibold text-slate-50">Add animal</Text>
         </Pressable>
       </Animated.View>

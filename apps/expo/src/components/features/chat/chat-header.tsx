@@ -1,6 +1,6 @@
 import React from "react";
 import { TouchableOpacity, View } from "react-native";
-import { Avatar, AvatarImage } from "@gluestack-ui/themed";
+import { Avatar } from "@gluestack-ui/themed";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
 
 import LogoText from "~/components/ui/logo/logo-text";
@@ -82,11 +82,11 @@ const AnimalAvatar: React.FC<AnimalAvatarProps> = ({ animal }) => {
   }, [animal.avatarUrl, supabase]);
   return (
     <Avatar bgColor="$green200" size="sm" borderRadius="$full">
-      <AvatarImage
+      {/* <AvatarImage
         source={{
           uri: imageUrl ?? "",
         }}
-      />
+      /> */}
     </Avatar>
   );
 };
