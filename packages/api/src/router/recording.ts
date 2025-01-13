@@ -1,30 +1,31 @@
-import { z } from "zod";
 
+import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
+import { nanoid } from "nanoid";
 
 export const recordingRouter = createTRPCRouter({
-  transcribe: publicProcedure
-    .input(z.instanceof(FormData))
-    .mutation(async ({ input }) => {
-      const data: FormData = input;
-      // Log on server side to verify receipt
-      console.log("Received input:", data);
+  saveTranscription: publicProcedure
+    .input(z.object({
+      audioBlob: z.string(),
+      transcription: z.string(),
+      animalId: z.string(),
+      consultId: z.string().optional()
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const id = nanoid();
+      
+      // Save transcription to database
+      const result = await ctx.db
+        .insert(schema.transcription)
+        .values({
+          id,
+          animalId: input.animalId,
+          consultId: input.consultId,
+          audioUrl: input.audioBlob,
+          transcriptionText: input.transcription,
+        })
+        .returning();
 
-      let transcription;
-      try {
-        // transcription = await transcriptionService.transcribe(
-        //   data.get('file'),
-        //   data.get('vocabulary'),
-        //   data.get('language'),
-        //   parseInt(data.get('speakers')),
-        // );
-        return {
-          message: "File received",
-          data,
-        };
-      } catch (error) {
-        console.error("Failed to transcribe recording:", error);
-        throw error;
-      }
+      return result[0];
     }),
 });

@@ -90,3 +90,20 @@ export const animalSynthesizedDataRelations = relations(
     }),
   }),
 );
+
+export const transcription = pgTable("transcription", {
+  id: varchar("id", { length: 256 }).primaryKey(),
+  animalId: varchar("animal_id", { length: 256 }).notNull(),
+  consultId: varchar("consult_id", { length: 256 }),
+  audioUrl: varchar("audio_url", { length: 1024 }).notNull(),
+  transcriptionText: varchar("transcription_text", { length: 4096 }).notNull(),
+  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  updatedAt: timestamp("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+
+export const transcriptionRelations = relations(transcription, ({ one }) => ({
+  animal: one(animal, {
+    fields: [transcription.animalId],
+    references: [animal.id],
+  }),
+}));

@@ -28,6 +28,10 @@ const SpeechToText = () => {
         formData.append("vocabulary", vocabulary);
         formData.append("language", language);
         formData.append("speakers", speakers);
+        formData.append("animalId", props.animalId);
+        if (props.consultId) {
+          formData.append("consultId", props.consultId);
+        }
 
         const response = await transcribe(formData);
         console.log(response);
