@@ -1,5 +1,5 @@
 import { Link } from "expo-router";
-import { Avatar, AvatarFallbackText } from "@gluestack-ui/themed";
+import { Avatar, AvatarFallbackText, AvatarImage } from "@gluestack-ui/themed";
 import { useUser } from "@supabase/auth-helpers-react";
 
 import { api } from "~/utils/api";
@@ -24,8 +24,15 @@ export default function ProfileButton() {
   return (
     <Link href="/(tabs)/settings">
       <Avatar bgColor="$green200" size="md" borderRadius="$full">
-        {/* <AvatarImage source={{ uri: user?.user_metadata.avatar_url }} /> */}
-        <AvatarFallbackText color="$black">{name}</AvatarFallbackText>
+        {user?.user_metadata.avatar_url ? (
+          <AvatarImage
+            source={{ uri: user?.user_metadata.avatar_url }}
+            size="md"
+            borderRadius="$full"
+          />
+        ) : (
+          <AvatarFallbackText color="$black">{name}</AvatarFallbackText>
+        )}
       </Avatar>
     </Link>
   );

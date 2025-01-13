@@ -51,6 +51,7 @@ export const profileRouter = createTRPCRouter({
         .then((profiles) => profiles[0]);
 
       if (existingProfile) {
+        console.log("Existing profile found, updating...");
         await ctx.db
           .update(schema.profile)
           .set({
@@ -58,7 +59,9 @@ export const profileRouter = createTRPCRouter({
             lastName: input.last_name,
             onboardedAt: new Date(),
           })
-          .where(eq(schema.profile.id, ctx.user.id));
+          .where(eq(schema.profile.id, ctx.user.id))
+          .then(() => console.log("Profile updated successfully"))
+          .catch((error) => console.error("Error updating profile:", error));
 
         return existingProfile.id;
       }

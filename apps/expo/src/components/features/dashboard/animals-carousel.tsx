@@ -1,12 +1,10 @@
 import React from "react";
-import { Pressable, ScrollView, useWindowDimensions, View } from "react-native";
+import { ScrollView, useWindowDimensions, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { useNavigation } from "expo-router";
-import { AntDesign } from "@expo/vector-icons";
 
 import type { RouterOutputs } from "@acme/api";
 
-import Text from "~/components/ui/text";
 import AnimalCard from "./animal-card";
 
 interface AnimalsCarouselProps {
@@ -20,7 +18,8 @@ const AnimalsCarousel: React.FC<AnimalsCarouselProps> = ({
 }) => {
   const navigation = useNavigation();
   const { width: screenWidth } = useWindowDimensions();
-  const cardWidth = screenWidth * 0.9; // Calculate card width as 80% of screen width
+  const cardWidth =
+    animals.length === 1 ? screenWidth * 0.965 : screenWidth * 0.9;
 
   const handleEdit = (animalId: number) => {
     // Navigation or state update logic here
@@ -81,7 +80,7 @@ const AnimalsCarousel: React.FC<AnimalsCarouselProps> = ({
 
   return (
     <View className="my-4 w-full">
-      <Animated.View
+      {/* <Animated.View
         className="mb-6 w-full flex-row items-center justify-between px-5"
         entering={FadeIn.duration(800)}
       >
@@ -95,7 +94,7 @@ const AnimalsCarousel: React.FC<AnimalsCarouselProps> = ({
           <AntDesign name="plus" size={20} color="#ffff" />
           <Text className="font-semibold text-slate-50">Add animal</Text>
         </Pressable>
-      </Animated.View>
+      </Animated.View> */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -104,8 +103,10 @@ const AnimalsCarousel: React.FC<AnimalsCarouselProps> = ({
       >
         {animals.map((animal: any, index: number) => (
           <Animated.View
-            style={{ width: cardWidth }}
-            className="mr-2"
+            style={{
+              width: cardWidth,
+              alignItems: "center",
+            }}
             key={animal.id}
             entering={FadeIn.delay(100 * index).duration(500)}
           >

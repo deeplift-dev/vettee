@@ -7,6 +7,7 @@ export default {
       fontFamily: {
         sans: ["var(--font-saans)"],
         logo: ["var(--font-oddval)"],
+        vetski: ["var(--font-pacow)"],
       },
     },
   },
