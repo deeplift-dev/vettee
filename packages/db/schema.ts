@@ -107,3 +107,25 @@ export const transcriptionRelations = relations(transcription, ({ one }) => ({
     references: [animal.id],
   }),
 }));
+
+export const consultation = pgTable("consultation", {
+  id: varchar("id", { length: 256 }).primaryKey(),
+  animalId: varchar("animal_id", { length: 256 }).notNull(),
+  ownerId: varchar("owner_id", { length: 256 }).notNull(),
+  title: varchar("title", { length: 256 }).notNull(),
+  summary: varchar("summary", { length: 1024 }),
+  transcriptionId: varchar("transcription_id", { length: 256 }),
+  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  updatedAt: timestamp("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+
+export const consultationRelations = relations(consultation, ({ one }) => ({
+  animal: one(animal, {
+    fields: [consultation.animalId],
+    references: [animal.id],
+  }),
+  transcription: one(transcription, {
+    fields: [consultation.transcriptionId],
+    references: [transcription.id],
+  }),
+}));
