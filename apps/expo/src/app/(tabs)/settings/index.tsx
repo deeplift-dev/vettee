@@ -1,10 +1,10 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { Box, Divider, HStack, Text, View, VStack } from "@gluestack-ui/themed";
+import { Pressable } from "react-native";
+import { TouchableOpacity } from "react-native-gesture-handler";
 import Constants from "expo-constants";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Pressable } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { Box, Divider, HStack, Text, View, VStack } from "@gluestack-ui/themed";
 
 import { supabase } from "~/utils/supabase";
 
@@ -25,10 +25,18 @@ const SettingsMenus = () => {
 
   return (
     <VStack w="$full" h="$4/5" justifyContent="space-between">
-      <VStack w="$full" bg="$gray200" rounded="$lg">
-        <MenuItem label="Your details" showIcon={true} onPress={() => router.push("/settings/account-settings")} />
+      <VStack w="$full" rounded="$lg">
+        <MenuItem
+          label="Your details"
+          showIcon={true}
+          onPress={() => router.push("/settings/account-settings")}
+        />
         <Divider />
-        <MenuItem label="Logout" showIcon={false} onPress={() => supabase.auth.signOut()} />
+        <MenuItem
+          label="Logout"
+          showIcon={false}
+          onPress={() => supabase.auth.signOut()}
+        />
       </VStack>
       <Box>
         <Text w="$full" size="xs" textAlign="center">
@@ -58,10 +66,29 @@ export const ModalHeading = ({ children }: ModalHeadingProps) => {
   );
 };
 
-const MenuItem = ({ label, showIcon = true, iconName = "chevron-forward", onPress }: { label: string; showIcon?: boolean; iconName?: string; onPress: () => void }) => {
+const MenuItem = ({
+  label,
+  showIcon = true,
+  iconName = "chevron-forward",
+  onPress,
+}: {
+  label: string;
+  showIcon?: boolean;
+  iconName?: string;
+  onPress: () => void;
+}) => {
   return (
     <TouchableOpacity onPress={onPress}>
-      <View mb="$2" borderRadius={10} px="$4" py="$4" w="$full" flexDirection="row" justifyContent="space-between" alignItems="center">
+      <View
+        mb="$2"
+        borderRadius={10}
+        px="$4"
+        py="$4"
+        w="$full"
+        flexDirection="row"
+        justifyContent="space-between"
+        alignItems="center"
+      >
         <Text fontFamily="$mono">{label}</Text>
         {showIcon && <Ionicons name={iconName} size={16} color="black" />}
       </View>

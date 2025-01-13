@@ -1,7 +1,7 @@
 import React from "react";
 import { View } from "react-native";
 import Animated, { FadeInDown, FadeOutUp } from "react-native-reanimated";
-import { MessageSquareTextIcon } from "lucide-react-native";
+import { AntDesign } from "@expo/vector-icons";
 
 import Thinking from "~/components/ui/loaders/thinking";
 import Text from "~/components/ui/text";
@@ -30,7 +30,7 @@ const ConversationTitle = ({
             entering={FadeInDown.duration(300)}
             exiting={FadeOutUp.duration(300)}
           >
-            <MessageSquareTextIcon size={16} className="text-slate-500" />
+            <AntDesign name="message1" size={16} color="#808080" />
             {typeof title === "string" && (
               <Text fontSize={14} className="text-slate-700">
                 {title}

@@ -1,7 +1,7 @@
-import { Camera, X } from "lucide-react-native";
 import React, { useState } from "react";
 import { Platform, TextInput, TouchableOpacity, View } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import { AntDesign } from "@expo/vector-icons";
 
 import { cn } from "~/utils/chat/cn";
 
@@ -73,7 +73,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
               className="absolute right-3 top-1/2 -translate-y-1/2 transform"
             >
               <TouchableOpacity onPress={handleCameraPress}>
-                <Camera size={24} className="text-slate-900" />
+                <AntDesign name="camera" size={24} className="text-slate-900" />
               </TouchableOpacity>
             </Animated.View>
             {/* <Animated.View
@@ -87,17 +87,18 @@ const ChatInput: React.FC<ChatInputProps> = ({
             </Animated.View> */}
           </>
         )}
-        {isZapActive || isCameraActive && (
-          <Animated.View
-            entering={FadeIn}
-            exiting={FadeOut}
-            className="absolute right-3 top-1/2 -translate-y-1/2 transform"
-          >
-            <TouchableOpacity onPress={handleClosePress}>
-              <X size={24} className="text-slate-900" />
-            </TouchableOpacity>
-          </Animated.View>
-        )}
+        {isZapActive ||
+          (isCameraActive && (
+            <Animated.View
+              entering={FadeIn}
+              exiting={FadeOut}
+              className="absolute right-3 top-1/2 -translate-y-1/2 transform"
+            >
+              <TouchableOpacity onPress={handleClosePress}>
+                <AntDesign name="close" size={24} color="black" />
+              </TouchableOpacity>
+            </Animated.View>
+          ))}
       </View>
     </View>
   );

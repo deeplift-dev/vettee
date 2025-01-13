@@ -3,8 +3,8 @@ import localFont from "next/font/local";
 
 import "~/styles/globals.css";
 
-import { headers } from "next/headers";
 import { cache } from "react";
+import { headers } from "next/headers";
 
 import { TRPCReactProvider } from "~/trpc/react";
 
@@ -45,6 +45,17 @@ const OddvalFont = localFont({
   variable: "--font-oddval",
 });
 
+const PacowFont = localFont({
+  src: [
+    {
+      path: "../../assets/fonts/Pacow/Pacow.woff2",
+      weight: "400",
+      style: "normal",
+    },
+  ],
+  variable: "--font-pacow",
+});
+
 console.log("SaansFont", SaansFont.variable);
 console.log("OddvalFont", OddvalFont.variable);
 
@@ -69,8 +80,11 @@ const getHeaders = cache(async () => headers());
 
 export default function Layout(props: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${OddvalFont.variable} ${SaansFont.variable}`}>
-      <body className="font-sans bg-gray-50">
+    <html
+      lang="en"
+      className={`${OddvalFont.variable} ${SaansFont.variable} ${PacowFont.variable}`}
+    >
+      <body className="bg-gray-50 font-sans">
         <TRPCReactProvider headersPromise={getHeaders()}>
           {props.children}
         </TRPCReactProvider>

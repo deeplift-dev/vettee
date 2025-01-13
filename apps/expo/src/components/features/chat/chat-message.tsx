@@ -1,13 +1,13 @@
-import React, { useState } from "react";
-import { Pressable, Text, View } from "react-native";
 import type {
   ChatCompletionMessageOrReactElement,
   ChatCompletionMessageParam,
 } from "react-native-gen-ui";
+import React, { useState } from "react";
+import { Pressable, Text, View } from "react-native";
 import ImageViewing from "react-native-image-viewing";
 import Animated, { FadeIn } from "react-native-reanimated";
-
 import { Image } from "expo-image";
+
 import { cn } from "~/utils/chat/cn";
 import ChatBubble from "./chat-bubble";
 
@@ -85,10 +85,13 @@ const MessageContent = ({
   if (message == null) {
     return null;
   }
-  if (message.content[0].type === "image_url" && message.content[0].image_url.url) {
+  if (
+    message.content[0].type === "image_url" &&
+    message.content[0].image_url.url
+  ) {
     return (
       <Pressable onPress={() => onImagePress(message.content[0].image_url.url)}>
-        <View className="flex w-full h-64 rounded-xl bg-white items-center justify-center">
+        <View className="flex h-64 w-full items-center justify-center rounded-xl bg-white">
           <Image
             source={{ uri: message.content[0].image_url.url }}
             style={{ width: "100%", height: "100%", flex: 1, borderRadius: 16 }}
@@ -122,7 +125,7 @@ const MessageContent = ({
           "rounded-xl",
           m.role === "user"
             ? "ml-4 self-end bg-slate-900"
-            : "mr-4 w-full self-start bg-white",
+            : "mr-4 w-full self-start",
         )}
       >
         <ChatBubble message={m} />
