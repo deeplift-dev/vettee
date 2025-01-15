@@ -64,7 +64,7 @@
     "nativewind": "^4.0.16",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-hook-form": "^7.49.2",
+    "react-hook-form": "^7.54.1",
     "react-native": "0.74.5",
     "react-native-gen-ui": "^1.4.1",
     "react-native-gesture-handler": "~2.16.2",

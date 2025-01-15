@@ -1,7 +1,8 @@
 import { TRPCError } from "@trpc/server";
+import { nanoid } from "nanoid";
 import { z } from "zod";
 
-import { desc, eq, schema } from "@acme/db";
+import { desc, eq, ilike, or, schema } from "@acme/db";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { supabaseAdmin } from "../utils/supabase-admin";
@@ -27,6 +28,57 @@ export const profileRouter = createTRPCRouter({
       .from(schema.profile)
       .where(eq(schema.profile.id, ctx.user.id));
   }),
+  search: protectedProcedure
+    .input(z.object({ query: z.string() }))
+    .query(async ({ ctx, input }) => {
+      // Add logging to debug the search
+      console.log("Search query:", input.query);
+
+      const searchTerm = `%${input.query}%`;
+      console.log("Search term:", searchTerm);
+
+      const profiles = await ctx.db
+        .select()
+        .from(schema.profile)
+        .where(
+          or(
+            ilike(schema.profile.firstName, searchTerm),
+            ilike(schema.profile.lastName, searchTerm),
+            ilike(schema.profile.email, searchTerm),
+            ilike(schema.profile.mobileNumber, searchTerm),
+          ),
+        )
+        .limit(10);
+
+      // Log the results
+      console.log("Search results:", profiles);
+
+      // If no results, let's log the total count of profiles to verify data exists
+      if (!profiles.length) {
+        const totalCount = await ctx.db
+          .select({ count: sql`count(*)` })
+          .from(schema.profile);
+        console.log("Total profiles in DB:", totalCount);
+        return [];
+      }
+
+      // Get animals for each profile
+      const results = await Promise.all(
+        profiles.map(async (profile) => {
+          const animals = await ctx.db
+            .select()
+            .from(schema.animal)
+            .where(eq(schema.animal.ownerId, profile.id));
+
+          return {
+            ...profile,
+            animals,
+          };
+        }),
+      );
+
+      return results;
+    }),
   animals: protectedProcedure.query(async ({ ctx }) => {
     const result = await ctx.db
       .select()
@@ -41,17 +93,26 @@ export const profileRouter = createTRPCRouter({
       z.object({
         first_name: z.string().optional(),
         last_name: z.string().optional(),
+        mobile_number: z.string().optional(),
+        email: z.string().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const existingProfile = await ctx.db
         .select()
         .from(schema.profile)
-        .where(eq(schema.profile.id, ctx.user.id))
+        .where(
+          or(
+            input.email ? eq(schema.profile.email, input.email) : undefined,
+            input.mobile_number
+              ? eq(schema.profile.mobileNumber, input.mobile_number)
+              : undefined,
+          ),
+        )
         .then((profiles) => profiles[0]);
 
       if (existingProfile) {
-        console.log("Existing profile found, updating...");
+        console.log("Existing profile found, updating...", existingProfile);
         await ctx.db
           .update(schema.profile)
           .set({
@@ -69,15 +130,23 @@ export const profileRouter = createTRPCRouter({
       const newProfile = await ctx.db
         .insert(schema.profile)
         .values({
-          id: ctx.user.id,
+          id: nanoid(),
           image: ctx.user.user_metadata.avatar_url as string | undefined,
           email: ctx.user.email,
           firstName: input.first_name,
           lastName: input.last_name,
+          mobileNumber: input.mobile_number,
           onboardedAt: new Date(),
         })
         .returning()
         .then((profiles) => profiles[0]);
+
+      if (!newProfile) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to create profile",
+        });
+      }
 
       return newProfile.id;
     }),
