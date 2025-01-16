@@ -1,14 +1,13 @@
+import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
+import { nanoid } from "nanoid";
 import { z } from "zod";
 
-import { consultations } from "../db/schema/consultation";
+import { schema } from "@acme/db";
+
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 const createConsultationSchema = z.object({
-  ownerId: z.string().uuid(),
-  animalName: z.string().min(1),
-  animalSpecies: z.string().optional(),
-  animalAge: z.string().optional(),
   recordingConsent: z.boolean(),
 });
 
@@ -17,13 +16,13 @@ export const consultationRouter = createTRPCRouter({
     .input(createConsultationSchema)
     .mutation(async ({ ctx, input }) => {
       const consultation = await ctx.db
-        .insert(consultations)
+        .insert(schema.consultation)
         .values({
-          ownerId: input.ownerId,
-          animalName: input.animalName,
-          animalSpecies: input.animalSpecies,
-          animalAge: input.animalAge,
-          recordingConsent: input.recordingConsent.toString(),
+          id: nanoid(),
+          title: generateDefaultTitle(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          consentedAt: input.recordingConsent ? new Date() : null,
         })
         .returning();
 
@@ -31,26 +30,27 @@ export const consultationRouter = createTRPCRouter({
     }),
 
   getById: protectedProcedure
-    .input(z.string().uuid())
+    .input(z.string())
     .query(async ({ ctx, input }) => {
       const consultation = await ctx.db.query.consultations.findFirst({
-        where: eq(consultations.id, input),
+        where: eq(schema.consultations.id, input),
         with: {
+          animal: true,
           owner: true,
         },
       });
 
+      if (!consultation) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Consultation not found",
+        });
+      }
+
       return consultation;
     }),
-
-  list: protectedProcedure.query(async ({ ctx }) => {
-    const consultationList = await ctx.db.query.consultations.findMany({
-      with: {
-        owner: true,
-      },
-      orderBy: (consultations, { desc }) => [desc(consultations.createdAt)],
-    });
-
-    return consultationList;
-  }),
 });
+
+const generateDefaultTitle = () => {
+  return `New Consultation ${new Date().toLocaleString()}`;
+};

@@ -4,6 +4,7 @@ import {
   numeric,
   pgTable,
   timestamp,
+  uuid,
   varchar,
 } from "drizzle-orm/pg-core";
 
@@ -97,8 +98,12 @@ export const transcription = pgTable("transcription", {
   consultId: varchar("consult_id", { length: 256 }),
   audioUrl: varchar("audio_url", { length: 1024 }).notNull(),
   transcriptionText: varchar("transcription_text", { length: 4096 }).notNull(),
-  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
-  updatedAt: timestamp("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
 });
 
 export const transcriptionRelations = relations(transcription, ({ one }) => ({
@@ -109,14 +114,19 @@ export const transcriptionRelations = relations(transcription, ({ one }) => ({
 }));
 
 export const consultation = pgTable("consultation", {
-  id: varchar("id", { length: 256 }).primaryKey(),
-  animalId: varchar("animal_id", { length: 256 }).notNull(),
-  ownerId: varchar("owner_id", { length: 256 }).notNull(),
+  id: uuid("id").primaryKey().defaultRandom(),
+  animalId: varchar("animal_id", { length: 256 }).notNull().default(""),
+  ownerId: varchar("owner_id", { length: 256 }).notNull().default(""),
   title: varchar("title", { length: 256 }).notNull(),
   summary: varchar("summary", { length: 1024 }),
   transcriptionId: varchar("transcription_id", { length: 256 }),
-  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
-  updatedAt: timestamp("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  consentedAt: timestamp("consented_at"),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
 });
 
 export const consultationRelations = relations(consultation, ({ one }) => ({

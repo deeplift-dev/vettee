@@ -1,26 +1,37 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { api } from "~/trpc/react";
+import AnimalProfile from "../animal-profile";
 import OwnerSearch from "../owner-search";
 import PatientConsent from "../patient-consent";
 import { Button } from "../ui/button";
-import { Input } from "../ui/input";
 
 const NewConsultForm = () => {
+  const router = useRouter();
+
   const { mutate: createConsultation } = api.consultation.create.useMutation({
     onSuccess: (data) => {
-      // Handle success
-      console.log("Consultation created:", data);
+      // Redirect to the consultation detail page
+      router.push(`/dashboard/consultations/${data.id}`);
     },
     onError: (error) => {
-      // Handle error
       console.error("Error creating consultation:", error);
+      // Optionally add error toast/notification here
     },
   });
 
+  const handleStartConsult = () => {
+    createConsultation({
+      recordingConsent: consent,
+    });
+  };
+
   const [consent, setConsent] = useState(false);
+  const [selectedOwner, setSelectedOwner] = useState<Profile | null>(null);
+  const [selectedAnimal, setSelectedAnimal] = useState<Animal | null>(null);
 
   return (
     <div className="relative flex w-full max-w-md flex-col gap-4 pt-24">
@@ -40,25 +51,23 @@ const NewConsultForm = () => {
             </div>
             <div className="text-center text-sm font-light text-white/50"></div>
             <div>
-              <Input
-                className="w-full border-none bg-black/50 text-white"
-                type="text"
-                placeholder="Owner name"
-              />
+              <OwnerSearch onSelect={setSelectedOwner} />
             </div>
             <div>
-              <OwnerSearch />
-              {/* <Input
-                className="w-full border-none bg-black/50 text-white"
-                type="text"
-                placeholder="Animal name"
-              /> */}
+              <AnimalProfile
+                ownerId={selectedOwner?.id}
+                onSelect={setSelectedAnimal}
+              />
             </div>
             <div>
               <PatientConsent checked={consent} onChange={setConsent} />
             </div>
             <div>
-              <Button disabled={!consent} className="w-full">
+              <Button
+                onClick={handleStartConsult}
+                disabled={!consent}
+                className="w-full"
+              >
                 Start Consult
               </Button>
             </div>
