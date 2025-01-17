@@ -32,11 +32,12 @@ export const consultationRouter = createTRPCRouter({
   getById: protectedProcedure
     .input(z.string())
     .query(async ({ ctx, input }) => {
-      const consultation = await ctx.db.query.consultations.findFirst({
-        where: eq(schema.consultations.id, input),
+      console.log("input", input);
+      const consultation = await ctx.db.query.consultation.findFirst({
+        where: eq(schema.consultation.id, input),
         with: {
           animal: true,
-          owner: true,
+          // owner: true,
         },
       });
 
