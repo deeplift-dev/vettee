@@ -4,7 +4,6 @@ import {
   numeric,
   pgTable,
   timestamp,
-  uuid,
   varchar,
 } from "drizzle-orm/pg-core";
 
@@ -94,10 +93,16 @@ export const animalSynthesizedDataRelations = relations(
 
 export const transcription = pgTable("transcription", {
   id: varchar("id", { length: 256 }).primaryKey(),
-  animalId: varchar("animal_id", { length: 256 }).notNull(),
+  animalId: varchar("animal_id", { length: 256 }),
   consultId: varchar("consult_id", { length: 256 }),
-  audioUrl: varchar("audio_url", { length: 1024 }).notNull(),
+  audioUrl: varchar("audio_url", { length: 1024 }),
   transcriptionText: varchar("transcription_text", { length: 4096 }).notNull(),
+  transcriptionId: varchar("transcription_id", { length: 256 }).notNull(),
+  transcriptionUrl: varchar("transcription_url", { length: 1024 }).notNull(),
+  transcriptionCreatedAt: timestamp("transcription_created_at").notNull(),
+  transcriptionStatus: varchar("transcription_status", {
+    length: 256,
+  }).notNull(),
   createdAt: timestamp("created_at")
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
@@ -114,9 +119,12 @@ export const transcriptionRelations = relations(transcription, ({ one }) => ({
 }));
 
 export const consultation = pgTable("consultation", {
-  id: uuid("id").primaryKey().defaultRandom(),
+  id: varchar("id", { length: 256 }).primaryKey(),
   animalId: varchar("animal_id", { length: 256 }).notNull().default(""),
   ownerId: varchar("owner_id", { length: 256 }).notNull().default(""),
+  veterinarianId: varchar("veterinarian_id", { length: 256 })
+    .notNull()
+    .default(""),
   title: varchar("title", { length: 256 }).notNull(),
   summary: varchar("summary", { length: 1024 }),
   transcriptionId: varchar("transcription_id", { length: 256 }),
@@ -137,5 +145,13 @@ export const consultationRelations = relations(consultation, ({ one }) => ({
   transcription: one(transcription, {
     fields: [consultation.transcriptionId],
     references: [transcription.id],
+  }),
+  veterinarian: one(profile, {
+    fields: [consultation.veterinarianId],
+    references: [profile.id],
+  }),
+  owner: one(profile, {
+    fields: [consultation.ownerId],
+    references: [profile.id],
   }),
 }));

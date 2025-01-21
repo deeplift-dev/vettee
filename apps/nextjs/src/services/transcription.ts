@@ -13,31 +13,33 @@ const transcriptionService = {
     try {
       const file = formData.get("file") as File;
       const animalId = formData.get("animalId") as string;
-      const consultId = formData.get("consultId") as string;
+      const consultationId = formData.get("consultationId") as string;
 
-      // const input = {
-      //   file,
-      //   prompt: "LLama, AI, Meta.",
-      //   file_url: "",
-      //   language: "en",
-      //   num_speakers: 2,
-      // };
+      const input = {
+        file,
+        prompt: "LLama, AI, Meta.",
+        file_url: "",
+        language: "en",
+        num_speakers: 2,
+        consultationId,
+      };
 
-      // const prediction = await replicate.deployments.predictions.create(
-      //   "deeplift-dev",
-      //   "vetski-transcriber",
-      //   { input },
-      // );
-      const audioBuffer = await file.arrayBuffer();
-      const audioBase64 = Buffer.from(audioBuffer).toString("base64");
-      // Save transcription using tRPC
-      await api.recording.saveTranscription.mutate({
-        audioBlob: audioBase64,
-        transcription: "Just saving a ",
-        animalId,
-        consultId,
-      });
-
+      const prediction = await replicate.deployments.predictions.create(
+        "deeplift-dev",
+        "vetski-transcriber",
+        { input },
+      );
+      // const audioBuffer = await file.arrayBuffer();
+      // const audioBase64 = Buffer.from(audioBuffer).toString("base64");
+      // // Save transcription using tRPC
+      if (prediction.id) {
+        await api.recording.saveTranscription.mutate({
+          consultationId,
+          transcriptionId: prediction.id,
+          transcriptionUrl: prediction.urls.get,
+          transcriptionStatus: prediction.status,
+        });
+      }
       return prediction;
     } catch (err) {
       console.error(err);

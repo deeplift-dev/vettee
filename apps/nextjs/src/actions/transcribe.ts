@@ -20,14 +20,14 @@ export async function transcribe(formData: FormData) {
 
     const transcription = await transcriptionService.transcribe(formData);
 
-    // console.log(transcription);
+    console.log(transcription);
 
     // Here you would typically:
     // 1. Validate file type
     // 2. Check file size
     // 3. Save to storage (like Vercel Blob or cloud storage)
 
-    return "ok";
+    return transcription;
   } catch (error) {
     console.error("Transcription error:", error);
     return { error: error.message };

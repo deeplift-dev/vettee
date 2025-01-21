@@ -19,6 +19,7 @@ export const consultationRouter = createTRPCRouter({
         .insert(schema.consultation)
         .values({
           id: nanoid(),
+          veterinarianId: ctx.user.id,
           title: generateDefaultTitle(),
           createdAt: new Date(),
           updatedAt: new Date(),

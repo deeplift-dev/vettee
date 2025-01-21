@@ -3668,8 +3668,8 @@ packages:
       - supports-color
     dev: true
 
-  /@expo/html-elements@0.11.1:
-    resolution: {integrity: sha512-6eIsWhs/pDyY8wthuMX0GFfhMhEpG00r3ULz/wOU+itAYMhZ4tsi5rxwPMYOEnOiO6XOO2Xv03awRh98mTCZVQ==}
+  /@expo/html-elements@0.11.2:
+    resolution: {integrity: sha512-OC98eZ4mMzpFQq/KF9t+CGC4Vcg4RnoOxWAzSmNVd3VZ2dFFi64QCoHlT719wDmuccemn1VPXu1/rFvOGmJgOg==}
     dev: false
 
   /@expo/image-utils@0.5.1:
@@ -4473,7 +4473,7 @@ packages:
       react-native-svg: '>=13.4.0'
       react-native-web: '>=0.19'
     dependencies:
-      '@expo/html-elements': 0.11.1
+      '@expo/html-elements': 0.11.2
       '@gluestack-style/animation-resolver': 1.0.4(@gluestack-style/react@1.0.57)
       '@gluestack-style/legend-motion-animation-driver': 1.0.3(@gluestack-style/react@1.0.57)(@legendapp/motion@2.4.0)
       '@gluestack-style/react': 1.0.57
