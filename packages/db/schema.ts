@@ -96,7 +96,7 @@ export const transcription = pgTable("transcription", {
   animalId: varchar("animal_id", { length: 256 }),
   consultId: varchar("consult_id", { length: 256 }),
   audioUrl: varchar("audio_url", { length: 1024 }),
-  transcriptionText: varchar("transcription_text", { length: 4096 }).notNull(),
+  transcriptionText: varchar("transcription_text", { length: 4096 }),
   transcriptionId: varchar("transcription_id", { length: 256 }).notNull(),
   transcriptionUrl: varchar("transcription_url", { length: 1024 }).notNull(),
   transcriptionCreatedAt: timestamp("transcription_created_at").notNull(),

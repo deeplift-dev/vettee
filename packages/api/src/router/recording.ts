@@ -16,6 +16,7 @@ export const recordingRouter = createTRPCRouter({
         transcriptionId: z.string().optional(),
         transcriptionUrl: z.string().optional(),
         transcriptionStatus: z.string().optional(),
+        transcriptionCreatedAt: z.string().optional(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -33,6 +34,9 @@ export const recordingRouter = createTRPCRouter({
           transcriptionId: input.transcriptionId,
           transcriptionUrl: input.transcriptionUrl,
           transcriptionStatus: input.transcriptionStatus,
+          transcriptionCreatedAt: new Date(input.transcriptionCreatedAt),
+          createdAt: new Date(),
+          updatedAt: new Date(),
         })
         .returning();
 

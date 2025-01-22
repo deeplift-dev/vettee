@@ -38,6 +38,7 @@ const transcriptionService = {
           transcriptionId: prediction.id,
           transcriptionUrl: prediction.urls.get,
           transcriptionStatus: prediction.status,
+          transcriptionCreatedAt: prediction.created_at,
         });
       }
       return prediction;
