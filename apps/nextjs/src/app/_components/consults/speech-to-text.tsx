@@ -7,7 +7,12 @@ import { Button } from "../ui/button";
 
 const CHUNK_DURATION = 10000; // 10 seconds in milliseconds
 
-const SpeechToText = () => {
+interface SpeechToTextProps {
+  consultationId: string | undefined;
+  animalId: string | undefined;
+}
+
+const SpeechToText = ({ consultationId, animalId }: SpeechToTextProps) => {
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [error, setError] = useState<string>("");
@@ -29,8 +34,8 @@ const SpeechToText = () => {
         formData.append("vocabulary", vocabulary);
         formData.append("language", language);
         formData.append("speakers", speakers);
-        formData.append("animalId", "6lpsmrciEuy-A_cGcufeI");
-        formData.append("consultationId", "6lpsmrciEuy-A_cGcufeI");
+        formData.append("animalId", animalId ?? "");
+        formData.append("consultationId", consultationId ?? "");
 
         const response = await transcribe(formData);
         console.log(response);
@@ -133,7 +138,7 @@ const SpeechToText = () => {
   }, [stream]);
 
   return (
-    <div className="relative flex w-full max-w-md flex-col gap-4 pt-24">
+    <div>
       <RecordingButton
         toggleRecording={toggleRecording}
         isRecording={isRecording}
@@ -163,7 +168,7 @@ const RecordingButton = ({
   setVocabulary,
 }: RecordingButtonProps) => {
   return (
-    <div className="divide-primary-foreground/30 inline-flex -space-x-px divide-x rounded-lg shadow-sm shadow-black/5 rtl:space-x-reverse">
+    <div>
       <Button
         onClick={toggleRecording}
         className="rounded-none shadow-none first:rounded-s-lg last:rounded-e-lg focus-visible:z-10"

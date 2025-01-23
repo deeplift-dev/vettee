@@ -11,6 +11,11 @@ const createConsultationSchema = z.object({
   recordingConsent: z.boolean(),
 });
 
+const updateConsultationSchema = z.object({
+  id: z.string(),
+  title: z.string().optional(),
+});
+
 export const consultationRouter = createTRPCRouter({
   create: protectedProcedure
     .input(createConsultationSchema)
@@ -50,6 +55,27 @@ export const consultationRouter = createTRPCRouter({
       }
 
       return consultation;
+    }),
+  updateTitle: protectedProcedure
+    .input(updateConsultationSchema)
+    .mutation(async ({ ctx, input }) => {
+      const consultation = await ctx.db
+        .update(schema.consultation)
+        .set({
+          title: input.title,
+          updatedAt: new Date(),
+        })
+        .where(eq(schema.consultation.id, input.id))
+        .returning();
+
+      if (!consultation.length) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Consultation not found",
+        });
+      }
+
+      return consultation[0];
     }),
 });
 
