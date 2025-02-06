@@ -1,5 +1,6 @@
 import Replicate from "replicate";
 
+import { transcriptionPrompt } from "~/lib/prompt";
 import { api } from "~/trpc/server";
 
 const replicate = new Replicate();
@@ -17,7 +18,7 @@ const transcriptionService = {
 
       const input = {
         file,
-        prompt: "LLama, AI, Meta.",
+        prompt: transcriptionPrompt,
         file_url: "",
         language: "en",
         num_speakers: 2,
@@ -27,7 +28,12 @@ const transcriptionService = {
       const prediction = await replicate.deployments.predictions.create(
         "deeplift-dev",
         "vetski-transcriber",
-        { input },
+        {
+          input,
+          wait: 20,
+          webhook:
+            "https://stud-immortal-mildly.ngrok-free.app/api/predictions",
+        },
       );
       // const audioBuffer = await file.arrayBuffer();
       // const audioBase64 = Buffer.from(audioBuffer).toString("base64");
@@ -41,6 +47,7 @@ const transcriptionService = {
           transcriptionCreatedAt: prediction.created_at,
         });
       }
+
       return prediction;
     } catch (err) {
       console.error(err);

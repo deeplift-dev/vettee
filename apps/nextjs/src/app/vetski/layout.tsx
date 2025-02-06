@@ -11,7 +11,7 @@ export default function Layout({ children }: LayoutProps) {
     <>
       <div className="h-screen w-full overflow-hidden bg-black">
         <DashboardNavigation />
-        <div className="h-full overflow-y-auto pb-12">{children}</div>
+        <div className="h-full pb-12">{children}</div>
       </div>
     </>
   );

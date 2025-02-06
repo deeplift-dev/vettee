@@ -38,7 +38,7 @@ const MenuItems = ({ user }: { user: User }) => {
   }
   return (
     <div className="flex items-center text-sm text-slate-300 transition-colors duration-500 md:gap-6 md:text-base">
-      <Link
+      {/* <Link
         className="rounded-full px-4 py-2 transition-colors duration-500 hover:bg-white/10 hover:text-white"
         href="/dashboard/consultations"
       >
@@ -49,7 +49,7 @@ const MenuItems = ({ user }: { user: User }) => {
         href="/dashboard/patients"
       >
         Patients
-      </Link>
+      </Link> */}
       <form action={signOut}>
         <button className="rounded-full px-4 py-2 transition-colors duration-500 hover:bg-white/10 hover:text-white">
           Sign out

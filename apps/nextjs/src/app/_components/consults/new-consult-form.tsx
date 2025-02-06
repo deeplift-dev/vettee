@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { api } from "~/trpc/react";
-import AnimalProfile from "../animal-profile";
+import { NewConsultIcon } from "../illustrations/new-consult-icon";
 import OwnerSearch from "../owner-search";
 import PatientConsent from "../patient-consent";
 import { Button } from "../ui/button";
@@ -23,15 +23,19 @@ const NewConsultForm = () => {
     },
   });
 
-  const handleStartConsult = () => {
-    createConsultation({
-      recordingConsent: consent,
-    });
-  };
-
   const [consent, setConsent] = useState(false);
   const [selectedOwner, setSelectedOwner] = useState<Profile | null>(null);
   const [selectedAnimal, setSelectedAnimal] = useState<Animal | null>(null);
+
+  console.log("selectedOwner", selectedOwner);
+
+  const handleStartConsult = () => {
+    createConsultation({
+      recordingConsent: consent,
+      ownerId: selectedOwner?.id,
+      animalId: selectedAnimal?.id,
+    });
+  };
 
   return (
     <div className="relative flex w-full max-w-md flex-col gap-4 pt-24">
@@ -43,7 +47,9 @@ const NewConsultForm = () => {
           <div className="flex flex-col gap-2">
             <div className="mb-2 flex items-center justify-center">
               <div className="h-12 w-12 rounded-lg bg-slate-900 text-lg">
-                <div className="flex h-full w-full items-center justify-center"></div>
+                <div className="flex h-full w-full items-center justify-center">
+                  <NewConsultIcon />
+                </div>
               </div>
             </div>
             <div className="text-center text-lg text-white">
@@ -52,12 +58,6 @@ const NewConsultForm = () => {
             <div className="text-center text-sm font-light text-white/50"></div>
             <div>
               <OwnerSearch onSelect={setSelectedOwner} />
-            </div>
-            <div>
-              <AnimalProfile
-                ownerId={selectedOwner?.id}
-                onSelect={setSelectedAnimal}
-              />
             </div>
             <div>
               <PatientConsent checked={consent} onChange={setConsent} />

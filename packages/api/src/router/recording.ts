@@ -1,7 +1,7 @@
 import { nanoid } from "nanoid";
 import { z } from "zod";
 
-import { schema } from "@acme/db";
+import { asc, eq, schema } from "@acme/db";
 
 import { createTRPCRouter, publicProcedure } from "../trpc";
 
@@ -41,5 +41,39 @@ export const recordingRouter = createTRPCRouter({
         .returning();
 
       return result[0];
+    }),
+
+  updateByTranscriptionId: publicProcedure
+    .input(
+      z.object({
+        transcriptionId: z.string(),
+        transcriptionStatus: z.string(),
+        transcriptionCreatedAt: z.string(),
+        predictionObject: z.any(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      return ctx.db
+        .update(schema.transcription)
+        .set({
+          transcriptionStatus: input.transcriptionStatus,
+          transcriptionCreatedAt: new Date(input.transcriptionCreatedAt),
+          predictionObject: input.predictionObject,
+          updatedAt: new Date(),
+        })
+        .where(eq(schema.transcription.transcriptionId, input.transcriptionId));
+    }),
+
+  getByConsultId: publicProcedure
+    .input(
+      z.object({
+        consultId: z.string(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      return ctx.db.query.transcription.findMany({
+        where: eq(schema.transcription.consultId, input.consultId),
+        orderBy: asc(schema.transcription.createdAt),
+      });
     }),
 });

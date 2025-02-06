@@ -1,11 +1,20 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { PencilIcon } from "lucide-react";
+import { Message } from "ai/react";
+import { motion } from "framer-motion";
+import {
+  CheckCircle,
+  MessageSquareQuoteIcon,
+  PencilIcon,
+  TriangleIcon,
+  XCircle,
+} from "lucide-react";
 
 import type { RouterOutputs } from "@acme/api";
 
 import { api } from "~/trpc/react";
+import ChatTool from "../chat/chat-tool";
 import SpeechToText from "./speech-to-text";
 
 interface ConsultationViewProps {
@@ -16,12 +25,19 @@ export default function ConsultationView({
   consultation,
 }: ConsultationViewProps) {
   const { mutate: updateTitle } = api.consultation.updateTitle.useMutation();
-
+  const { mutate: addMessage } = api.consultation.addMessage.useMutation({
+    onSuccess: () => {
+      console.log("^^updateMessages success");
+    },
+    onError: (error) => {
+      console.error("^^updateMessages error", error);
+    },
+  });
   return (
-    <div className="min-h-screen w-full">
-      <div className="mx-auto max-w-7xl py-6 md:py-8">
-        <div className="overflow-hidden rounded-2xl">
-          <div className="border-b border-white/20 py-5">
+    <div className="flex h-full min-h-screen w-full flex-col overflow-hidden px-2 md:px-0">
+      <div className="mx-auto w-full max-w-7xl md:py-8">
+        <div className="overflow-hidden">
+          <div className="border-b border-white/20 pb-4">
             <div className="flex flex-row items-center justify-between">
               <EditableTitle
                 initialTitle={consultation.title}
@@ -38,69 +54,41 @@ export default function ConsultationView({
               />
             </div>
           </div>
-
-          <div className="flex flex-col gap-8 py-4">
-            <div>
-              <h2 className="mb-4 text-xs font-light uppercase tracking-wide text-gray-100">
-                Patient Information
-              </h2>
-              <dl className="space-y-3 text-sm">
-                <div className="flex items-center justify-between">
-                  <dt className="text-gray-100">Name</dt>
-                  <dd className="text-gray-100">{consultation.animal?.name}</dd>
-                </div>
-                <div className="flex items-center justify-between">
-                  <dt className="text-gray-100">Species</dt>
-                  <dd className="text-gray-100">
-                    {consultation.animal?.species}
-                  </dd>
-                </div>
-                <div className="flex items-center justify-between">
-                  <dt className="text-gray-100">Birth Year</dt>
-                  <dd className="text-gray-100">
-                    {consultation.animal?.yearOfBirth}
-                  </dd>
-                </div>
-              </dl>
+          <div className="flex w-full flex-col justify-between border-b border-white/20 md:flex-row md:gap-6">
+            <div className="flex flex-col md:w-1/2">
+              <ConsultationDetails consultation={consultation} />
             </div>
-
-            <div>
-              <h2 className="mb-4 text-xs font-light uppercase tracking-wide text-gray-100">
-                Consultation Details
-              </h2>
-              <dl className="space-y-3 text-sm">
-                <div className="flex items-center justify-between">
-                  <dt className="text-gray-100">Date</dt>
-                  <dd className="text-gray-100">
-                    {new Date(consultation.createdAt).toLocaleDateString()}
-                  </dd>
-                </div>
-                <div className="flex items-center justify-between">
-                  <dt className="text-gray-100">Veterinarian ID</dt>
-                  <dd className="text-gray-100">
-                    {consultation.veterinarianId}
-                  </dd>
-                </div>
-                <div className="flex items-center justify-between">
-                  <dt className="text-gray-100">Owner ID</dt>
-                  <dd className="text-gray-100">{consultation.ownerId}</dd>
-                </div>
-              </dl>
+            <div className="mx-auto flex w-1 flex-row justify-center">
+              <div className="h-full w-1 border-l border-white/20"></div>
+            </div>
+            <div className="flex w-full flex-col md:w-1/2">
+              <Transcription consultationId={consultation.id} />
             </div>
           </div>
-
-          {consultation.summary && (
-            <div className="border-t border-gray-100 px-6 py-5 dark:border-gray-700 sm:p-8">
-              <h2 className="mb-3 text-xs font-light uppercase tracking-wide text-gray-100">
-                Summary
-              </h2>
-              <p className="text-sm leading-relaxed text-gray-100">
-                {consultation.summary}
-              </p>
-            </div>
-          )}
         </div>
       </div>
+      <div className="w-full"></div>
+      <ChatTool
+        sendUserMessage={(message) => {
+          console.log("sendUserMessage", message);
+          addMessage({
+            id: consultation.id,
+            message: message,
+          });
+        }}
+        initialMessages={consultation.messages as Message[]}
+        onFinish={(message) => {
+          try {
+            addMessage({
+              id: consultation.id,
+              message: message,
+            });
+          } catch (error) {
+            console.error("Failed to update messages:", error);
+          }
+        }}
+        isLoading={false}
+      />
     </div>
   );
 }
@@ -168,3 +156,228 @@ function EditableTitle({ initialTitle, onSave }: EditableTitleProps) {
     </h1>
   );
 }
+
+const Transcription = ({ consultationId }: { consultationId: string }) => {
+  const {
+    data: transcriptions,
+    isFetching,
+    isLoading,
+  } = api.recording.getByConsultId.useQuery({
+    consultId: consultationId,
+  });
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  if (isLoading || isFetching) {
+    return (
+      <div className="w-full bg-transparent py-3 text-center text-sm text-white">
+        <div className="flex items-center justify-center gap-2">
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-500 border-t-transparent" />
+          <div>Loading transcriptions...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!transcriptions || transcriptions.length === 0) return null;
+
+  const transcriptionData = transcriptions
+    .filter((t) => t.predictionObject?.segments)
+    .map((t) => ({
+      segments: t.predictionObject.segments.map((segment: any) => ({
+        speaker: segment.speaker,
+        text: segment.text,
+      })),
+      createdAt: t.transcriptionCreatedAt,
+    }));
+
+  const formattedTranscriptions = transcriptionData.map((t) => ({
+    segments: t.segments,
+    createdAt: new Date(t.createdAt).toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    }),
+  }));
+
+  const totalMessages = formattedTranscriptions.reduce(
+    (acc, t) => acc + t.segments.length,
+    0,
+  );
+
+  return (
+    <motion.div
+      className={`flex ${isExpanded ? "h-[500px] pb-4" : ""} flex-col gap-2 overflow-y-auto pr-2 text-sm`}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="flex w-full items-center justify-center gap-2 bg-transparent py-3 text-center text-sm text-white"
+      >
+        <MessageSquareQuoteIcon className="h-4 w-4" />
+        {isExpanded ? "Hide" : "Show"} transcription
+      </button>
+
+      {isExpanded &&
+        formattedTranscriptions.map((transcription, i) => (
+          <motion.div
+            key={i}
+            className="flex flex-col gap-1 font-mono text-gray-300"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3, delay: i * 0.1 }}
+          >
+            <div className="text-xs text-gray-500">
+              {transcription.createdAt}
+            </div>
+            {transcription.segments.map(
+              (segment: { speaker: string; text: string }, j: number) => (
+                <motion.div
+                  key={j}
+                  className="text-gray-300"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.2, delay: i * 0.1 + j * 0.05 }}
+                >
+                  [{segment.speaker}] {segment.text}
+                </motion.div>
+              ),
+            )}
+          </motion.div>
+        ))}
+    </motion.div>
+  );
+};
+
+const ConsultationDetails = ({
+  consultation,
+}: {
+  consultation: RouterOutputs["consultation"]["getById"];
+}) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  console.log("consultation", consultation);
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between border-b border-white/20">
+        {consultation.consentedAt ? (
+          <div className="flex w-40 items-center justify-center gap-1 border-r border-white/20">
+            <CheckCircle className="h-4 w-4 text-green-500" />
+          </div>
+        ) : (
+          <div className="flex w-40 items-center justify-center gap-1 border-r border-white/20">
+            <XCircle className="h-4 w-4 text-red-500" />
+          </div>
+        )}
+        <AddAnimalButton />
+        <AddOwnerButton />
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="flex w-full flex-row items-center justify-center gap-2 py-3 text-white hover:text-gray-300"
+        >
+          <div
+            className={`transform transition-transform ${isExpanded ? "rotate-180" : ""}`}
+          >
+            <TriangleIcon className="h-2 w-2" />
+          </div>
+          <span className="text-center text-sm">See more</span>
+        </button>
+      </div>
+
+      {isExpanded && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          exit={{ opacity: 0, height: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <div className="bg-black">
+            <h2 className="mb-4 text-xs font-medium uppercase tracking-wide text-gray-100">
+              Patient Information
+            </h2>
+            <dl className="space-y-3 text-sm">
+              <div className="flex items-center justify-between">
+                <dt className="text-gray-100">Name</dt>
+                <dd className="text-gray-100">{consultation.animal?.name}</dd>
+              </div>
+              <div className="flex items-center justify-between">
+                <dt className="text-gray-100">Species</dt>
+                <dd className="text-gray-100">
+                  {consultation.animal?.species}
+                </dd>
+              </div>
+              <div className="flex items-center justify-between">
+                <dt className="text-gray-100">Date of Birth</dt>
+                <dd className="text-gray-100">
+                  {consultation.animal?.yearOfBirth}
+                </dd>
+              </div>
+              <div className="flex items-center justify-between">
+                <dt className="text-gray-100">Owner</dt>
+                <dd className="text-gray-100">
+                  {consultation.owner?.firstName} {consultation.owner?.lastName}
+                </dd>
+              </div>
+            </dl>
+          </div>
+          <div className="my-4 border-b border-white/20"></div>
+          <div>
+            <h2 className="mb-4 text-xs font-medium uppercase tracking-wide text-gray-100">
+              Consultation Information
+            </h2>
+            <dl className="space-y-3 text-sm">
+              <div className="flex items-center justify-between">
+                <dt className="text-gray-100">Date created</dt>
+                <dd className="text-gray-100">
+                  {new Date(consultation.createdAt).toLocaleDateString()}
+                </dd>
+              </div>
+              <div className="flex items-center justify-between">
+                <dt className="text-gray-100">Veterinarian</dt>
+                <dd className="text-gray-100">
+                  {consultation.veterinarian?.firstName}
+                </dd>
+              </div>
+              <div className="flex items-center justify-between">
+                <dt className="text-gray-100">Consented to recording</dt>
+                <dd className="text-gray-100">
+                  {consultation.consentedAt ? (
+                    <div className="flex items-center gap-1">
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                      <span>Consented</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1">
+                      <XCircle className="h-4 w-4 text-red-500" />
+                      <span>Not consented</span>
+                    </div>
+                  )}
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </motion.div>
+      )}
+    </div>
+  );
+};
+
+const AddAnimalButton = () => {
+  return (
+    <button className="w-full border-l border-r border-white/20 bg-transparent py-3 text-center text-sm text-white">
+      Add Animal
+    </button>
+  );
+};
+
+const AddOwnerButton = () => {
+  return (
+    <button className="w-full border-r border-white/20 bg-transparent py-3 text-center text-sm text-white">
+      Add Owner
+    </button>
+  );
+};

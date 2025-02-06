@@ -59,8 +59,12 @@ export default function OwnerSearch({ onSelect }: OwnerSearchProps) {
   const { mutate: createProfile } = api.profile.create.useMutation({
     onSuccess: (data) => {
       console.log("Profile created", data);
+      setSelectedOwner(data);
+      setShowCreateFields(false);
     },
   });
+
+  console.log("selectedOwner", selectedOwner);
 
   const handleSearch = (value: string) => {
     setSearchValue(value);
@@ -191,14 +195,14 @@ export default function OwnerSearch({ onSelect }: OwnerSearchProps) {
                     value={searchValue}
                     onChange={(e) => handleSearch(e.target.value)}
                     placeholder="Search for owner by email, phone, or name"
-                    className="w-full border border-white/20 bg-black/50 text-white focus:border-white/40"
+                    className="rounded-lg border border-white/30 bg-black/60 py-6 text-base text-white focus-visible:border-white/50"
                   />
                   {!showCreateFields &&
                     !selectedOwner &&
                     searchValue.length > 0 && (
                       <Button
                         onClick={handleCreateProfile}
-                        className="bg-white/10 hover:bg-white/20"
+                        className="bg-white/10 py-6 hover:bg-white/20"
                       >
                         Create
                       </Button>
@@ -226,7 +230,7 @@ export default function OwnerSearch({ onSelect }: OwnerSearchProps) {
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   placeholder="Enter first name"
-                  className="w-full border border-white/20 bg-black/50 text-white focus:border-white/40"
+                  className="rounded-lg border-2 border-white/30 bg-black/60 p-6 text-lg text-white focus-visible:border-white/50"
                 />
               </div>
               <div className="flex flex-1 flex-col gap-2">
@@ -239,7 +243,7 @@ export default function OwnerSearch({ onSelect }: OwnerSearchProps) {
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   placeholder="Enter last name"
-                  className="w-full border border-white/20 bg-black/50 text-white focus:border-white/40"
+                  className="rounded-lg border-2 border-white/30 bg-black/60 p-6 text-lg text-white focus-visible:border-white/50"
                 />
               </div>
             </div>
@@ -254,7 +258,7 @@ export default function OwnerSearch({ onSelect }: OwnerSearchProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter email"
-                className={`w-full border border-white/20 bg-black/50 text-white focus:border-white/40 ${errors.email ? "border-red-500" : ""}`}
+                className={`rounded-lg border-2 border-white/30 bg-black/60 p-6 text-lg text-white focus-visible:border-white/50 ${errors.email ? "border-red-500" : ""}`}
               />
               {errors.email && (
                 <div className="mt-1 text-xs text-red-500">{errors.email}</div>
@@ -270,7 +274,7 @@ export default function OwnerSearch({ onSelect }: OwnerSearchProps) {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="Enter phone number"
-                className={`w-full border border-white/20 bg-black/50 text-white focus:border-white/40 focus-visible:outline-2 ${errors.phone ? "border-red-500" : ""}`}
+                className={`rounded-lg border-2 border-white/30 bg-black/60 p-6 text-lg text-white focus-visible:border-white/50 ${errors.phone ? "border-red-500" : ""}`}
               />
               {errors.phone && (
                 <div className="mt-1 text-xs text-red-500">{errors.phone}</div>

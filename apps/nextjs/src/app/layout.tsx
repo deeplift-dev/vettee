@@ -7,6 +7,7 @@ import { cache } from "react";
 import { headers } from "next/headers";
 
 import { TRPCReactProvider } from "~/trpc/react";
+import { Toaster } from "./_components/ui/toaster";
 
 const SaansFont = localFont({
   src: [
@@ -88,6 +89,7 @@ export default function Layout(props: { children: React.ReactNode }) {
         <TRPCReactProvider headersPromise={getHeaders()}>
           {props.children}
         </TRPCReactProvider>
+        <Toaster />
       </body>
     </html>
   );

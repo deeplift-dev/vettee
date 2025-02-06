@@ -124,7 +124,7 @@ export const profileRouter = createTRPCRouter({
           .then(() => console.log("Profile updated successfully"))
           .catch((error) => console.error("Error updating profile:", error));
 
-        return existingProfile.id;
+        return existingProfile;
       }
 
       const newProfile = await ctx.db
@@ -148,7 +148,7 @@ export const profileRouter = createTRPCRouter({
         });
       }
 
-      return newProfile.id;
+      return newProfile;
     }),
   deleteProfile: protectedProcedure.mutation(async ({ ctx }) => {
     try {
