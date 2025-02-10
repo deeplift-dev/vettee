@@ -15,7 +15,7 @@ const NewConsultForm = () => {
   const { mutate: createConsultation } = api.consultation.create.useMutation({
     onSuccess: (data) => {
       // Redirect to the consultation detail page
-      router.push(`/dashboard/consultations/${data.id}`);
+      router.push(`/vetski/consultations/${data.id}`);
     },
     onError: (error) => {
       console.error("Error creating consultation:", error);
@@ -26,8 +26,6 @@ const NewConsultForm = () => {
   const [consent, setConsent] = useState(false);
   const [selectedOwner, setSelectedOwner] = useState<Profile | null>(null);
   const [selectedAnimal, setSelectedAnimal] = useState<Animal | null>(null);
-
-  console.log("selectedOwner", selectedOwner);
 
   const handleStartConsult = () => {
     createConsultation({
@@ -57,7 +55,10 @@ const NewConsultForm = () => {
             </div>
             <div className="text-center text-sm font-light text-white/50"></div>
             <div>
-              <OwnerSearch onSelect={setSelectedOwner} />
+              <OwnerSearch
+                onSelect={setSelectedOwner}
+                onAnimalSelect={setSelectedAnimal}
+              />
             </div>
             <div>
               <PatientConsent checked={consent} onChange={setConsent} />

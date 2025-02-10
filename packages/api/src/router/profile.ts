@@ -31,15 +31,16 @@ export const profileRouter = createTRPCRouter({
   search: protectedProcedure
     .input(z.object({ query: z.string() }))
     .query(async ({ ctx, input }) => {
-      // Add logging to debug the search
-      console.log("Search query:", input.query);
-
       const searchTerm = `%${input.query}%`;
-      console.log("Search term:", searchTerm);
 
-      const profiles = await ctx.db
-        .select()
+      // Join profiles with animals in a single query
+      const results = await ctx.db
+        .select({
+          profile: schema.profile,
+          animals: schema.animal,
+        })
         .from(schema.profile)
+        .leftJoin(schema.animal, eq(schema.profile.id, schema.animal.ownerId))
         .where(
           or(
             ilike(schema.profile.firstName, searchTerm),
@@ -50,34 +51,24 @@ export const profileRouter = createTRPCRouter({
         )
         .limit(10);
 
-      // Log the results
-      console.log("Search results:", profiles);
+      // Group results by profile
+      const profileMap = new Map();
 
-      // If no results, let's log the total count of profiles to verify data exists
-      if (!profiles.length) {
-        const totalCount = await ctx.db
-          .select({ count: sql`count(*)` })
-          .from(schema.profile);
-        console.log("Total profiles in DB:", totalCount);
-        return [];
+      for (const row of results) {
+        const profile = row.profile;
+        const animal = row.animals;
+
+        if (!profileMap.has(profile.id)) {
+          profileMap.set(profile.id, {
+            ...profile,
+            animals: animal ? [animal] : [],
+          });
+        } else if (animal) {
+          profileMap.get(profile.id).animals.push(animal);
+        }
       }
 
-      // Get animals for each profile
-      const results = await Promise.all(
-        profiles.map(async (profile) => {
-          const animals = await ctx.db
-            .select()
-            .from(schema.animal)
-            .where(eq(schema.animal.ownerId, profile.id));
-
-          return {
-            ...profile,
-            animals,
-          };
-        }),
-      );
-
-      return results;
+      return Array.from(profileMap.values());
     }),
   animals: protectedProcedure.query(async ({ ctx }) => {
     const result = await ctx.db

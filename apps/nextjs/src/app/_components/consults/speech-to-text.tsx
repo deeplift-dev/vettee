@@ -38,7 +38,6 @@ const SpeechToText = ({ consultationId, animalId }: SpeechToTextProps) => {
         formData.append("consultationId", consultationId ?? "");
 
         const response = await transcribe(formData);
-        console.log(response);
       }
     },
     [vocabulary, language, speakers],

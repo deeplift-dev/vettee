@@ -1,6 +1,5 @@
 import Replicate from "replicate";
 
-import { transcriptionPrompt } from "~/lib/prompt";
 import { api } from "~/trpc/server";
 
 const replicate = new Replicate();
@@ -18,7 +17,7 @@ const transcriptionService = {
 
       const input = {
         file,
-        prompt: transcriptionPrompt,
+        prompt: "You are a vet assistant.",
         file_url: "",
         language: "en",
         num_speakers: 2,

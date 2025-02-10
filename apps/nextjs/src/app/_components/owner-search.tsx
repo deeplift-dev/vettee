@@ -11,11 +11,15 @@ import { Label } from "./ui/label";
 
 interface OwnerSearchProps {
   onSelect: (owner: Profile | null) => void;
+  onAnimalSelect: (animal: Animal | null) => void;
 }
 
 type Profile = RouterOutputs["profile"]["search"][number];
-
-export default function OwnerSearch({ onSelect }: OwnerSearchProps) {
+type Animal = RouterOutputs["profile"]["animals"][number];
+export default function OwnerSearch({
+  onSelect,
+  onAnimalSelect,
+}: OwnerSearchProps) {
   const [searchValue, setSearchValue] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [showCreateFields, setShowCreateFields] = useState(false);
@@ -23,6 +27,7 @@ export default function OwnerSearch({ onSelect }: OwnerSearchProps) {
   const [phone, setPhone] = useState("");
   const [errors, setErrors] = useState({ email: "", phone: "" });
   const [selectedOwner, setSelectedOwner] = useState<Profile | null>(null);
+  const [selectedAnimal, setSelectedAnimal] = useState<Animal | null>(null);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const firstNameInputRef = useRef<HTMLInputElement>(null);
@@ -58,13 +63,10 @@ export default function OwnerSearch({ onSelect }: OwnerSearchProps) {
 
   const { mutate: createProfile } = api.profile.create.useMutation({
     onSuccess: (data) => {
-      console.log("Profile created", data);
       setSelectedOwner(data);
       setShowCreateFields(false);
     },
   });
-
-  console.log("selectedOwner", selectedOwner);
 
   const handleSearch = (value: string) => {
     setSearchValue(value);
@@ -133,6 +135,11 @@ export default function OwnerSearch({ onSelect }: OwnerSearchProps) {
     });
   };
 
+  const handleSelectAnimal = (animal: Animal) => {
+    setSelectedAnimal(animal);
+    onAnimalSelect(animal);
+  };
+
   return (
     <div className="relative">
       <div className="flex flex-col gap-2">
@@ -159,30 +166,50 @@ export default function OwnerSearch({ onSelect }: OwnerSearchProps) {
                       setSearchValue("");
                       onSelect(null);
                     }}
-                    className="h-6 hover:bg-white/10"
+                    className="h-6 w-6 p-0 text-white hover:bg-white/10 hover:text-white/50"
                   >
                     ✕
                   </Button>
                 </div>
                 {selectedOwner.animals && (
                   <div className="flex flex-wrap gap-2">
-                    {selectedOwner.animals.map((animal) => (
-                      <Button
-                        key={animal.id}
-                        variant="outline"
-                        size="sm"
-                        className="min-w-[120px] flex-1"
-                      >
-                        {animal.name}
-                      </Button>
-                    ))}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="min-w-[120px] flex-1"
-                    >
-                      + New Pet
-                    </Button>
+                    {selectedAnimal ? (
+                      <div className="flex items-center gap-2 rounded-md border border-white/20 bg-black/50 p-2 text-white">
+                        <div className="flex-1">{selectedAnimal.name}</div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedAnimal(null);
+                            onAnimalSelect(null);
+                          }}
+                          className="h-6 w-6 p-0 text-white hover:bg-white/10 hover:text-white/50"
+                        >
+                          ✕
+                        </Button>
+                      </div>
+                    ) : (
+                      <>
+                        {selectedOwner.animals.map((animal) => (
+                          <Button
+                            onClick={() => handleSelectAnimal(animal)}
+                            key={animal.id}
+                            variant="outline"
+                            size="sm"
+                            className="min-w-[120px] flex-1"
+                          >
+                            {animal.name}
+                          </Button>
+                        ))}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="min-w-[120px] flex-1"
+                        >
+                          + New Pet
+                        </Button>
+                      </>
+                    )}
                   </div>
                 )}
               </div>

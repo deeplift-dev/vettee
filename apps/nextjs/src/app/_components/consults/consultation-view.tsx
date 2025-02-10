@@ -15,11 +15,15 @@ import type { RouterOutputs } from "@acme/api";
 
 import { api } from "~/trpc/react";
 import ChatTool from "../chat/chat-tool";
+import { formatTranscriptions } from "./helpers/format-transcription";
 import SpeechToText from "./speech-to-text";
 
 interface ConsultationViewProps {
   consultation: RouterOutputs["consultation"]["getById"];
 }
+
+type Animal = RouterOutputs["animal"]["getById"];
+type Owner = RouterOutputs["profile"]["byId"];
 
 export default function ConsultationView({
   consultation,
@@ -35,7 +39,7 @@ export default function ConsultationView({
   });
   return (
     <div className="flex h-full min-h-screen w-full flex-col overflow-hidden px-2 md:px-0">
-      <div className="mx-auto w-full max-w-7xl md:py-8">
+      <div className="z-10 mx-auto h-full w-full max-w-7xl bg-black md:py-8">
         <div className="overflow-hidden">
           <div className="border-b border-white/20 pb-4">
             <div className="flex flex-row items-center justify-between">
@@ -69,8 +73,8 @@ export default function ConsultationView({
       </div>
       <div className="w-full"></div>
       <ChatTool
+        consultationId={consultation.id}
         sendUserMessage={(message) => {
-          console.log("sendUserMessage", message);
           addMessage({
             id: consultation.id,
             message: message,
@@ -180,32 +184,8 @@ const Transcription = ({ consultationId }: { consultationId: string }) => {
 
   if (!transcriptions || transcriptions.length === 0) return null;
 
-  const transcriptionData = transcriptions
-    .filter((t) => t.predictionObject?.segments)
-    .map((t) => ({
-      segments: t.predictionObject.segments.map((segment: any) => ({
-        speaker: segment.speaker,
-        text: segment.text,
-      })),
-      createdAt: t.transcriptionCreatedAt,
-    }));
-
-  const formattedTranscriptions = transcriptionData.map((t) => ({
-    segments: t.segments,
-    createdAt: new Date(t.createdAt).toLocaleString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    }),
-  }));
-
-  const totalMessages = formattedTranscriptions.reduce(
-    (acc, t) => acc + t.segments.length,
-    0,
-  );
+  const { formattedTranscriptions, transcriptionData } =
+    formatTranscriptions(transcriptions);
 
   return (
     <motion.div
@@ -259,7 +239,6 @@ const ConsultationDetails = ({
   consultation: RouterOutputs["consultation"]["getById"];
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  console.log("consultation", consultation);
 
   return (
     <div className="flex flex-col gap-4">
@@ -273,8 +252,8 @@ const ConsultationDetails = ({
             <XCircle className="h-4 w-4 text-red-500" />
           </div>
         )}
-        <AddAnimalButton />
-        <AddOwnerButton />
+        <AddAnimalButton animal={consultation.animal} />
+        <AddOwnerButton owner={consultation.owner} />
         <button
           onClick={() => setIsExpanded(!isExpanded)}
           className="flex w-full flex-row items-center justify-center gap-2 py-3 text-white hover:text-gray-300"
@@ -294,6 +273,7 @@ const ConsultationDetails = ({
           animate={{ opacity: 1, height: "auto" }}
           exit={{ opacity: 0, height: 0 }}
           transition={{ duration: 0.2 }}
+          className="pb-4"
         >
           <div className="bg-black">
             <h2 className="mb-4 text-xs font-medium uppercase tracking-wide text-gray-100">
@@ -306,7 +286,7 @@ const ConsultationDetails = ({
               </div>
               <div className="flex items-center justify-between">
                 <dt className="text-gray-100">Species</dt>
-                <dd className="text-gray-100">
+                <dd className="capitalize text-gray-100">
                   {consultation.animal?.species}
                 </dd>
               </div>
@@ -366,18 +346,34 @@ const ConsultationDetails = ({
   );
 };
 
-const AddAnimalButton = () => {
+const AddAnimalButton = ({ animal }: { animal: Animal }) => {
+  if (!animal) {
+    return (
+      <button className="w-full border-l border-r border-white/20 bg-transparent py-3 text-center text-sm text-white">
+        Add Animal
+      </button>
+    );
+  }
+
   return (
     <button className="w-full border-l border-r border-white/20 bg-transparent py-3 text-center text-sm text-white">
-      Add Animal
+      {animal.name}
     </button>
   );
 };
 
-const AddOwnerButton = () => {
+const AddOwnerButton = ({ owner }: { owner: Owner }) => {
+  if (!owner) {
+    return (
+      <button className="w-full border-r border-white/20 bg-transparent py-3 text-center text-sm text-white">
+        Add Owner
+      </button>
+    );
+  }
+
   return (
     <button className="w-full border-r border-white/20 bg-transparent py-3 text-center text-sm text-white">
-      Add Owner
+      {owner?.firstName} {owner?.lastName}
     </button>
   );
 };

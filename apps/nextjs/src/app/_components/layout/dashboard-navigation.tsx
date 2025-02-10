@@ -11,7 +11,7 @@ export default async function DashboardNavigation() {
   return (
     <nav className="flex items-center justify-between border-b border-white border-opacity-10 bg-transparent p-2 dark:bg-transparent md:p-4">
       <div>
-        <Link href="/dashboard" legacyBehavior>
+        <Link href="/vetski" legacyBehavior>
           <h1 className="bg-gradient-to-br from-white via-slate-100 to-white bg-clip-text font-vetski text-xl leading-normal text-transparent md:text-2xl">
             Vetski
           </h1>
@@ -40,13 +40,13 @@ const MenuItems = ({ user }: { user: User }) => {
     <div className="flex items-center text-sm text-slate-300 transition-colors duration-500 md:gap-6 md:text-base">
       {/* <Link
         className="rounded-full px-4 py-2 transition-colors duration-500 hover:bg-white/10 hover:text-white"
-        href="/dashboard/consultations"
+        href="/vetski/consultations"
       >
         Consults
       </Link>
       <Link
         className="rounded-full px-4 py-2 transition-colors duration-500 hover:bg-white/10 hover:text-white"
-        href="/dashboard/patients"
+        href="/vetski/patients"
       >
         Patients
       </Link> */}

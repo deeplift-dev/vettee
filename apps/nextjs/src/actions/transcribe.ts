@@ -20,8 +20,6 @@ export async function transcribe(formData: FormData) {
 
     const transcription = await transcriptionService.transcribe(formData);
 
-    console.log(transcription);
-
     return transcription;
   } catch (error) {
     console.error("Transcription error:", error);

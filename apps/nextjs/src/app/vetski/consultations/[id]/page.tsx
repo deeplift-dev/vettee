@@ -11,7 +11,6 @@ interface ConsultationPageProps {
 export default async function ConsultationPage({
   params,
 }: ConsultationPageProps) {
-  console.log("params", params);
   const consultation = await api.consultation.getById
     .query(params.id)
     .catch(() => null);
@@ -20,7 +19,6 @@ export default async function ConsultationPage({
     // notFound();
   }
 
-  console.log("consultation", consultation);
   return (
     <SafeArea>
       <div className="mx-auto flex h-full max-w-screen-xl flex-row items-center justify-center md:p-4">

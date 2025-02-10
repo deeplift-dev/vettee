@@ -57,9 +57,6 @@ const PacowFont = localFont({
   variable: "--font-pacow",
 });
 
-console.log("SaansFont", SaansFont.variable);
-console.log("OddvalFont", OddvalFont.variable);
-
 export const metadata: Metadata = {
   title: "Vettee | Your companion in pet care.",
   description: "The ultimate companion for your companions.",
