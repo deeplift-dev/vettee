@@ -93,17 +93,70 @@ export const animalSynthesizedDataRelations = relations(
 
 export const transcription = pgTable("transcription", {
   id: varchar("id", { length: 256 }).primaryKey(),
-  animalId: varchar("animal_id", { length: 256 }).notNull(),
+  animalId: varchar("animal_id", { length: 256 }),
   consultId: varchar("consult_id", { length: 256 }),
-  audioUrl: varchar("audio_url", { length: 1024 }).notNull(),
-  transcriptionText: varchar("transcription_text", { length: 4096 }).notNull(),
-  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
-  updatedAt: timestamp("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  audioUrl: varchar("audio_url", { length: 1024 }),
+  transcriptionText: varchar("transcription_text", { length: 4096 }),
+  predictionObject: jsonb("prediction_object"),
+  transcriptionId: varchar("transcription_id", { length: 256 }).notNull(),
+  transcriptionUrl: varchar("transcription_url", { length: 1024 }).notNull(),
+  transcriptionCreatedAt: timestamp("transcription_created_at").notNull(),
+  transcriptionStatus: varchar("transcription_status", {
+    length: 256,
+  }).notNull(),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
 });
 
 export const transcriptionRelations = relations(transcription, ({ one }) => ({
   animal: one(animal, {
     fields: [transcription.animalId],
     references: [animal.id],
+  }),
+}));
+
+export const consultation = pgTable("consultation", {
+  id: varchar("id", { length: 256 }).primaryKey(),
+  animalId: varchar("animal_id", { length: 256 }).notNull().default(""),
+  ownerId: varchar("owner_id", { length: 256 }).notNull().default(""),
+  veterinarianId: varchar("veterinarian_id", { length: 256 })
+    .notNull()
+    .default(""),
+  title: varchar("title", { length: 256 }).notNull(),
+  summary: varchar("summary", { length: 1024 }),
+  transcriptionId: varchar("transcription_id", { length: 256 }),
+  lastSyncedTranscriptionId: varchar("last_synced_transcription_id", {
+    length: 256,
+  }),
+  messages: jsonb("messages"),
+  consentedAt: timestamp("consented_at"),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+});
+
+export const consultationRelations = relations(consultation, ({ one }) => ({
+  animal: one(animal, {
+    fields: [consultation.animalId],
+    references: [animal.id],
+  }),
+  transcription: one(transcription, {
+    fields: [consultation.transcriptionId],
+    references: [transcription.id],
+  }),
+  veterinarian: one(profile, {
+    fields: [consultation.veterinarianId],
+    references: [profile.id],
+  }),
+  owner: one(profile, {
+    fields: [consultation.ownerId],
+    references: [profile.id],
   }),
 }));

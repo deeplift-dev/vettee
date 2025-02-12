@@ -7,6 +7,7 @@ import { cache } from "react";
 import { headers } from "next/headers";
 
 import { TRPCReactProvider } from "~/trpc/react";
+import { Toaster } from "./_components/ui/toaster";
 
 const SaansFont = localFont({
   src: [
@@ -56,9 +57,6 @@ const PacowFont = localFont({
   variable: "--font-pacow",
 });
 
-console.log("SaansFont", SaansFont.variable);
-console.log("OddvalFont", OddvalFont.variable);
-
 export const metadata: Metadata = {
   title: "Vettee | Your companion in pet care.",
   description: "The ultimate companion for your companions.",
@@ -88,6 +86,7 @@ export default function Layout(props: { children: React.ReactNode }) {
         <TRPCReactProvider headersPromise={getHeaders()}>
           {props.children}
         </TRPCReactProvider>
+        <Toaster />
       </body>
     </html>
   );

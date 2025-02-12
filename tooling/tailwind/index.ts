@@ -5,7 +5,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-saans)"],
+        sans: ["system-ui"],
         logo: ["var(--font-oddval)"],
         vetski: ["var(--font-pacow)"],
       },

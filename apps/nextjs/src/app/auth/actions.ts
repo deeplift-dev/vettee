@@ -5,15 +5,24 @@ import { redirect } from "next/navigation";
 import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 
 export const signInWithPassword = async (email: string, password: string) => {
-  const supabase = createServerActionClient({ cookies });
+  try {
+    const supabase = createServerActionClient({ cookies });
 
-  const { error, data } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
+    const { error, data } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-  if (error) throw error;
-  return data.user;
+    if (error?.message === "Invalid login credentials") {
+      throw new Error("Invalid login credentials");
+    }
+
+    if (error) throw error;
+    return data.user;
+  } catch (error) {
+    console.error("Sign in error:", error);
+    throw error;
+  }
 };
 
 export const signUp = async (email: string, password: string) => {
@@ -48,5 +57,5 @@ export const signInWithGithub = async () => {
 export const signOut = async () => {
   const supabase = createServerActionClient({ cookies });
   await supabase.auth.signOut();
-  redirect("/dashboard");
+  redirect("/vetski");
 };

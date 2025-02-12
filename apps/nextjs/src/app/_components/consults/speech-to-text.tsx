@@ -3,10 +3,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { transcribe } from "~/actions/transcribe";
+import { Button } from "../ui/button";
 
 const CHUNK_DURATION = 10000; // 10 seconds in milliseconds
 
-const SpeechToText = () => {
+interface SpeechToTextProps {
+  consultationId: string | undefined;
+  animalId: string | undefined;
+}
+
+const SpeechToText = ({ consultationId, animalId }: SpeechToTextProps) => {
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [error, setError] = useState<string>("");
@@ -28,13 +34,10 @@ const SpeechToText = () => {
         formData.append("vocabulary", vocabulary);
         formData.append("language", language);
         formData.append("speakers", speakers);
-        formData.append("animalId", props.animalId);
-        if (props.consultId) {
-          formData.append("consultId", props.consultId);
-        }
+        formData.append("animalId", animalId ?? "");
+        formData.append("consultationId", consultationId ?? "");
 
         const response = await transcribe(formData);
-        console.log(response);
       }
     },
     [vocabulary, language, speakers],
@@ -42,7 +45,6 @@ const SpeechToText = () => {
 
   const recordChunk = useCallback(
     (mediaStream: MediaStream) => {
-      // Use the ref instead of the state
       if (!isRecordingRef.current) return;
 
       const mediaRecorder = new MediaRecorder(mediaStream, {
@@ -62,16 +64,13 @@ const SpeechToText = () => {
           processChunk(currentChunks);
         }
 
-        // Check ref value for recording state
         if (isRecordingRef.current) {
           recordChunk(mediaStream);
         }
       };
 
-      // Start recording
       mediaRecorder.start();
 
-      // Stop after CHUNK_DURATION
       setTimeout(() => {
         if (mediaRecorder.state === "recording") {
           mediaRecorder.stop();
@@ -98,12 +97,10 @@ const SpeechToText = () => {
       }
 
       setStream(mediaStream);
-      // Update both state and ref
       setIsRecording(true);
       isRecordingRef.current = true;
       setError("");
 
-      // Start the first chunk
       recordChunk(mediaStream);
     } catch (err) {
       setError(
@@ -114,7 +111,6 @@ const SpeechToText = () => {
   }, [recordChunk]);
 
   const stopStream = useCallback(() => {
-    // Update both state and ref
     setIsRecording(false);
     isRecordingRef.current = false;
 
@@ -123,6 +119,14 @@ const SpeechToText = () => {
       setStream(null);
     }
   }, [stream]);
+
+  const toggleRecording = useCallback(() => {
+    if (isRecording) {
+      stopStream();
+    } else {
+      void startStream();
+    }
+  }, [isRecording, startStream, stopStream]);
 
   useEffect(() => {
     return () => {
@@ -133,86 +137,52 @@ const SpeechToText = () => {
   }, [stream]);
 
   return (
-    <div style={{ padding: "20px", textAlign: "center" }}>
-      {error && (
-        <div style={{ color: "red", marginBottom: "10px" }}>{error}</div>
-      )}
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-4">
-          <div>
-            <label
-              htmlFor="vocabulary"
-              className="block text-sm font-medium text-gray-700 dark:text-white"
-            >
-              Vocabulary
-            </label>
-            <select
-              id="vocabulary"
-              value={vocabulary}
-              onChange={(e) => setVocabulary(e.target.value)}
-              className="form-select mt-1 block w-full rounded-md border-gray-300 px-2 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:bg-gray-800 dark:text-white sm:text-sm"
-            >
-              <option value="en">English</option>
-              <option value="es">Spanish</option>
-              <option value="fr">French</option>
-            </select>
-          </div>
-          <div>
-            <label
-              htmlFor="language"
-              className="block text-sm font-medium text-gray-700 dark:text-white"
-            >
-              Language
-            </label>
-            <select
-              id="language"
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              className="form-select mt-1 block w-full rounded-md border-gray-300 px-2 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:bg-gray-800 dark:text-white sm:text-sm"
-            >
-              <option value="en">English</option>
-              <option value="es">Spanish</option>
-              <option value="fr">French</option>
-            </select>
-          </div>
-          <div>
-            <label
-              htmlFor="speakers"
-              className="block text-sm font-medium text-gray-700 dark:text-white"
-            >
-              Speakers
-            </label>
-            <select
-              id="speakers"
-              value={speakers}
-              onChange={(e) => setSpeakers(e.target.value)}
-              className="form-select mt-1 block w-full rounded-md border-gray-300 px-2 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:bg-gray-800 dark:text-white sm:text-sm"
-            >
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-            </select>
-          </div>
-        </div>
-        <div className="flex flex-row gap-4">
-          <button
-            onClick={startStream}
-            disabled={isRecording}
-            className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          >
-            {isRecording ? "Recording..." : "Start Recording"}
-          </button>
-          <button
-            onClick={stopStream}
-            disabled={!isRecording}
-            className="inline-flex items-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-          >
-            Stop Recording
-          </button>
-        </div>
-      </div>
+    <div>
+      <RecordingButton
+        toggleRecording={toggleRecording}
+        isRecording={isRecording}
+        setSpeakers={setSpeakers}
+        setLanguage={setLanguage}
+        setVocabulary={setVocabulary}
+      />
     </div>
   );
 };
 
 export default SpeechToText;
+
+interface RecordingButtonProps {
+  toggleRecording: () => void;
+  isRecording: boolean;
+  setSpeakers: (speakers: string) => void;
+  setLanguage: (language: string) => void;
+  setVocabulary: (vocabulary: string) => void;
+}
+
+const RecordingButton = ({
+  toggleRecording,
+  isRecording,
+  setSpeakers,
+  setLanguage,
+  setVocabulary,
+}: RecordingButtonProps) => {
+  return (
+    <div>
+      <Button
+        onClick={toggleRecording}
+        className="rounded-none shadow-none first:rounded-s-lg last:rounded-e-lg focus-visible:z-10"
+      >
+        <div className="flex items-center gap-2">
+          {isRecording ? (
+            <>
+              Stop Recording
+              <div className="bg-destructive h-2 w-2 animate-pulse rounded-full" />
+            </>
+          ) : (
+            "Start Recording"
+          )}
+        </div>
+      </Button>
+    </div>
+  );
+};

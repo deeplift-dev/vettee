@@ -4,14 +4,15 @@ import { useRouter } from "next/navigation";
 import { FcGoogle } from "react-icons/fc";
 
 import SafeArea from "~/app/_components/layout/safe-area";
-import { signInWithGithub, signInWithPassword, signUp } from "../actions";
+import { useToast } from "~/hooks/use-toast";
+import { signInWithGithub, signInWithPassword } from "../actions";
 
 export default function LoginPage() {
   return (
     <SafeArea>
       <div className="w-full">
         <div className="flex w-full flex-col items-center justify-center gap-6">
-          <div className="font-vetski bg-gradient-to-bl from-white via-slate-200 to-white bg-clip-text text-3xl leading-normal text-transparent">
+          <div className="bg-gradient-to-bl from-white via-slate-200 to-white bg-clip-text font-vetski text-3xl leading-normal text-transparent">
             Vetski
           </div>
           <LoginForm />
@@ -23,6 +24,7 @@ export default function LoginPage() {
 
 const LoginForm = () => {
   const router = useRouter();
+  const { toast } = useToast();
 
   return (
     <div className="mx-auto flex w-full max-w-sm flex-col items-center justify-center gap-6">
@@ -47,13 +49,28 @@ const LoginForm = () => {
             const email = formData.get("email") as string;
             const password = formData.get("password") as string;
 
-            const res = await signInWithPassword(email, password);
-            router.push("/dashboard");
+            try {
+              const res = await signInWithPassword(email, password);
+              router.push("/vetski");
+            } catch (error) {
+              console.error("Error signing in:", error);
+              if (
+                error instanceof Error &&
+                error.message === "Invalid login credentials"
+              ) {
+                toast({
+                  title: "Invalid login credentials",
+                  description: "Please check your email and password.",
+                });
+              }
+              return;
+            }
           }}
         >
           Sign In
         </button>
-        <button
+        {/* <button
+          className="text-sm text-zinc-50"
           formAction={async (formData) => {
             const email = formData.get("email") as string;
             const password = formData.get("password") as string;
@@ -63,11 +80,11 @@ const LoginForm = () => {
           }}
         >
           {`Don't have an account? Sign up.`}
-        </button>
+        </button> */}
       </form>
 
-      <div className="relative flex w-full justify-center border-b border-zinc-200 py-2">
-        <span className="absolute top-1 bg-zinc-900 px-2">or</span>
+      <div className="relative flex w-full justify-center border-b border-white/10 py-2">
+        <span className="absolute top-1 px-2 text-white">or</span>
       </div>
 
       <button
