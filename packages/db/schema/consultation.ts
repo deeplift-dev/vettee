@@ -9,6 +9,7 @@ export const consultations = pgTable("consultations", {
   animalId: uuid("animal_id").references(() => animals.id),
   ownerId: uuid("owner_id").references(() => profiles.id),
   title: text("title").notNull(),
+  lastSyncedTranscriptionId: text("last_synced_transcription_id"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
   consentedAt: timestamp("consented_at"),

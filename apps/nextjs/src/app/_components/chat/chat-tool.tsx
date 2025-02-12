@@ -1,10 +1,12 @@
 "use client";
 
+import { useEffect } from "react";
 import { Message, useChat } from "ai/react";
 import { motion } from "framer-motion";
 import { SendIcon } from "lucide-react";
 
 import { api } from "~/trpc/react";
+import { formatTranscriptions } from "../consults/helpers/format-transcription";
 import ChatMessages from "./chat-messages";
 
 interface ChatToolProps {
@@ -34,29 +36,47 @@ export default function ChatTool({
     },
   );
 
-  // useEffect(() => {
-  //   const { concatenatedTranscription } = formatTranscriptions(transcription);
-  //   if (concatenatedTranscription) {
-  //     console.log("transcriptionData...", concatenatedTranscription);
-  //     append(
-  //       {
-  //         role: "system",
-  //         content: "Parsing consultation transcription...",
-  //       },
-  //       {
-  //         body: {
-  //           transcription: `Here is the transcription of the consultation so far, do not respond to this message, just use it as context: ${concatenatedTranscription}`,
-  //         },
-  //       },
-  //     );
-  //   }
-  // }, [transcription]);
+  const { mutate: syncTranscription } =
+    api.recording.syncTranscription.useMutation({
+      onSuccess: () => {
+        console.log("Transcription synced successfully");
+      },
+      onError: (error) => {
+        console.error("Error syncing transcription:", error);
+      },
+    });
+
+  useEffect(() => {
+    console.log("transcription...", transcription);
+    if (!transcription || transcription.transcriptions.length === 0) return;
+    const {
+      concatenatedTranscription,
+      synced,
+      formattedTranscriptions,
+      lastTranscriptionId,
+    } = formatTranscriptions(transcription);
+    if (!synced) {
+      append(
+        {
+          role: "system",
+          content: "Parsing consultation transcription...",
+        },
+        {
+          body: {
+            transcription: `Here is the transcription of the consultation so far, do not respond to this message, just use it as context: ${concatenatedTranscription}`,
+          },
+        },
+      );
+      syncTranscription({ consultationId, lastTranscriptionId });
+    }
+  }, [transcription]);
 
   const { messages, input, handleInputChange, handleSubmit, append } = useChat({
     api: "/api/chat",
     onFinish: (message) => {
       onFinish(message);
     },
+    initialMessages: initialMessages,
   });
 
   const formattedMessages = [...(initialMessages ?? []), ...(messages ?? [])]
@@ -68,7 +88,8 @@ export default function ChatTool({
         firstName: message.role === "assistant" ? "AI" : "You",
         lastName: "",
       },
-      createdAt: new Date(),
+      createdAt: message.createdAt,
+      role: message.role,
     }));
 
   return (

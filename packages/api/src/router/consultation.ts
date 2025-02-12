@@ -50,6 +50,9 @@ export const consultationRouter = createTRPCRouter({
           animal: true,
           owner: true,
           veterinarian: true,
+          transcription: {
+            orderBy: (transcription, { asc }) => [asc(transcription.createdAt)],
+          },
         },
       });
 

@@ -115,6 +115,7 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { messages, transcription } = body;
+    console.log("%%%calling this now%%%");
 
     // Only run tools that don't require additional parameters
     const insights = tools

@@ -182,7 +182,8 @@ const Transcription = ({ consultationId }: { consultationId: string }) => {
     );
   }
 
-  if (!transcriptions || transcriptions.length === 0) return null;
+  if (!transcriptions || transcriptions.transcriptions.length === 0)
+    return null;
 
   const { formattedTranscriptions, transcriptionData } =
     formatTranscriptions(transcriptions);
@@ -212,7 +213,14 @@ const Transcription = ({ consultationId }: { consultationId: string }) => {
             transition={{ duration: 0.3, delay: i * 0.1 }}
           >
             <div className="text-xs text-gray-500">
-              {transcription.createdAt}
+              {new Date(transcription.createdAt).toLocaleString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+                hour: "numeric",
+                minute: "2-digit",
+                hour12: true,
+              })}
             </div>
             {transcription.segments.map(
               (segment: { speaker: string; text: string }, j: number) => (

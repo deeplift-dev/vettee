@@ -68,12 +68,12 @@ export default function ChatMessages({ messages }: ChatMessagesProps) {
       ref={containerRef}
       className="no-scrollbar h-[calc(100vh-154px)] space-y-10 overflow-auto py-4"
     >
-      {messages.map((message) =>
+      {messages.map((message, index) =>
         message.role === "system" ? (
           <SystemMessage key={message.id} message={message} />
         ) : (
           <motion.div
-            key={message.id}
+            key={`${message.id}-${index}`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="flex items-start space-x-3"
@@ -88,7 +88,7 @@ export default function ChatMessages({ messages }: ChatMessagesProps) {
                   className="text-xs text-gray-400"
                   suppressHydrationWarning
                 >
-                  {new Date(message.createdAt).toLocaleTimeString(undefined, {
+                  {new Date(message.createdAt).toLocaleTimeString("en-US", {
                     hour: "numeric",
                     minute: "numeric",
                     second: "numeric",

@@ -129,6 +129,9 @@ export const consultation = pgTable("consultation", {
   title: varchar("title", { length: 256 }).notNull(),
   summary: varchar("summary", { length: 1024 }),
   transcriptionId: varchar("transcription_id", { length: 256 }),
+  lastSyncedTranscriptionId: varchar("last_synced_transcription_id", {
+    length: 256,
+  }),
   messages: jsonb("messages"),
   consentedAt: timestamp("consented_at"),
   createdAt: timestamp("created_at")

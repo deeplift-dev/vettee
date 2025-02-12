@@ -1,7 +1,7 @@
 import { nanoid } from "nanoid";
 import { z } from "zod";
 
-import { asc, eq, schema } from "@acme/db";
+import { and, desc, eq, isNotNull, schema } from "@acme/db";
 
 import { createTRPCRouter, publicProcedure } from "../trpc";
 
@@ -71,9 +71,46 @@ export const recordingRouter = createTRPCRouter({
       }),
     )
     .query(async ({ input, ctx }) => {
-      return ctx.db.query.transcription.findMany({
-        where: eq(schema.transcription.consultId, input.consultId),
-        orderBy: asc(schema.transcription.createdAt),
+      const consultation = await ctx.db.query.consultation.findFirst({
+        where: eq(schema.consultation.id, input.consultId),
       });
+
+      if (!consultation) {
+        throw new Error("Consultation not found");
+      }
+
+      const lastSyncedTranscriptionId = consultation.lastSyncedTranscriptionId;
+
+      const transcriptions = await ctx.db.query.transcription.findMany({
+        where: and(
+          eq(schema.transcription.consultId, input.consultId),
+          isNotNull(schema.transcription.predictionObject),
+        ),
+        orderBy: desc(schema.transcription.createdAt),
+      });
+
+      const lastSyncedTranscription = transcriptions[0];
+      const synced = lastSyncedTranscription?.id === lastSyncedTranscriptionId;
+
+      return {
+        transcriptions,
+        synced,
+      };
+    }),
+  syncTranscription: publicProcedure
+    .input(
+      z.object({
+        consultationId: z.string(),
+        lastTranscriptionId: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      return ctx.db
+        .update(schema.consultation)
+        .set({
+          lastSyncedTranscriptionId: input.lastTranscriptionId,
+          updatedAt: new Date(),
+        })
+        .where(eq(schema.consultation.id, input.consultationId));
     }),
 });

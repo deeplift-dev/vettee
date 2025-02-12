@@ -3,9 +3,16 @@ interface Segment {
   text: string;
 }
 
+interface Transcription {
+  predictionObject: {
+    segments: Segment[];
+  };
+  transcriptionCreatedAt: string;
+}
+
 interface TranscriptionData {
-  segments: Segment[];
-  transcriptionCreatedAt: string | Date;
+  transcriptions: Transcription[];
+  synced: boolean;
 }
 
 interface FormattedTranscription {
@@ -13,19 +20,22 @@ interface FormattedTranscription {
   createdAt: string;
 }
 
-export function formatTranscriptions(transcriptions: TranscriptionData[]): {
+export function formatTranscriptions(transcriptions: TranscriptionData): {
   transcriptionData: TranscriptionData[];
   formattedTranscriptions: FormattedTranscription[];
   concatenatedTranscription: string;
+  synced: boolean;
 } {
   if (!transcriptions)
     return {
       transcriptionData: [],
       formattedTranscriptions: [],
       concatenatedTranscription: "",
+      synced: false,
+      lastTranscriptionId: "",
     };
 
-  const transcriptionData = transcriptions
+  const transcriptionData = transcriptions?.transcriptions
     .filter((t) => t.predictionObject)
     .map((t) => ({
       segments: t.predictionObject.segments.map((segment) => ({
@@ -51,9 +61,19 @@ export function formatTranscriptions(transcriptions: TranscriptionData[]): {
     .map((t) => t.segments.map((s) => `[${s.speaker}] ${s.text}`).join("\n"))
     .join("\n\n");
 
+  const lastTranscriptionId = transcriptions.transcriptions
+    .filter((t) => t.predictionObject)
+    .sort(
+      (a, b) =>
+        new Date(b.transcriptionCreatedAt).getTime() -
+        new Date(a.transcriptionCreatedAt).getTime(),
+    )[0]?.id;
+
   return {
-    transcriptionData,
     formattedTranscriptions,
     concatenatedTranscription,
+    transcriptionData: [transcriptions],
+    synced: transcriptions.synced,
+    lastTranscriptionId,
   };
 }
