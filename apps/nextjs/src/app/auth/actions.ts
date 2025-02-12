@@ -41,12 +41,12 @@ export const signUp = async (email: string, password: string) => {
   return data.user;
 };
 
-export const signInWithGithub = async () => {
+export const signInWithGoogle = async () => {
   const origin = headers().get("origin");
   const supabase = createServerActionClient({ cookies });
 
   const res = await supabase.auth.signInWithOAuth({
-    provider: "github",
+    provider: "google",
     options: { redirectTo: `${origin}/auth/callback` },
   });
 

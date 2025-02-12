@@ -5,7 +5,7 @@ import { FcGoogle } from "react-icons/fc";
 
 import SafeArea from "~/app/_components/layout/safe-area";
 import { useToast } from "~/hooks/use-toast";
-import { signInWithGithub, signInWithPassword } from "../actions";
+import { signInWithGoogle, signInWithPassword } from "../actions";
 
 export default function LoginPage() {
   return (
@@ -89,7 +89,7 @@ const LoginForm = () => {
 
       <button
         className="flex w-full items-center justify-center gap-1 rounded-full border border-white border-opacity-10 bg-transparent px-4 py-3 text-zinc-50 no-underline transition hover:bg-white/10"
-        onClick={() => signInWithGithub()}
+        onClick={() => signInWithGoogle()}
       >
         <FcGoogle size={20} />
         Continue with Google
