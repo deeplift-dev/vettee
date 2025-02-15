@@ -250,13 +250,24 @@ const ConsultationDetails = ({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between border-b border-white/20">
+      <motion.div
+        className="flex items-center justify-between"
+        animate={{
+          borderBottom: `1px solid rgba(255, 255, 255, ${isExpanded ? 0.2 : 0})`,
+        }}
+        transition={{
+          borderBottom: {
+            duration: 0.1,
+            ease: [0.4, 0, 0.2, 1],
+          },
+        }}
+      >
         {consultation.consentedAt ? (
-          <div className="flex w-40 items-center justify-center gap-1 border-r border-white/20">
+          <div className="flex w-40 items-center justify-center gap-1">
             <CheckCircle className="h-4 w-4 text-green-500" />
           </div>
         ) : (
-          <div className="flex w-40 items-center justify-center gap-1 border-r border-white/20">
+          <div className="flex w-40 items-center justify-center gap-1">
             <XCircle className="h-4 w-4 text-red-500" />
           </div>
         )}
@@ -273,7 +284,7 @@ const ConsultationDetails = ({
           </div>
           <span className="text-center text-sm">See more</span>
         </button>
-      </div>
+      </motion.div>
 
       {isExpanded && (
         <motion.div
