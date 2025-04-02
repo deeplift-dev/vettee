@@ -13,7 +13,7 @@ export default async function DashboardNavigation() {
     <nav className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-[#0A0A0A]/80 p-3 backdrop-blur-md md:p-4">
       <div className="flex items-center gap-8">
         <Link href="/vetski">
-          <h1 className="bg-gradient-to-bl from-white via-slate-100 to-white bg-clip-text font-vetski text-3xl leading-normal text-transparent">
+          <h1 className="bg-gradient-to-bl from-white via-slate-100 to-white bg-clip-text font-vetski text-xl leading-normal text-transparent">
             Vetski
           </h1>
         </Link>

@@ -126,10 +126,10 @@ export default function ChatTool({
 
   return (
     <div className="flex h-full w-full flex-col">
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      <div className="min-h-0 flex-1 overflow-y-auto px-1">
         <ChatMessages messages={formattedMessages} />
       </div>
-      <div className="mt-auto w-full shrink-0 border-t border-white/20 pt-4">
+      <div className="mt-auto w-full shrink-0 border-t border-gray-800/30 pt-3">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -151,52 +151,60 @@ export default function ChatTool({
           }}
           className="mx-auto w-full"
         >
-          <div className="mt-2 flex gap-2">
-            {previewImages.map((src, index) => (
-              <img
-                key={index}
-                src={src}
-                alt={`Preview ${index}`}
-                className="h-16 w-16 rounded object-cover"
-              />
-            ))}
-          </div>
-          <div className="flex w-full items-center gap-4 rounded-lg bg-gray-800 p-4 shadow-lg">
+          {previewImages.length > 0 && (
+            <div className="mb-2 flex flex-wrap gap-2 rounded-lg bg-gray-800/20 p-2">
+              {previewImages.map((src, index) => (
+                <div key={index} className="relative">
+                  <img
+                    src={src}
+                    alt={`Preview ${index}`}
+                    className="h-16 w-16 rounded-md object-cover transition-all hover:brightness-110"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="flex w-full items-center gap-2 rounded-lg bg-gray-800/10 p-1 backdrop-blur-sm">
             <textarea
               value={input}
               onChange={(e) => {
                 handleInputChange(e);
               }}
               placeholder="Type your message..."
-              className="h-full w-full resize-none rounded-lg bg-gray-900 px-4 py-2 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="h-full w-full resize-none bg-transparent px-3 py-2 text-gray-100 placeholder-gray-400 focus:outline-none"
               disabled={isLoading}
-              rows={3}
+              rows={1}
             />
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                if (e.target.files) {
-                  setFiles(e.target.files);
-                }
-              }}
-              multiple
-              ref={fileInputRef}
-              className="hidden"
-              id="image-upload"
-            />
-            <label htmlFor="image-upload" className="cursor-pointer">
-              <ImageIcon className="h-5 w-5 text-white" />
-            </label>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              type="submit"
-              disabled={isLoading || !input.trim()}
-              className="rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <SendIcon className="h-5 w-5" />
-            </motion.button>
+            <div className="flex items-center gap-1 px-1">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  if (e.target.files) {
+                    setFiles(e.target.files);
+                  }
+                }}
+                multiple
+                ref={fileInputRef}
+                className="hidden"
+                id="image-upload"
+              />
+              <label
+                htmlFor="image-upload"
+                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-gray-700/50 text-gray-300 transition-colors hover:bg-gray-600/70 hover:text-gray-100"
+              >
+                <ImageIcon className="h-4 w-4" />
+              </label>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                type="submit"
+                disabled={isLoading || !input.trim()}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600/80 text-white transition-all hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <SendIcon className="h-4 w-4" />
+              </motion.button>
+            </div>
           </div>
         </form>
       </div>
