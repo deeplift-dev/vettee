@@ -39,9 +39,9 @@ export default function ConsultationView({
   });
 
   return (
-    <div className="flex h-full min-h-screen w-full flex-col overflow-hidden bg-[#0A0A0A] px-4 pb-24 md:px-8">
-      <div className="z-10 mx-auto w-full max-w-7xl py-6 md:py-8">
-        <div className="mb-6 rounded-lg border border-white/10 bg-white/5 p-6 shadow-sm backdrop-blur-sm">
+    <div className="flex flex-col overflow-y-hidden bg-[#0A0A0A] px-4 md:px-8">
+      <div className="mx-auto w-full max-w-7xl py-4 md:py-6">
+        <div className="rounded-lg border border-white/10 bg-white/5 p-6 shadow-sm backdrop-blur-sm">
           <div className="flex flex-col space-y-6">
             <div className="flex flex-row items-center justify-between">
               <EditableTitle
@@ -72,9 +72,9 @@ export default function ConsultationView({
           </div>
         </div>
       </div>
-      <div className="relative flex-grow">
-        <div className="mx-auto w-full max-w-7xl">
-          <div className="rounded-lg border border-white/10 bg-white/5 p-4 shadow-sm backdrop-blur-sm">
+      <div className="h-1/3">
+        <div className="mx-auto h-full w-full max-w-7xl">
+          <div className="flex h-full rounded-lg border border-white/10 bg-white/5 p-4 shadow-sm backdrop-blur-sm">
             <ChatTool
               consultationId={consultation.id}
               sendUserMessage={(message) => {

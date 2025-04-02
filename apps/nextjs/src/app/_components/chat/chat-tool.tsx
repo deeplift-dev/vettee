@@ -1,8 +1,10 @@
 "use client";
+
 import { useEffect, useRef, useState } from "react";
 import { Message, useChat } from "ai/react";
 import { motion } from "framer-motion";
 import { ImageIcon, SendIcon } from "lucide-react";
+
 import { api } from "~/trpc/react";
 import { formatTranscriptions } from "../consults/helpers/format-transcription";
 import ChatMessages from "./chat-messages";
@@ -41,7 +43,7 @@ export default function ChatTool({
       refetchOnReconnect: false,
     },
   );
-  
+
   const { mutate: syncTranscription } =
     api.recording.syncTranscription.useMutation({
       onSuccess: () => {
@@ -55,18 +57,24 @@ export default function ChatTool({
   const [files, setFiles] = useState<FileList | undefined>(undefined);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [hasProcessedTranscription, setHasProcessedTranscription] = useState(false);
+  const [hasProcessedTranscription, setHasProcessedTranscription] =
+    useState(false);
 
   useEffect(() => {
-    if (!transcription || transcription.transcriptions.length === 0 || hasProcessedTranscription) return;
-    
+    if (
+      !transcription ||
+      transcription.transcriptions.length === 0 ||
+      hasProcessedTranscription
+    )
+      return;
+
     const {
       concatenatedTranscription,
       synced,
       formattedTranscriptions,
       lastTranscriptionId,
     } = formatTranscriptions(transcription);
-    
+
     if (!synced) {
       append(
         {
@@ -79,11 +87,17 @@ export default function ChatTool({
           },
         },
       );
-      
+
       syncTranscription({ consultationId, lastTranscriptionId });
       setHasProcessedTranscription(true);
     }
-  }, [transcription, consultationId, hasProcessedTranscription, append, syncTranscription]);
+  }, [
+    transcription,
+    consultationId,
+    hasProcessedTranscription,
+    append,
+    syncTranscription,
+  ]);
 
   const formattedMessages = [...(initialMessages ?? []), ...(messages ?? [])]
     .filter((message) => message.role !== "data")
@@ -112,7 +126,7 @@ export default function ChatTool({
 
   return (
     <div className="flex h-full w-full flex-col">
-      <div className="flex-grow overflow-y-auto pb-4">
+      <div className="flex-1 overflow-y-auto">
         <ChatMessages messages={formattedMessages} />
       </div>
       <div className="w-full border-t border-white/20 pt-4">
@@ -156,7 +170,7 @@ export default function ChatTool({
               placeholder="Type your message..."
               className="h-full w-full resize-none rounded-lg bg-gray-900 px-4 py-2 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               disabled={isLoading}
-              rows={4}
+              rows={3}
             />
             <input
               type="file"

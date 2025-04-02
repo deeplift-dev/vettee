@@ -1,7 +1,8 @@
+import { notFound } from "next/navigation";
+
 import ConsultationView from "~/app/_components/consults/consultation-view";
 import SafeArea from "~/app/_components/layout/safe-area";
 import { api } from "~/trpc/server";
-import { notFound } from "next/navigation";
 
 interface ConsultationPageProps {
   params: {

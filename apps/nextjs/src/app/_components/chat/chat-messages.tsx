@@ -1,8 +1,10 @@
 "use client";
+
 import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { InfoIcon } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+
 import ProfileAvatar from "../ui/profile-avatar";
 
 interface Message {
