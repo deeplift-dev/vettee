@@ -9,9 +9,11 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
   return (
     <>
-      <div className="h-screen w-full overflow-hidden bg-black">
+      <div className="h-screen w-full overflow-hidden bg-[#0A0A0A]">
         <DashboardNavigation />
-        <div className="h-full pb-12">{children}</div>
+        <div className="scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 h-full overflow-y-auto pb-12">
+          {children}
+        </div>
       </div>
     </>
   );

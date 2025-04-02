@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 
 import { api } from "~/trpc/server";
 import { EmptyConsultationIllustration } from "../illustrations/empty-consultation";
@@ -14,49 +15,64 @@ const ConsultsGrid = async () => {
 
   if (sortedConsultations.length === 0) {
     return (
-      <div className="flex h-[calc(100vh-10rem)] w-full items-center justify-center">
+      <div className="flex h-[calc(100vh-20rem)] w-full items-center justify-center rounded-lg border border-white/10 bg-white/5 p-10 shadow-sm backdrop-blur-sm">
         <div className="flex flex-col items-center text-center">
           <EmptyConsultationIllustration className="h-48 w-48" />
-          <div className="-mt-12 text-lg font-light text-gray-400">
+          <div className="-mt-8 text-lg font-medium text-white/80">
             No consultations yet
           </div>
-          <div className="text-sm text-gray-500">
-            When you receive consultations, they will appear here
+          <div className="mt-2 max-w-md text-sm text-white/50">
+            When you create consultations, they will appear here. Start by
+            creating a new consultation.
           </div>
+          <Link href="/vetski/consults/new" className="mt-6">
+            <button className="flex items-center gap-2 rounded-md bg-white px-4 py-2 text-sm font-medium text-[#0A0A0A] shadow-sm transition-all duration-200 hover:shadow-md">
+              Create your first consultation
+            </button>
+          </Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full overflow-x-auto">
-      <div className="min-w-full">
+    <div className="w-full">
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="text-xl font-medium text-white">Recent Consultations</h2>
+        <Link
+          href="/vetski/consultations"
+          className="text-sm text-white/70 hover:text-white"
+        >
+          View all
+        </Link>
+      </div>
+
+      <div className="min-w-full rounded-lg border border-white/10 bg-white/5 shadow-sm backdrop-blur-sm">
         {/* Header */}
-        <div className="sticky top-0 z-10 hidden border-b border-white/30 bg-black/50 backdrop-blur-sm md:grid md:grid-cols-5 md:gap-4 md:px-6 md:py-3">
-          <div className="font-medium text-gray-200">Title</div>
-          <div className="font-medium text-gray-200">Owner</div>
-          <div className="font-medium text-gray-200">Veterinarian</div>
-          <div className="font-medium text-gray-200">Date</div>
+        <div className="sticky top-0 z-10 hidden border-b border-white/10 bg-white/5 backdrop-blur-sm md:grid md:grid-cols-5 md:gap-4 md:px-6 md:py-3">
+          <div className="text-sm font-medium text-white/70">Title</div>
+          <div className="text-sm font-medium text-white/70">Owner</div>
+          <div className="text-sm font-medium text-white/70">Veterinarian</div>
+          <div className="text-sm font-medium text-white/70">Date</div>
+          <div className="text-sm font-medium text-white/70"></div>
         </div>
 
         {/* Mobile view */}
-        <div className="h-[calc(100vh-10rem)] space-y-4 overflow-y-auto p-4 md:hidden">
+        <div className="max-h-[calc(100vh-20rem)] space-y-2 overflow-y-auto p-4 md:hidden">
           {sortedConsultations.map((consultation) => (
             <Link
               href={`/vetski/consultations/${consultation.id}`}
               key={consultation.id}
-              className="block rounded-lg border border-white/30 bg-black/20 p-4"
+              className="block rounded-lg border border-white/10 bg-white/5 p-4 transition-all duration-200 hover:border-white/20 hover:shadow-md"
             >
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-medium text-gray-50">
+                  <h3 className="font-medium text-white">
                     {consultation.title}
                   </h3>
-                  <span className="text-sm text-gray-300">
-                    {new Date(consultation.createdAt).toLocaleDateString()}
-                  </span>
+                  <ChevronRight className="h-4 w-4 text-white/50" />
                 </div>
-                <div className="text-sm text-gray-300">
+                <div className="text-sm text-white/70">
                   Owner: {consultation?.owner?.firstName ?? "Unknown"}
                 </div>
                 <div className="flex items-center gap-2">
@@ -67,6 +83,9 @@ const ConsultsGrid = async () => {
                       image: consultation.veterinarian?.image ?? "",
                     }}
                   />
+                  <span className="text-sm text-white/70">
+                    {new Date(consultation.createdAt).toLocaleDateString()}
+                  </span>
                 </div>
               </div>
             </Link>
@@ -74,15 +93,21 @@ const ConsultsGrid = async () => {
         </div>
 
         {/* Desktop view */}
-        <div className="scrollbar-hide hidden h-[calc(100vh-20rem)] overflow-y-auto md:block">
-          {sortedConsultations.map((consultation) => (
+        <div className="hidden max-h-[calc(100vh-20rem)] overflow-y-auto md:block">
+          {sortedConsultations.map((consultation, index) => (
             <Link
               href={`/vetski/consultations/${consultation.id}`}
               key={consultation.id}
-              className="grid grid-cols-5 gap-4 border-b border-white/10 px-6 py-4 transition-colors hover:bg-white/5"
+              className={`grid grid-cols-5 gap-4 px-6 py-4 transition-colors hover:bg-white/5 ${
+                index !== sortedConsultations.length - 1
+                  ? "border-b border-white/10"
+                  : ""
+              }`}
             >
-              <div className="truncate text-gray-50">{consultation.title}</div>
-              <div className="text-gray-300">
+              <div className="truncate font-medium text-white">
+                {consultation.title}
+              </div>
+              <div className="text-white/70">
                 {consultation?.owner?.firstName ?? "Unknown"}
               </div>
               <div className="flex items-center gap-2">
@@ -93,17 +118,20 @@ const ConsultsGrid = async () => {
                     image: consultation.veterinarian?.image ?? "",
                   }}
                 />
-                <span className="text-gray-300">
+                <span className="text-white/70">
                   {consultation.veterinarian?.firstName}{" "}
                   {consultation.veterinarian?.lastName}
                 </span>
               </div>
-              <div className="text-gray-300">
+              <div className="text-white/70">
                 {new Date(consultation.createdAt).toLocaleDateString("en-US", {
                   year: "numeric",
-                  month: "long",
+                  month: "short",
                   day: "numeric",
                 })}
+              </div>
+              <div className="flex justify-end">
+                <ChevronRight className="h-5 w-5 text-white/50" />
               </div>
             </Link>
           ))}

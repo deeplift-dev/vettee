@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Message, useChat } from "ai/react";
 import { motion } from "framer-motion";
-import { SendIcon } from "lucide-react";
+import { ImageIcon, SendIcon } from "lucide-react";
 
 import { api } from "~/trpc/react";
 import { formatTranscriptions } from "../consults/helpers/format-transcription";
@@ -29,10 +29,10 @@ export default function ChatTool({
       consultId: consultationId,
     },
     {
-      staleTime: Infinity, // Only refetch if data is explicitly invalidated
-      refetchOnWindowFocus: false, // Don't refetch on window focus
-      refetchOnMount: false, // Don't refetch on component mount
-      refetchOnReconnect: false, // Don't refetch on reconnect
+      staleTime: Infinity,
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
     },
   );
 
@@ -45,6 +45,10 @@ export default function ChatTool({
         console.error("Error syncing transcription:", error);
       },
     });
+
+  const [files, setFiles] = useState<FileList | undefined>(undefined);
+  const [previewImages, setPreviewImages] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     console.log("transcription...", transcription);
@@ -90,7 +94,19 @@ export default function ChatTool({
       },
       createdAt: message.createdAt,
       role: message.role,
+      attachments: message.attachments || [],
     }));
+
+  useEffect(() => {
+    if (files) {
+      const imageUrls = Array.from(files).map((file) =>
+        URL.createObjectURL(file),
+      );
+      setPreviewImages(imageUrls);
+    } else {
+      setPreviewImages([]);
+    }
+  }, [files]);
 
   return (
     <div className="absolute bottom-0 flex h-full w-[95vw] max-w-screen-xl flex-col px-2 pt-[280px] md:w-[90vw] md:pt-[280px]">
@@ -99,32 +115,67 @@ export default function ChatTool({
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            handleSubmit(e);
+            handleSubmit(e, {
+              experimental_attachments: files,
+            });
             sendUserMessage({
               id: `msg-${Math.random().toString(36).substring(2, 15)}`,
               content: input,
               role: "user",
+              attachments: files
+                ? Array.from(files).map((file) => URL.createObjectURL(file))
+                : [],
             });
+            setFiles(undefined);
+            if (fileInputRef.current) {
+              fileInputRef.current.value = "";
+            }
           }}
           className="mx-auto h-full"
         >
-          <div className="flex h-full w-full items-center gap-4 bg-black">
+          <div className="mt-2 flex gap-2">
+            {previewImages.map((src, index) => (
+              <img
+                key={index}
+                src={src}
+                alt={`Preview ${index}`}
+                className="h-16 w-16 rounded object-cover"
+              />
+            ))}
+          </div>
+          <div className="flex h-full w-full items-center gap-4 rounded-lg bg-gray-800 p-4 shadow-lg">
             <textarea
               value={input}
               onChange={(e) => {
                 handleInputChange(e);
               }}
               placeholder="Type your message..."
-              className="h-full w-full resize-none rounded-lg bg-transparent px-4 py-2 text-gray-100 placeholder-gray-200 focus:outline-none focus:ring-0"
+              className="h-full w-full resize-none rounded-lg bg-gray-900 px-4 py-2 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               disabled={isLoading}
               rows={4}
             />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                if (e.target.files) {
+                  setFiles(e.target.files);
+                }
+              }}
+              multiple
+              ref={fileInputRef}
+              className="hidden"
+              id="image-upload"
+            />
+            <label htmlFor="image-upload" className="cursor-pointer">
+              <ImageIcon className="h-5 w-5 text-white" />
+            </label>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               type="submit"
               disabled={isLoading || !input.trim()}
-              className="rounded-lg px-4 py-2 text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <SendIcon className="h-5 w-5" />
             </motion.button>

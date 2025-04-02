@@ -30,7 +30,8 @@ export default function ConsultationView({
 }: ConsultationViewProps) {
   const { mutate: updateTitle } = api.consultation.updateTitle.useMutation();
   const { mutate: addMessage } = api.consultation.addMessage.useMutation({
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("data--", data);
       console.log("^^updateMessages success");
     },
     onError: (error) => {
@@ -38,61 +39,60 @@ export default function ConsultationView({
     },
   });
   return (
-    <div className="flex h-full min-h-screen w-full flex-col overflow-hidden px-2 md:px-0">
-      <div className="z-10 mx-auto h-full w-full max-w-7xl bg-black md:py-8">
-        <div className="overflow-hidden">
-          <div className="border-b border-white/20 pb-4">
-            <div className="flex flex-row items-center justify-between">
-              <EditableTitle
-                initialTitle={consultation.title}
-                onSave={(newTitle) => {
-                  updateTitle({
-                    id: consultation.id,
-                    title: newTitle,
-                  });
-                }}
-              />
-              <SpeechToText
-                consultationId={consultation.id}
-                animalId={consultation.animalId}
-              />
-            </div>
+    <div className="flex h-screen w-full flex-col overflow-hidden px-2 md:px-0">
+      <div className="z-10 mx-auto w-full max-w-7xl bg-black md:py-8">
+        <div className="border-b border-white/20 pb-4">
+          <div className="flex flex-row items-center justify-between">
+            <EditableTitle
+              initialTitle={consultation.title}
+              onSave={(newTitle) => {
+                updateTitle({
+                  id: consultation.id,
+                  title: newTitle,
+                });
+              }}
+            />
+            <SpeechToText
+              consultationId={consultation.id}
+              animalId={consultation.animalId}
+            />
           </div>
-          <div className="flex w-full flex-col justify-between border-b border-white/20 md:flex-row md:gap-6">
-            <div className="flex flex-col md:w-1/2">
-              <ConsultationDetails consultation={consultation} />
-            </div>
-            <div className="mx-auto flex w-1 flex-row justify-center">
-              <div className="h-full w-1 border-l border-white/20"></div>
-            </div>
-            <div className="flex w-full flex-col md:w-1/2">
-              <Transcription consultationId={consultation.id} />
-            </div>
+        </div>
+        <div className="flex w-full flex-col justify-between border-b border-white/20 md:flex-row md:gap-6">
+          <div className="flex flex-col md:w-1/2">
+            <ConsultationDetails consultation={consultation} />
+          </div>
+          <div className="mx-auto flex w-1 flex-row justify-center">
+            <div className="h-full w-1 border-l border-white/20"></div>
+          </div>
+          <div className="flex w-full flex-col md:w-1/2">
+            <Transcription consultationId={consultation.id} />
           </div>
         </div>
       </div>
-      <div className="w-full"></div>
-      <ChatTool
-        consultationId={consultation.id}
-        sendUserMessage={(message) => {
-          addMessage({
-            id: consultation.id,
-            message: message,
-          });
-        }}
-        initialMessages={consultation.messages as Message[]}
-        onFinish={(message) => {
-          try {
+      <div className="flex-grow overflow-y-auto">
+        <ChatTool
+          consultationId={consultation.id}
+          sendUserMessage={(message) => {
             addMessage({
               id: consultation.id,
               message: message,
             });
-          } catch (error) {
-            console.error("Failed to update messages:", error);
-          }
-        }}
-        isLoading={false}
-      />
+          }}
+          initialMessages={consultation.messages as Message[]}
+          onFinish={(message) => {
+            try {
+              addMessage({
+                id: consultation.id,
+                message: message,
+              });
+            } catch (error) {
+              console.error("Failed to update messages:", error);
+            }
+          }}
+          isLoading={false}
+        />
+      </div>
     </div>
   );
 }
