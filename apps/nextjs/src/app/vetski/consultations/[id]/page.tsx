@@ -1,6 +1,7 @@
 import ConsultationView from "~/app/_components/consults/consultation-view";
 import SafeArea from "~/app/_components/layout/safe-area";
 import { api } from "~/trpc/server";
+import { notFound } from "next/navigation";
 
 interface ConsultationPageProps {
   params: {
@@ -16,7 +17,7 @@ export default async function ConsultationPage({
     .catch(() => null);
 
   if (!consultation) {
-    // notFound();
+    notFound();
   }
 
   return (

@@ -1,10 +1,8 @@
 "use client";
-
 import { useEffect, useRef, useState } from "react";
 import { Message, useChat } from "ai/react";
 import { motion } from "framer-motion";
 import { ImageIcon, SendIcon } from "lucide-react";
-
 import { api } from "~/trpc/react";
 import { formatTranscriptions } from "../consults/helpers/format-transcription";
 import ChatMessages from "./chat-messages";
@@ -24,6 +22,14 @@ export default function ChatTool({
   sendUserMessage,
   consultationId,
 }: ChatToolProps) {
+  const { messages, input, handleInputChange, handleSubmit, append } = useChat({
+    api: "/api/chat",
+    onFinish: (message) => {
+      onFinish(message);
+    },
+    initialMessages: initialMessages,
+  });
+
   const { data: transcription } = api.recording.getByConsultId.useQuery(
     {
       consultId: consultationId,
@@ -35,7 +41,7 @@ export default function ChatTool({
       refetchOnReconnect: false,
     },
   );
-
+  
   const { mutate: syncTranscription } =
     api.recording.syncTranscription.useMutation({
       onSuccess: () => {
@@ -49,16 +55,18 @@ export default function ChatTool({
   const [files, setFiles] = useState<FileList | undefined>(undefined);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [hasProcessedTranscription, setHasProcessedTranscription] = useState(false);
 
   useEffect(() => {
-    console.log("transcription...", transcription);
-    if (!transcription || transcription.transcriptions.length === 0) return;
+    if (!transcription || transcription.transcriptions.length === 0 || hasProcessedTranscription) return;
+    
     const {
       concatenatedTranscription,
       synced,
       formattedTranscriptions,
       lastTranscriptionId,
     } = formatTranscriptions(transcription);
+    
     if (!synced) {
       append(
         {
@@ -71,17 +79,11 @@ export default function ChatTool({
           },
         },
       );
+      
       syncTranscription({ consultationId, lastTranscriptionId });
+      setHasProcessedTranscription(true);
     }
-  }, [transcription]);
-
-  const { messages, input, handleInputChange, handleSubmit, append } = useChat({
-    api: "/api/chat",
-    onFinish: (message) => {
-      onFinish(message);
-    },
-    initialMessages: initialMessages,
-  });
+  }, [transcription, consultationId, hasProcessedTranscription, append, syncTranscription]);
 
   const formattedMessages = [...(initialMessages ?? []), ...(messages ?? [])]
     .filter((message) => message.role !== "data")
@@ -109,9 +111,11 @@ export default function ChatTool({
   }, [files]);
 
   return (
-    <div className="absolute bottom-0 flex h-full w-[95vw] max-w-screen-xl flex-col px-2 pt-[280px] md:w-[90vw] md:pt-[280px]">
-      <ChatMessages messages={formattedMessages} />
-      <div className="w-full border-t border-white/20">
+    <div className="flex h-full w-full flex-col">
+      <div className="flex-grow overflow-y-auto pb-4">
+        <ChatMessages messages={formattedMessages} />
+      </div>
+      <div className="w-full border-t border-white/20 pt-4">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -131,7 +135,7 @@ export default function ChatTool({
               fileInputRef.current.value = "";
             }
           }}
-          className="mx-auto h-full"
+          className="mx-auto w-full"
         >
           <div className="mt-2 flex gap-2">
             {previewImages.map((src, index) => (
@@ -143,7 +147,7 @@ export default function ChatTool({
               />
             ))}
           </div>
-          <div className="flex h-full w-full items-center gap-4 rounded-lg bg-gray-800 p-4 shadow-lg">
+          <div className="flex w-full items-center gap-4 rounded-lg bg-gray-800 p-4 shadow-lg">
             <textarea
               value={input}
               onChange={(e) => {
