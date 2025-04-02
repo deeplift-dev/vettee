@@ -23,8 +23,10 @@ export default async function ConsultationPage({
 
   return (
     <SafeArea>
-      <div className="mx-auto flex h-full max-w-screen-xl flex-row items-center justify-center md:p-4">
-        <ConsultationView consultation={consultation} />
+      <div className="h-screen overflow-hidden">
+        <div className="h-full w-full">
+          <ConsultationView consultation={consultation} />
+        </div>
       </div>
     </SafeArea>
   );

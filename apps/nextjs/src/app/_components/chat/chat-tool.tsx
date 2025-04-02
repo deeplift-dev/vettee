@@ -126,10 +126,10 @@ export default function ChatTool({
 
   return (
     <div className="flex h-full w-full flex-col">
-      <div className="flex-1 overflow-y-auto">
+      <div className="min-h-0 flex-1 overflow-y-auto">
         <ChatMessages messages={formattedMessages} />
       </div>
-      <div className="w-full border-t border-white/20 pt-4">
+      <div className="mt-auto w-full shrink-0 border-t border-white/20 pt-4">
         <form
           onSubmit={(e) => {
             e.preventDefault();

@@ -39,8 +39,9 @@ export default function ConsultationView({
   });
 
   return (
-    <div className="flex flex-col overflow-y-hidden bg-[#0A0A0A] px-4 md:px-8">
-      <div className="mx-auto w-full max-w-7xl py-4 md:py-6">
+    <div className="grid h-full grid-rows-[auto_1fr] bg-[#0A0A0A] px-4 md:px-8">
+      {/* Header section - fixed at top */}
+      <div className="z-10 mx-auto w-full max-w-7xl py-4 md:py-6">
         <div className="rounded-lg border border-white/10 bg-white/5 p-6 shadow-sm backdrop-blur-sm">
           <div className="flex flex-col space-y-6">
             <div className="flex flex-row items-center justify-between">
@@ -72,7 +73,9 @@ export default function ConsultationView({
           </div>
         </div>
       </div>
-      <div className="h-1/3">
+
+      {/* Chat section - scrollable */}
+      <div className="relative overflow-hidden pb-4">
         <div className="mx-auto h-full w-full max-w-7xl">
           <div className="flex h-full rounded-lg border border-white/10 bg-white/5 p-4 shadow-sm backdrop-blur-sm">
             <ChatTool
