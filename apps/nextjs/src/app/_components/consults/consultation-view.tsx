@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useRef, useState } from "react";
 import { Message } from "ai/react";
 import { motion } from "framer-motion";
@@ -8,12 +9,14 @@ import {
   ChevronDown,
   FileText,
   MessageSquareQuoteIcon,
-  PencilIcon,
   MoreHorizontal,
+  PencilIcon,
   UserIcon,
   XCircle,
 } from "lucide-react";
+
 import type { RouterOutputs } from "@acme/api";
+
 import { api } from "~/trpc/react";
 import ChatTool from "../chat/chat-tool";
 import { formatTranscriptions } from "./helpers/format-transcription";
@@ -97,7 +100,7 @@ export default function ConsultationView({
       {/* Chat section - optimized for vertical space */}
       <div className="relative overflow-hidden pb-1">
         <div className="mx-auto h-full w-full max-w-7xl">
-          <div className="flex h-full rounded-lg border border-white/10 bg-white/5 p-2 sm:p-4 shadow-sm backdrop-blur-sm">
+          <div className="flex h-full rounded-lg border border-white/10 bg-white/5 p-2 shadow-sm backdrop-blur-sm sm:p-4">
             <ChatTool
               consultationId={consultation.id}
               sendUserMessage={(message) => {
@@ -149,9 +152,9 @@ function DropdownMenu({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.15 }}
-          className="absolute right-0 top-full mt-1 z-20 w-48 rounded-md border border-white/10 bg-[#0A0A0A]/95 py-1 text-xs shadow-lg backdrop-blur-md"
+          className="absolute right-0 top-full z-20 mt-1 w-48 rounded-md border border-white/10 bg-[#0A0A0A]/95 py-1 text-xs shadow-lg backdrop-blur-md"
         >
-          <div className="px-2 py-1 text-white/50 text-[10px] uppercase">
+          <div className="px-2 py-1 text-[10px] uppercase text-white/50">
             Patient Info
           </div>
 
@@ -173,7 +176,7 @@ function DropdownMenu({
 
           <div className="my-1 border-t border-white/10"></div>
 
-          <div className="px-2 py-1 text-white/50 text-[10px] uppercase">
+          <div className="px-2 py-1 text-[10px] uppercase text-white/50">
             Actions
           </div>
 
@@ -241,7 +244,11 @@ function DropdownMenu({
 }
 
 // Mobile-optimized transcription view
-function MobileTranscriptionView({ consultationId }: { consultationId: string }) {
+function MobileTranscriptionView({
+  consultationId,
+}: {
+  consultationId: string;
+}) {
   const { data: transcriptions, isLoading } =
     api.recording.getByConsultId.useQuery({
       consultId: consultationId,
@@ -293,7 +300,7 @@ function MobileTranscriptionView({ consultationId }: { consultationId: string })
                     {transcription.segments.map(
                       (
                         segment: { speaker: string; text: string },
-                        j: number
+                        j: number,
                       ) => (
                         <div
                           key={j}
@@ -304,11 +311,11 @@ function MobileTranscriptionView({ consultationId }: { consultationId: string })
                           </span>
                           {segment.text}
                         </div>
-                      )
+                      ),
                     )}
                   </div>
                 </div>
-              )
+              ),
             )}
           </div>
         </div>
@@ -329,7 +336,9 @@ function MobileInfoView({
         <h3 className="text-sm font-medium text-white">Consultation Details</h3>
         <button
           onClick={() =>
-            document.getElementById("mobile-info-modal")?.classList.add("hidden")
+            document
+              .getElementById("mobile-info-modal")
+              ?.classList.add("hidden")
           }
           className="rounded-full bg-white/5 p-1 text-white/70 hover:bg-white/10"
         >
@@ -380,10 +389,13 @@ function MobileInfoView({
               <div>
                 <dt className="text-xs text-white/50">Date</dt>
                 <dd className="font-medium text-white">
-                  {new Date(consultation.createdAt).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                  })}
+                  {new Date(consultation.createdAt).toLocaleDateString(
+                    "en-US",
+                    {
+                      month: "short",
+                      day: "numeric",
+                    },
+                  )}
                 </dd>
               </div>
               <div>
@@ -459,16 +471,16 @@ function MiniEditableTitle({
       onChange={(e) => setTitle(e.target.value)}
       onBlur={handleSubmit}
       onKeyDown={handleKeyDown}
-      className="w-36 sm:w-60 rounded-md bg-white/5 px-2 py-0.5 text-xs sm:text-sm font-medium text-white focus:outline-none focus:ring-1 focus:ring-white/20"
+      className="w-36 rounded-md bg-white/5 px-2 py-0.5 text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-white/20 sm:w-60 sm:text-sm"
     />
   ) : (
     <h1
       onClick={() => setIsEditing(true)}
       onMouseEnter={() => setShowEditIcon(true)}
       onMouseLeave={() => setShowEditIcon(false)}
-      className="flex cursor-pointer items-center gap-1 truncate text-xs sm:text-sm font-medium text-white hover:text-white/90"
+      className="flex cursor-pointer items-center gap-1 truncate text-xs font-medium text-white hover:text-white/90 sm:text-sm"
     >
-      <span className="max-w-[125px] sm:max-w-[200px] truncate">{title}</span>
+      <span className="max-w-[125px] truncate sm:max-w-[200px]">{title}</span>
       <PencilIcon
         className={`h-3 w-3 shrink-0 text-white/50 transition-opacity duration-200 ${
           showEditIcon ? "opacity-100" : "opacity-0"
@@ -550,7 +562,7 @@ function MiniTranscriptionButton({
                     {transcription.segments.map(
                       (
                         segment: { speaker: string; text: string },
-                        j: number
+                        j: number,
                       ) => (
                         <div
                           key={j}
@@ -561,11 +573,11 @@ function MiniTranscriptionButton({
                           </span>
                           {segment.text}
                         </div>
-                      )
+                      ),
                     )}
                   </div>
                 </div>
-              )
+              ),
             )}
           </div>
         </motion.div>
@@ -665,7 +677,7 @@ function InfoButton({
                         year: "numeric",
                         month: "short",
                         day: "numeric",
-                      }
+                      },
                     )}
                   </dd>
                 </div>
