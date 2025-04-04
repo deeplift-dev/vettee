@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { is } from "@acme/db";
+
 import { api } from "~/trpc/react";
 import { NewConsultIcon } from "../illustrations/new-consult-icon";
 import OwnerSearch from "../owner-search";
@@ -12,16 +14,17 @@ import { Button } from "../ui/button";
 const NewConsultForm = () => {
   const router = useRouter();
 
-  const { mutate: createConsultation } = api.consultation.create.useMutation({
-    onSuccess: (data) => {
-      // Redirect to the consultation detail page
-      router.push(`/vetski/consultations/${data.id}`);
-    },
-    onError: (error) => {
-      console.error("Error creating consultation:", error);
-      // Optionally add error toast/notification here
-    },
-  });
+  const { mutate: createConsultation, isPending } =
+    api.consultation.create.useMutation({
+      onSuccess: (data) => {
+        // Redirect to the consultation detail page
+        router.push(`/vetski/consultations/${data.id}`);
+      },
+      onError: (error) => {
+        console.error("Error creating consultation:", error);
+        // Optionally add error toast/notification here
+      },
+    });
 
   const [consent, setConsent] = useState(false);
   const [selectedOwner, setSelectedOwner] = useState<Profile | null>(null);
@@ -68,6 +71,7 @@ const NewConsultForm = () => {
                 onClick={handleStartConsult}
                 disabled={!consent}
                 className="w-full"
+                isLoading={isPending}
               >
                 Start Consult
               </Button>

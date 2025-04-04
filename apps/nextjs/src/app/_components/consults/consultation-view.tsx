@@ -19,6 +19,13 @@ import type { RouterOutputs } from "@acme/api";
 
 import { api } from "~/trpc/react";
 import ChatTool from "../chat/chat-tool";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
 import { formatTranscriptions } from "./helpers/format-transcription";
 import SpeechToText from "./speech-to-text";
 
@@ -44,8 +51,8 @@ export default function ConsultationView({
       {/* Compact header section optimized for mobile */}
       <div className="z-10 mx-auto w-full max-w-7xl py-1">
         <div className="rounded-lg border border-white/10 bg-white/5 px-2 py-1.5 shadow-sm backdrop-blur-sm">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5">
+          <div className="flex flex-col items-center sm:flex-row sm:justify-between">
+            <div className="flex w-full items-center justify-between gap-1.5 md:justify-start">
               <MiniEditableTitle
                 initialTitle={consultation.title}
                 onSave={(newTitle) => {
@@ -56,22 +63,46 @@ export default function ConsultationView({
                 }}
               />
               <div className="ml-1 flex gap-1">
-                <div
-                  className={`h-2 w-2 rounded-full ${
-                    consultation.consentedAt ? "bg-emerald-500" : "bg-red-500"
-                  }`}
-                ></div>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <div className="flex items-center gap-1.5">
+                        <div
+                          className={`h-2 w-2 rounded-full ${
+                            consultation.owner && consultation.animal
+                              ? "bg-emerald-500"
+                              : !consultation.owner && !consultation.animal
+                                ? "bg-red-500"
+                                : "bg-amber-500"
+                          }`}
+                        ></div>
+                        <span className="text-xs text-white/70">
+                          {consultation.owner && consultation.animal
+                            ? "Complete"
+                            : !consultation.owner && !consultation.animal
+                              ? "Incomplete"
+                              : "Partial"}
+                        </span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <div className="text-xs text-white">
+                        {consultation.owner && consultation.animal
+                          ? "All required information is complete."
+                          : !consultation.owner && !consultation.animal
+                            ? "Consultation is missing owner and animal."
+                            : consultation.owner && !consultation.animal
+                              ? "Consultation is missing animal information."
+                              : "Consultation is missing owner information."}
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             </div>
 
-            <div className="flex items-center gap-1">
-              {/* Mobile-optimized buttons */}
-              <div className="flex sm:hidden">
-                <DropdownMenu consultation={consultation} />
-              </div>
-
-              {/* Desktop buttons - hidden on mobile */}
-              <div className="hidden sm:flex sm:items-center sm:gap-2">
+            <div className="flex w-full items-center justify-start gap-1 md:justify-between">
+              <div className="flex sm:items-center sm:gap-2">
                 {consultation.animal && (
                   <span className="flex items-center text-xs text-white/70">
                     <Cat className="mr-1 h-3 w-3" />
@@ -471,7 +502,7 @@ function MiniEditableTitle({
       onChange={(e) => setTitle(e.target.value)}
       onBlur={handleSubmit}
       onKeyDown={handleKeyDown}
-      className="w-36 rounded-md bg-white/5 px-2 py-0.5 text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-white/20 sm:w-60 sm:text-sm"
+      className="w-46 rounded-md bg-white/5 px-2 py-0.5 text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-white/20 sm:w-60 sm:text-sm"
     />
   ) : (
     <h1
@@ -480,7 +511,7 @@ function MiniEditableTitle({
       onMouseLeave={() => setShowEditIcon(false)}
       className="flex cursor-pointer items-center gap-1 truncate text-xs font-medium text-white hover:text-white/90 sm:text-sm"
     >
-      <span className="max-w-[125px] truncate sm:max-w-[200px]">{title}</span>
+      <span className="max-w-[190px] truncate sm:max-w-[300px]">{title}</span>
       <PencilIcon
         className={`h-3 w-3 shrink-0 text-white/50 transition-opacity duration-200 ${
           showEditIcon ? "opacity-100" : "opacity-0"
@@ -592,122 +623,104 @@ function InfoButton({
 }: {
   consultation: RouterOutputs["consultation"]["getById"];
 }) {
-  const [isOpen, setIsOpen] = useState(false);
-
   return (
-    <>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center rounded-full bg-white/5 px-1.5 py-0.5 text-xs text-white/70 hover:bg-white/10"
+    <Popover>
+      <PopoverTrigger asChild>
+        <button className="flex items-center rounded-full bg-white/5 px-1.5 py-0.5 text-xs text-white/70 hover:bg-white/10">
+          <span>Info</span>
+          <ChevronDown className="ml-1 h-2.5 w-2.5 transition-transform duration-200" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        className="w-80 rounded-md border border-white/10 bg-[#0A0A0A]/95 p-3 shadow-lg backdrop-blur-md"
+        side="bottom"
+        align="start"
       >
-        <span>Info</span>
-        <ChevronDown
-          className={`ml-1 h-2.5 w-2.5 transition-transform duration-200 ${
-            isOpen ? "rotate-180" : ""
-          }`}
-        />
-      </button>
+        <div className="mb-2 flex items-center justify-between">
+          <h3 className="text-sm font-medium text-white">
+            Consultation Details
+          </h3>
+        </div>
 
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0, y: -5 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -5 }}
-          transition={{ duration: 0.15 }}
-          className="absolute left-8 top-8 z-20 w-80 rounded-md border border-white/10 bg-[#0A0A0A]/95 p-3 shadow-lg backdrop-blur-md"
-        >
-          <div className="mb-2 flex items-center justify-between">
-            <h3 className="text-sm font-medium text-white">
-              Consultation Details
+        <div className="space-y-3">
+          <div>
+            <h3 className="mb-1 text-xs font-medium uppercase tracking-wide text-white/70">
+              Patient Information
             </h3>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="text-white/70 hover:text-white"
-            >
-              <XCircle className="h-4 w-4" />
-            </button>
+            <dl className="grid grid-cols-2 gap-2 text-sm">
+              <div>
+                <dt className="text-xs text-white/50">Name</dt>
+                <dd className="font-medium text-white">
+                  {consultation.animal?.name || "Not specified"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs text-white/50">Species</dt>
+                <dd className="font-medium capitalize text-white">
+                  {consultation.animal?.species || "Not specified"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs text-white/50">Date of Birth</dt>
+                <dd className="font-medium text-white">
+                  {consultation.animal?.yearOfBirth || "Not specified"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs text-white/50">Owner</dt>
+                <dd className="font-medium text-white">
+                  {consultation.owner
+                    ? `${consultation.owner.firstName} ${consultation.owner.lastName}`
+                    : "Not specified"}
+                </dd>
+              </div>
+            </dl>
           </div>
 
-          <div className="space-y-3">
-            <div>
-              <h3 className="mb-1 text-xs font-medium uppercase tracking-wide text-white/70">
-                Patient Information
-              </h3>
-              <dl className="grid grid-cols-2 gap-2 text-sm">
-                <div>
-                  <dt className="text-xs text-white/50">Name</dt>
-                  <dd className="font-medium text-white">
-                    {consultation.animal?.name || "Not specified"}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs text-white/50">Species</dt>
-                  <dd className="font-medium capitalize text-white">
-                    {consultation.animal?.species || "Not specified"}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs text-white/50">Date of Birth</dt>
-                  <dd className="font-medium text-white">
-                    {consultation.animal?.yearOfBirth || "Not specified"}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs text-white/50">Owner</dt>
-                  <dd className="font-medium text-white">
-                    {consultation.owner
-                      ? `${consultation.owner.firstName} ${consultation.owner.lastName}`
-                      : "Not specified"}
-                  </dd>
-                </div>
-              </dl>
-            </div>
-
-            <div className="border-t border-white/10 pt-2">
-              <h3 className="mb-1 text-xs font-medium uppercase tracking-wide text-white/70">
-                Consultation Information
-              </h3>
-              <dl className="grid grid-cols-2 gap-2 text-sm">
-                <div>
-                  <dt className="text-xs text-white/50">Date created</dt>
-                  <dd className="font-medium text-white">
-                    {new Date(consultation.createdAt).toLocaleDateString(
-                      "en-US",
-                      {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      },
-                    )}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs text-white/50">Veterinarian</dt>
-                  <dd className="font-medium text-white">
-                    {consultation.veterinarian?.firstName || "Not specified"}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs text-white/50">Recording consent</dt>
-                  <dd className="font-medium text-white">
-                    {consultation.consentedAt ? (
-                      <div className="flex items-center gap-1">
-                        <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />
-                        <span>Consented</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-1">
-                        <XCircle className="h-3.5 w-3.5 text-red-500" />
-                        <span>Not consented</span>
-                      </div>
-                    )}
-                  </dd>
-                </div>
-              </dl>
-            </div>
+          <div className="border-t border-white/10 pt-2">
+            <h3 className="mb-1 text-xs font-medium uppercase tracking-wide text-white/70">
+              Consultation Information
+            </h3>
+            <dl className="grid grid-cols-2 gap-2 text-sm">
+              <div>
+                <dt className="text-xs text-white/50">Date created</dt>
+                <dd className="font-medium text-white">
+                  {new Date(consultation.createdAt).toLocaleDateString(
+                    "en-US",
+                    {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    },
+                  )}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs text-white/50">Veterinarian</dt>
+                <dd className="font-medium text-white">
+                  {consultation.veterinarian?.firstName || "Not specified"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs text-white/50">Recording consent</dt>
+                <dd className="font-medium text-white">
+                  {consultation.consentedAt ? (
+                    <div className="flex items-center gap-1">
+                      <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />
+                      <span>Consented</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1">
+                      <XCircle className="h-3.5 w-3.5 text-red-500" />
+                      <span>Not consented</span>
+                    </div>
+                  )}
+                </dd>
+              </div>
+            </dl>
           </div>
-        </motion.div>
-      )}
-    </>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }

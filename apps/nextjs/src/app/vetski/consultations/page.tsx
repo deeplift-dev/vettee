@@ -3,8 +3,8 @@ import Link from "next/link";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { ArrowRight, PlusCircleIcon } from "lucide-react";
 
-import ConsultsGrid from "../_components/consults/consults-grid";
-import SafeArea from "../_components/layout/safe-area";
+import ConsultsGrid from "~/app/_components/consults/consults-grid";
+import SafeArea from "~/app/_components/layout/safe-area";
 
 export default async function DashboardPage() {
   const supabase = createServerComponentClient({ cookies });
@@ -16,7 +16,9 @@ export default async function DashboardPage() {
           {user.data.user && (
             <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
               <div>
-                <h1 className="text-2xl font-medium text-white">Dashboard</h1>
+                <h1 className="text-2xl font-medium text-white">
+                  Consultations
+                </h1>
                 <p className="mt-1 text-base text-white/60">
                   Manage your consultations and patient records
                 </p>
