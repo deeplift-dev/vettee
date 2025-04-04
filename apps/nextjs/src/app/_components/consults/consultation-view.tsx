@@ -62,47 +62,10 @@ export default function ConsultationView({
                   });
                 }}
               />
-              <div className="ml-1 flex gap-1">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <div className="flex items-center gap-1.5">
-                        <div
-                          className={`h-2 w-2 rounded-full ${
-                            consultation.owner && consultation.animal
-                              ? "bg-emerald-500"
-                              : !consultation.owner && !consultation.animal
-                                ? "bg-red-500"
-                                : "bg-amber-500"
-                          }`}
-                        ></div>
-                        <span className="text-xs text-white/70">
-                          {consultation.owner && consultation.animal
-                            ? "Complete"
-                            : !consultation.owner && !consultation.animal
-                              ? "Incomplete"
-                              : "Partial"}
-                        </span>
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <div className="text-xs text-white">
-                        {consultation.owner && consultation.animal
-                          ? "All required information is complete."
-                          : !consultation.owner && !consultation.animal
-                            ? "Consultation is missing owner and animal."
-                            : consultation.owner && !consultation.animal
-                              ? "Consultation is missing animal information."
-                              : "Consultation is missing owner information."}
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
             </div>
 
             <div className="flex w-full items-center justify-start gap-1 md:justify-between">
-              <div className="flex sm:items-center sm:gap-2">
+              <div className="flex space-x-2 sm:items-center sm:gap-2">
                 {consultation.animal && (
                   <span className="flex items-center text-xs text-white/70">
                     <Cat className="mr-1 h-3 w-3" />
@@ -115,14 +78,15 @@ export default function ConsultationView({
                     {consultation.owner.firstName}
                   </span>
                 )}
+              </div>
+              <div className="flex flex-row items-center gap-2">
                 <InfoButton consultation={consultation} />
                 <MiniTranscriptionButton consultationId={consultation.id} />
+                <SpeechToText
+                  consultationId={consultation.id}
+                  animalId={consultation.animalId}
+                />
               </div>
-
-              <SpeechToText
-                consultationId={consultation.id}
-                animalId={consultation.animalId}
-              />
             </div>
           </div>
         </div>
@@ -502,16 +466,16 @@ function MiniEditableTitle({
       onChange={(e) => setTitle(e.target.value)}
       onBlur={handleSubmit}
       onKeyDown={handleKeyDown}
-      className="w-46 rounded-md bg-white/5 px-2 py-0.5 text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-white/20 sm:w-60 sm:text-sm"
+      className="mr-2 w-full rounded-md bg-white/5 px-2 py-0.5 text-sm font-medium text-white focus:outline-none sm:text-sm"
     />
   ) : (
     <h1
       onClick={() => setIsEditing(true)}
       onMouseEnter={() => setShowEditIcon(true)}
       onMouseLeave={() => setShowEditIcon(false)}
-      className="flex cursor-pointer items-center gap-1 truncate text-xs font-medium text-white hover:text-white/90 sm:text-sm"
+      className="flex cursor-pointer items-center gap-1 space-x-2 truncate text-sm font-medium text-white hover:text-white/90"
     >
-      <span className="max-w-[190px] truncate sm:max-w-[300px]">{title}</span>
+      <div className="w-full truncate">{title}</div>
       <PencilIcon
         className={`h-3 w-3 shrink-0 text-white/50 transition-opacity duration-200 ${
           showEditIcon ? "opacity-100" : "opacity-0"

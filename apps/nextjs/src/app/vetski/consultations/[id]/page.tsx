@@ -24,7 +24,7 @@ export default async function ConsultationPage({
   return (
     <SafeArea>
       <div className="h-screen overflow-hidden">
-        <div className="h-full w-full pt-20">
+        <div className="h-full w-full pt-14">
           <ConsultationView consultation={consultation} />
         </div>
       </div>
