@@ -112,6 +112,8 @@ export const consultationRouter = createTRPCRouter({
         });
       }
 
+      console.log("input.message--", input.message);
+
       // Add new message to existing messages array
       const updatedMessages = [
         ...(existingConsultation.messages ?? []),
