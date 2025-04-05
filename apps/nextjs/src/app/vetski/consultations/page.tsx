@@ -42,50 +42,6 @@ export default async function DashboardPage() {
 
           {user.data.user ? (
             <>
-              <div className="grid gap-6 md:grid-cols-3">
-                <div className="rounded-lg border border-white/10 bg-white/5 p-5 shadow-sm backdrop-blur-sm transition-all duration-200 hover:border-white/20 hover:shadow-md">
-                  <h3 className="text-sm font-medium text-white/70">
-                    Total Consultations
-                  </h3>
-                  <p className="mt-2 text-3xl font-semibold text-white">24</p>
-                  <div className="mt-4 flex items-center justify-between">
-                    <p className="text-xs text-white/50">Updated today</p>
-                    <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-400">
-                      +12%
-                    </span>
-                  </div>
-                </div>
-
-                <div className="rounded-lg border border-white/10 bg-white/5 p-5 shadow-sm backdrop-blur-sm transition-all duration-200 hover:border-white/20 hover:shadow-md">
-                  <h3 className="text-sm font-medium text-white/70">
-                    Active Patients
-                  </h3>
-                  <p className="mt-2 text-3xl font-semibold text-white">18</p>
-                  <div className="mt-4 flex items-center justify-between">
-                    <p className="text-xs text-white/50">Updated today</p>
-                    <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-400">
-                      +2
-                    </span>
-                  </div>
-                </div>
-
-                <div className="rounded-lg border border-white/10 bg-white/5 p-5 shadow-sm backdrop-blur-sm transition-all duration-200 hover:border-white/20 hover:shadow-md">
-                  <h3 className="text-sm font-medium text-white/70">
-                    Upcoming Appointments
-                  </h3>
-                  <p className="mt-2 text-3xl font-semibold text-white">3</p>
-                  <div className="mt-4 flex items-center justify-between">
-                    <p className="text-xs text-white/50">Next in 2 days</p>
-                    <Link
-                      href="/appointments"
-                      className="text-xs text-white/70 underline-offset-2 hover:text-white hover:underline"
-                    >
-                      View all
-                    </Link>
-                  </div>
-                </div>
-              </div>
-
               <div className="mt-4">
                 <ConsultsGrid />
               </div>

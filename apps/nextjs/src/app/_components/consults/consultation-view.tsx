@@ -50,7 +50,7 @@ export default function ConsultationView({
     <div className="grid h-full grid-rows-[auto_1fr] bg-[#0A0A0A] px-2 sm:px-4 md:px-8">
       {/* Compact header section optimized for mobile */}
       <div className="z-10 mx-auto w-full max-w-7xl py-1">
-        <div className="rounded-lg border border-white/10 bg-white/5 px-2 py-1.5 shadow-sm backdrop-blur-sm">
+        <div className="py-1.5 shadow-sm backdrop-blur-sm">
           <div className="flex flex-col items-center sm:flex-row sm:justify-between">
             <div className="flex w-full items-center justify-between gap-1.5 md:justify-start">
               <MiniEditableTitle
@@ -466,7 +466,7 @@ function MiniEditableTitle({
       onChange={(e) => setTitle(e.target.value)}
       onBlur={handleSubmit}
       onKeyDown={handleKeyDown}
-      className="mr-2 w-full rounded-md bg-white/5 px-2 py-0.5 text-sm font-medium text-white focus:outline-none sm:text-sm"
+      className="mr-2 w-full rounded-md bg-white/5 px-2 py-0.5 text-base font-medium text-white focus:outline-none sm:text-base"
     />
   ) : (
     <h1

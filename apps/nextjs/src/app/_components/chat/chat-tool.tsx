@@ -3,11 +3,26 @@
 import { useEffect, useRef, useState } from "react";
 import { Message, useChat } from "ai/react";
 import { motion } from "framer-motion";
-import { ImageIcon, SendIcon, XCircle } from "lucide-react";
+import { ArrowUp, ImageIcon, SendIcon, XCircle } from "lucide-react";
 
 import { api } from "~/trpc/react";
 import { formatTranscriptions } from "../consults/helpers/format-transcription";
 import ChatMessages from "./chat-messages";
+import { vetTools } from "./vet-tools/tools-definition";
+
+// Define the toolInvocation interface to match the new response structure
+interface ToolInvocation {
+  id: string;
+  tool: string;
+  toolInput: Record<string, any>;
+  toolOutput?: any;
+}
+
+// Extend the Message type to include the new toolInvocations field
+interface ExtendedMessage extends Message {
+  toolInvocations?: ToolInvocation[];
+  revisionId?: string;
+}
 
 interface ChatToolProps {
   isLoading?: boolean;
@@ -102,16 +117,18 @@ export default function ChatTool({
 
   const formattedMessages = [...(initialMessages ?? []), ...(messages ?? [])]
     .filter((message) => message.role !== "data")
-    .map((message) => ({
+    .map((message: ExtendedMessage) => ({
       id: message.id,
       content: message.content,
       sender: {
-        firstName: message.role === "assistant" ? "AI" : "You",
+        firstName: message.role === "assistant" ? "Vetski" : "You",
         lastName: "",
       },
       createdAt: message.createdAt,
       role: message.role,
       attachments: message.attachments || [],
+      toolInvocations: message.toolInvocations,
+      revisionId: message.revisionId,
     }));
 
   useEffect(() => {
@@ -212,6 +229,7 @@ export default function ChatTool({
               placeholder="Type your message..."
               className="h-auto min-h-[40px] w-full resize-none bg-transparent px-3 py-2 text-gray-100 placeholder-gray-400 focus:outline-none"
               disabled={isLoading}
+              autoFocus
               rows={1}
             />
             <div className="flex items-center gap-1 px-1">
@@ -232,7 +250,7 @@ export default function ChatTool({
                 htmlFor="image-upload"
                 className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-gray-700/50 text-gray-300 transition-colors hover:bg-gray-600/70 hover:text-gray-100"
               >
-                <ImageIcon className="h-4 w-4" />
+                <ImageIcon className="h-4 w-4 text-lime-400" />
               </label>
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -241,9 +259,9 @@ export default function ChatTool({
                 disabled={
                   isLoading || (!input.trim() && previewImages.length === 0)
                 }
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600/80 text-white transition-all hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-40"
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-lime-400 text-black transition-all hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-40"
               >
-                <SendIcon className="h-4 w-4" />
+                <ArrowUp className="h-4 w-4" />
               </motion.button>
             </div>
           </div>

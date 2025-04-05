@@ -11,32 +11,34 @@ export default async function DashboardNavigation() {
 
   return (
     <nav className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-[#0A0A0A]/80 p-2 backdrop-blur-md md:p-2">
-      <div className="flex items-center gap-8">
-        <Link href="/vetski">
-          <h1 className="bg-gradient-to-bl from-white via-slate-100 to-white bg-clip-text font-vetski text-xl leading-normal text-transparent">
-            Vetski
-          </h1>
-        </Link>
+      <div className="mx-auto flex w-full max-w-screen-xl items-center justify-between">
+        <div className="flex items-center gap-8">
+          <Link href="/vetski">
+            <h1 className="bg-gradient-to-bl from-white via-slate-100 to-white bg-clip-text font-vetski text-xl leading-normal text-transparent">
+              Vetski
+            </h1>
+          </Link>
 
-        {user.data.user && (
-          <div className="hidden items-center gap-6 md:flex">
-            <Link
-              className="text-sm font-medium text-white/70 transition-colors hover:text-white"
-              href="/vetski/consultations"
-            >
-              Consults
-            </Link>
-            <Link
-              className="text-sm font-medium text-white/70 transition-colors hover:text-white"
-              href="/vetski/patients"
-            >
-              Patients
-            </Link>
-          </div>
-        )}
-      </div>
-      <div>
-        <MenuItems user={user.data.user} />
+          {user.data.user && (
+            <div className="hidden items-center gap-6 md:flex">
+              <Link
+                className="text-sm font-medium text-white/70 transition-colors hover:text-white"
+                href="/vetski/consultations"
+              >
+                Consults
+              </Link>
+              <Link
+                className="text-sm font-medium text-white/70 transition-colors hover:text-white"
+                href="/vetski/patients"
+              >
+                Patients
+              </Link>
+            </div>
+          )}
+        </div>
+        <div>
+          <MenuItems user={user.data.user} />
+        </div>
       </div>
     </nav>
   );
