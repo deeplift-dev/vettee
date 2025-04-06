@@ -8,21 +8,6 @@ import { ArrowUp, ImageIcon, SendIcon, XCircle } from "lucide-react";
 import { api } from "~/trpc/react";
 import { formatTranscriptions } from "../consults/helpers/format-transcription";
 import ChatMessages from "./chat-messages";
-import { vetTools } from "./vet-tools/tools-definition";
-
-// Define the toolInvocation interface to match the new response structure
-interface ToolInvocation {
-  id: string;
-  tool: string;
-  toolInput: Record<string, any>;
-  toolOutput?: any;
-}
-
-// Extend the Message type to include the new toolInvocations field
-interface ExtendedMessage extends Message {
-  toolInvocations?: ToolInvocation[];
-  revisionId?: string;
-}
 
 interface ChatToolProps {
   isLoading?: boolean;
