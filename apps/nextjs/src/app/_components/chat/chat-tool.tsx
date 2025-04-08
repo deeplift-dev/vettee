@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Message, useChat } from "ai/react";
 import { motion } from "framer-motion";
-import { ArrowUp, ImageIcon, SendIcon, XCircle } from "lucide-react";
+import { ArrowUp, ImageIcon, XCircle } from "lucide-react";
 
 import { api } from "~/trpc/react";
 import { formatTranscriptions } from "../consults/helpers/format-transcription";
@@ -24,13 +24,16 @@ export default function ChatTool({
   sendUserMessage,
   consultationId,
 }: ChatToolProps) {
-  const { messages, input, handleInputChange, handleSubmit, append } = useChat({
-    api: "/api/chat",
-    onFinish: (message) => {
-      onFinish(message);
-    },
-    initialMessages: initialMessages,
-  });
+  const { messages, input, handleInputChange, handleSubmit, append, setInput } =
+    useChat({
+      api: "/api/chat",
+      onFinish: (message) => {
+        onFinish(message);
+      },
+      initialMessages: initialMessages,
+    });
+
+  console.log("messages from useChat", messages);
 
   const { data: transcription } = api.recording.getByConsultId.useQuery(
     {
@@ -109,7 +112,7 @@ export default function ChatTool({
         firstName: message.role === "assistant" ? "Vetski" : "You",
         lastName: "",
       },
-      createdAt: message.createdAt,
+      createdAt: message.createdAt || new Date(),
       role: message.role,
       attachments: message.attachments || [],
       toolInvocations: message.toolInvocations,
@@ -153,34 +156,47 @@ export default function ChatTool({
     setPreviewImages(newPreviewImages);
   };
 
+  const handleChatSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!input.trim() && filesToUpload.length === 0) return;
+
+    const attachmentUrls = previewImages.length > 0 ? [...previewImages] : [];
+
+    const messageId = `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+
+    console.log("attachmenbt urls", attachmentUrls);
+
+    sendUserMessage({
+      id: messageId,
+      content: input,
+      role: "user",
+      createdAt: new Date(),
+      attachments: attachmentUrls,
+    });
+
+    console.log("files", files);
+
+    await handleSubmit(e, {
+      experimental_attachments: files,
+    });
+
+    setInput("");
+    setFiles(undefined);
+    setFilesToUpload([]);
+    setPreviewImages([]);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   return (
     <div className="flex h-full w-full flex-col">
       <div className="min-h-0 flex-1 overflow-y-auto px-1">
         <ChatMessages messages={formattedMessages} />
       </div>
       <div className="mt-auto w-full shrink-0 border-t border-gray-800/30 pt-3">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSubmit(e, {
-              experimental_attachments: files,
-            });
-            sendUserMessage({
-              id: `msg-${Math.random().toString(36).substring(2, 15)}`,
-              content: input,
-              role: "user",
-              attachments: files
-                ? Array.from(files).map((file) => URL.createObjectURL(file))
-                : [],
-            });
-            setFiles(undefined);
-            setFilesToUpload([]);
-            if (fileInputRef.current) {
-              fileInputRef.current.value = "";
-            }
-          }}
-          className="mx-auto w-full"
-        >
+        <form onSubmit={handleChatSubmit} className="mx-auto w-full">
           {previewImages.length > 0 && (
             <div className="mb-2 flex flex-wrap gap-2 rounded-lg bg-gray-800/20 p-2">
               {previewImages.map((src, index) => (
@@ -222,7 +238,7 @@ export default function ChatTool({
                 type="file"
                 accept="image/*"
                 onChange={(e) => {
-                  if (e.target.files) {
+                  if (e.target.files && e.target.files.length > 0) {
                     setFiles(e.target.files);
                   }
                 }}

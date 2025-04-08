@@ -62,6 +62,19 @@ const MedicationToolResult = ({ result }: { result: any }) => {
   return <MedicationInfoCard medicationData={result} />;
 };
 
+const ImageAttachment = ({ url, index }: { url: string; index: number }) => {
+  return (
+    <a href={url} target="_blank" rel="noreferrer" className="group">
+      <img
+        src={url}
+        alt={`Attachment ${index + 1}`}
+        className="h-24 w-auto max-w-[200px] rounded-md object-cover shadow-md transition-all hover:brightness-110"
+        loading="lazy"
+      />
+    </a>
+  );
+};
+
 export default function ChatMessages({ messages }: ChatMessagesProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -217,14 +230,9 @@ export default function ChatMessages({ messages }: ChatMessagesProps) {
                   ))}
 
                 {message.attachments && message.attachments.length > 0 && (
-                  <div className="mt-1.5 flex flex-wrap gap-1.5">
+                  <div className="mt-3 flex flex-wrap gap-2">
                     {message.attachments.map((url, i) => (
-                      <img
-                        key={i}
-                        src={url}
-                        alt={`Attachment ${i + 1}`}
-                        className="h-20 w-20 rounded-md object-cover transition-all hover:brightness-110"
-                      />
+                      <ImageAttachment key={i} url={url} index={i} />
                     ))}
                   </div>
                 )}
