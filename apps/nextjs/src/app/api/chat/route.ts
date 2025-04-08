@@ -67,7 +67,7 @@ export async function POST(req: Request) {
       });
     }
 
-    // Prepare all messages, handling any that have attachments
+    // Prepare all messages for OpenAI
     const allMessages = [
       ...systemMessages,
       ...messages.map((msg) => {

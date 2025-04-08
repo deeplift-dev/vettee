@@ -1,15 +1,31 @@
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import { Bell, RowsIcon, Search } from "lucide-react";
+import {
+  Bell,
+  CircleUserRoundIcon,
+  LogOutIcon,
+  RowsIcon,
+  Search,
+} from "lucide-react";
 
 import { signOut } from "~/app/auth/actions";
 import NewConsultButton from "../consults/new-consult-button";
 import { Button } from "../ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 export default async function DashboardNavigation() {
   const supabase = createServerComponentClient({ cookies });
   const user = await supabase.auth.getUser();
+
+  console.log(`user`, user);
 
   return (
     <nav className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-[#0A0A0A]/80 p-2 backdrop-blur-md md:p-2">
@@ -22,20 +38,14 @@ export default async function DashboardNavigation() {
           </Link>
 
           {user.data.user && (
-            <div className="hidden items-center gap-4 md:flex md:gap-6">
-              <Link
-                className="flex items-center space-x-2 text-xs font-medium text-white/70 transition-colors hover:text-white md:text-sm"
-                href="/vetski/consultations"
-              >
-                <RowsIcon className="h-4 w-4" />
-                <div>Consults</div>
-              </Link>
+            <div className="items-center gap-4 md:flex md:gap-6">
               <NewConsultButton />
             </div>
           )}
         </div>
         <div className="flex items-center gap-2 md:gap-4">
           <MenuItems user={user.data.user} />
+          <DashboarDropdown />
         </div>
       </div>
     </nav>
@@ -54,13 +64,37 @@ const MenuItems = ({ user }: { user: User }) => {
       </Link>
     );
   }
+  return <div className="flex items-center gap-2 md:gap-4"></div>;
+};
+
+const DashboarDropdown = () => {
   return (
-    <div className="flex items-center gap-2 md:gap-4">
-      <form action={signOut}>
-        <button className="rounded-full bg-white/5 px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-white/10 md:px-4 md:py-2 md:text-sm">
-          Sign out
-        </button>
-      </form>
-    </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger className="text-white">
+        <CircleUserRoundIcon className="h-6 w-6 text-white" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        className="border-gray-700 bg-black text-slate-50"
+        align="end"
+      >
+        <DropdownMenuItem>
+          {" "}
+          <Link
+            className="flex flex-row items-center space-x-4"
+            href="/vetski/consultations"
+          >
+            <RowsIcon className="h-4 w-4" />
+            <div>Consults</div>
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem>
+          {" "}
+          <form className="flex items-center space-x-4" action={signOut}>
+            <LogOutIcon className="h-4 w-4" />
+            <button>Sign out</button>
+          </form>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };

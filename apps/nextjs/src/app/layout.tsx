@@ -8,6 +8,7 @@ import { headers } from "next/headers";
 
 import { TRPCReactProvider } from "~/trpc/react";
 import { Toaster } from "./_components/ui/toaster";
+import { setupChatAttachmentsBucket } from "./api/storage/setup-bucket";
 
 const SaansFont = localFont({
   src: [
@@ -76,7 +77,14 @@ export const metadata: Metadata = {
 // Lazy load headers
 const getHeaders = cache(async () => headers());
 
-export default function Layout(props: { children: React.ReactNode }) {
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  // Ensure the bucket exists with proper permissions
+  await setupChatAttachmentsBucket();
+
   return (
     <html
       lang="en"
@@ -84,7 +92,7 @@ export default function Layout(props: { children: React.ReactNode }) {
     >
       <body className="bg-gray-50 font-sans">
         <TRPCReactProvider headersPromise={getHeaders()}>
-          {props.children}
+          {children}
         </TRPCReactProvider>
         <Toaster />
       </body>

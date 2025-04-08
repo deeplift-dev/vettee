@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Message, useChat } from "ai/react";
 import { motion } from "framer-motion";
 import { ArrowUp, ImageIcon, XCircle } from "lucide-react";
@@ -24,6 +25,7 @@ export default function ChatTool({
   sendUserMessage,
   consultationId,
 }: ChatToolProps) {
+  const supabase = createClientComponentClient();
   const { messages, input, handleInputChange, handleSubmit, append, setInput } =
     useChat({
       api: "/api/chat",
@@ -32,8 +34,6 @@ export default function ChatTool({
       },
       initialMessages: initialMessages,
     });
-
-  console.log("messages from useChat", messages);
 
   const { data: transcription } = api.recording.getByConsultId.useQuery(
     {
@@ -105,6 +105,12 @@ export default function ChatTool({
 
   const formattedMessages = [...(initialMessages ?? []), ...(messages ?? [])]
     .filter((message) => message.role !== "data")
+    .reduce((uniqueMessages, message) => {
+      if (!uniqueMessages.some((m) => m.id === message.id)) {
+        uniqueMessages.push(message);
+      }
+      return uniqueMessages;
+    }, [])
     .map((message: ExtendedMessage) => ({
       id: message.id,
       content: message.content,
@@ -161,22 +167,60 @@ export default function ChatTool({
 
     if (!input.trim() && filesToUpload.length === 0) return;
 
-    const attachmentUrls = previewImages.length > 0 ? [...previewImages] : [];
-
     const messageId = `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
-    console.log("attachmenbt urls", attachmentUrls);
+    // For UI display we'll continue using the preview URLs temporarily
+    const previewUrls = [...previewImages];
 
+    // Upload files to Supabase bucket via our secure API route
+    const fileUrls = await Promise.all(
+      filesToUpload.map(async (file) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("consultationId", consultationId);
+        formData.append("messageId", messageId);
+
+        try {
+          const response = await fetch("/api/storage", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Error uploading file:", errorData);
+            return null;
+          }
+
+          const data = await response.json();
+          return {
+            name: data.name,
+            type: data.type,
+            size: data.size,
+            url: data.url, // This is now a signed URL
+            path: data.path, // Store path for future reference
+          };
+        } catch (error) {
+          console.error("Error uploading file:", error);
+          return null;
+        }
+      }),
+    );
+
+    // Filter out any failed uploads
+    const successfulUploads = fileUrls.filter((url) => url !== null);
+
+    // Send the message with Supabase signed URLs
     sendUserMessage({
       id: messageId,
       content: input,
       role: "user",
       createdAt: new Date(),
-      attachments: attachmentUrls,
+      attachments: successfulUploads.map((file) => file.url), // Signed URLs
+      filePaths: successfulUploads.map((file) => file.path), // Store paths for future reference
     });
 
-    console.log("files", files);
-
+    // Still need to send attachments to OpenAI for AI processing
     await handleSubmit(e, {
       experimental_attachments: files,
     });
@@ -189,6 +233,8 @@ export default function ChatTool({
       fileInputRef.current.value = "";
     }
   };
+
+  console.log("Formatted messages:", formattedMessages);
 
   return (
     <div className="flex h-full w-full flex-col">
