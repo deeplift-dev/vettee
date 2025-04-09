@@ -1,14 +1,20 @@
-import { nanoid } from "nanoid";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, Pressable, ScrollView, View } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  ScrollView,
+  View,
+} from "react-native";
 import { OpenAI, useChat } from "react-native-gen-ui";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-
 import { Image } from "expo-image";
+import { nanoid } from "nanoid";
 import { z } from "zod";
+
+import type { RouterOutputs } from "~/utils/api";
 import Typing from "~/components/ui/loaders/typing";
 import Text from "~/components/ui/text";
-import type { RouterOutputs } from "~/utils/api";
 import { api } from "~/utils/api";
 import { initThreadPrompt } from "~/utils/chat/prompt-constants";
 import ImagePicker from "../onboarding/image-picker";
@@ -18,6 +24,7 @@ import ChatSubmitButton from "./chat-submit-button";
 import ConversationTitle from "./conversation-title";
 import { PromptSuggestions } from "./prompt-suggestions";
 import { useCameraTool } from "./tools/camera-tool";
+
 type Conversation = RouterOutputs["conversation"]["create"];
 type ConversationMessage = RouterOutputs["conversation"]["saveMessage"];
 interface ChatToolProps {
@@ -103,7 +110,11 @@ const ChatTool: React.FC<ChatToolProps> = ({
     }
   }, [queryConversationId]);
 
-  const onHandleSubmit = async (msg: string | { type: string; text?: string; image_url?: { url: string } }[]) => {
+  const onHandleSubmit = async (
+    msg:
+      | string
+      | { type: string; text?: string; image_url?: { url: string } }[],
+  ) => {
     if (messageCount === 1) {
       setShowPromptSuggestions(false);
       createConversation({
@@ -264,8 +275,6 @@ const ChatTool: React.FC<ChatToolProps> = ({
     setIsCameraVisible(!isCameraVisible);
   };
 
-  console.log("messages", messages);
-
   return (
     <View className="flex-1">
       <View className="absolute top-0 z-10 w-full">
@@ -353,10 +362,11 @@ const ChatTool: React.FC<ChatToolProps> = ({
                     url: uploadParams.url,
                   },
                 },
-              ])
+              ]);
             }}
           />
-        </Animated.View>)}
+        </Animated.View>
+      )}
       {isBottomViewVisible && (
         <Animated.View
           className="relative mx-4 mt-2"

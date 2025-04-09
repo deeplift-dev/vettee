@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Message, useChat } from "@ai-sdk/react";
+import { Attachment } from "@ai-sdk/ui-utils";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { Message, useChat } from "ai/react";
 import { motion } from "framer-motion";
 import { ArrowUp, ImageIcon, XCircle } from "lucide-react";
 
@@ -25,7 +26,6 @@ export default function ChatTool({
   sendUserMessage,
   consultationId,
 }: ChatToolProps) {
-  const supabase = createClientComponentClient();
   const { messages, input, handleInputChange, handleSubmit, append, setInput } =
     useChat({
       api: "/api/chat",
@@ -60,6 +60,7 @@ export default function ChatTool({
   const [files, setFiles] = useState<FileList | undefined>(undefined);
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [hasProcessedTranscription, setHasProcessedTranscription] =
     useState(false);
@@ -210,31 +211,42 @@ export default function ChatTool({
     // Filter out any failed uploads
     const successfulUploads = fileUrls.filter((url) => url !== null);
 
+    // Create attachments array for AI SDK
+    const aiAttachments: Attachment[] = successfulUploads.map((file) => ({
+      name: file.name,
+      contentType: file.type,
+      url: file.url,
+    }));
+
+    // Set attachments for future use
+    setAttachments(aiAttachments);
+
+    console.log("Attachments for AI SDK:", aiAttachments);
+
     // Send the message with Supabase signed URLs
     sendUserMessage({
       id: messageId,
       content: input,
       role: "user",
       createdAt: new Date(),
-      attachments: successfulUploads.map((file) => file.url), // Signed URLs
-      filePaths: successfulUploads.map((file) => file.path), // Store paths for future reference
+      attachments: successfulUploads.map((file) => file.url),
+      filePaths: successfulUploads.map((file) => file.path),
     });
 
-    // Still need to send attachments to OpenAI for AI processing
+    // Send attachments to OpenAI using the AI SDK format
     await handleSubmit(e, {
-      experimental_attachments: files,
+      experimental_attachments: aiAttachments,
     });
 
     setInput("");
     setFiles(undefined);
     setFilesToUpload([]);
     setPreviewImages([]);
+    setAttachments([]);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
-
-  console.log("Formatted messages:", formattedMessages);
 
   return (
     <div className="flex h-full w-full flex-col">
