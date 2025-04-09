@@ -1,6 +1,9 @@
 import { cookies } from "next/headers";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 
+// Force dynamic rendering for this route that uses cookies
+export const dynamic = "force-dynamic";
+
 export async function POST(req: Request) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
