@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Message, useChat } from "ai/react";
+import { Message, useChat } from "@ai-sdk/react";
+import { Attachment } from "@ai-sdk/ui-utils";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { motion } from "framer-motion";
-import { ArrowUp, ImageIcon, SendIcon, XCircle } from "lucide-react";
+import { ArrowUp, ImageIcon, XCircle } from "lucide-react";
 
 import { api } from "~/trpc/react";
 import { formatTranscriptions } from "../consults/helpers/format-transcription";
@@ -24,13 +26,14 @@ export default function ChatTool({
   sendUserMessage,
   consultationId,
 }: ChatToolProps) {
-  const { messages, input, handleInputChange, handleSubmit, append } = useChat({
-    api: "/api/chat",
-    onFinish: (message) => {
-      onFinish(message);
-    },
-    initialMessages: initialMessages,
-  });
+  const { messages, input, handleInputChange, handleSubmit, append, setInput } =
+    useChat({
+      api: "/api/chat",
+      onFinish: (message) => {
+        onFinish(message);
+      },
+      initialMessages: initialMessages,
+    });
 
   const { data: transcription } = api.recording.getByConsultId.useQuery(
     {
@@ -57,6 +60,7 @@ export default function ChatTool({
   const [files, setFiles] = useState<FileList | undefined>(undefined);
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [hasProcessedTranscription, setHasProcessedTranscription] =
     useState(false);
@@ -102,6 +106,12 @@ export default function ChatTool({
 
   const formattedMessages = [...(initialMessages ?? []), ...(messages ?? [])]
     .filter((message) => message.role !== "data")
+    .reduce((uniqueMessages, message) => {
+      if (!uniqueMessages.some((m) => m.id === message.id)) {
+        uniqueMessages.push(message);
+      }
+      return uniqueMessages;
+    }, [])
     .map((message: ExtendedMessage) => ({
       id: message.id,
       content: message.content,
@@ -109,7 +119,7 @@ export default function ChatTool({
         firstName: message.role === "assistant" ? "Vetski" : "You",
         lastName: "",
       },
-      createdAt: message.createdAt,
+      createdAt: message.createdAt || new Date(),
       role: message.role,
       attachments: message.attachments || [],
       toolInvocations: message.toolInvocations,
@@ -153,34 +163,98 @@ export default function ChatTool({
     setPreviewImages(newPreviewImages);
   };
 
+  const handleChatSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!input.trim() && filesToUpload.length === 0) return;
+
+    const messageId = `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+
+    // For UI display we'll continue using the preview URLs temporarily
+    const previewUrls = [...previewImages];
+
+    // Upload files to Supabase bucket via our secure API route
+    const fileUrls = await Promise.all(
+      filesToUpload.map(async (file) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("consultationId", consultationId);
+        formData.append("messageId", messageId);
+
+        try {
+          const response = await fetch("/api/storage", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Error uploading file:", errorData);
+            return null;
+          }
+
+          const data = await response.json();
+          return {
+            name: data.name,
+            type: data.type,
+            size: data.size,
+            url: data.url, // This is now a signed URL
+            path: data.path, // Store path for future reference
+          };
+        } catch (error) {
+          console.error("Error uploading file:", error);
+          return null;
+        }
+      }),
+    );
+
+    // Filter out any failed uploads
+    const successfulUploads = fileUrls.filter((url) => url !== null);
+
+    // Create attachments array for AI SDK
+    const aiAttachments: Attachment[] = successfulUploads.map((file) => ({
+      name: file.name,
+      contentType: file.type,
+      url: file.url,
+    }));
+
+    // Set attachments for future use
+    setAttachments(aiAttachments);
+
+    console.log("Attachments for AI SDK:", aiAttachments);
+
+    // Send the message with Supabase signed URLs
+    sendUserMessage({
+      id: messageId,
+      content: input,
+      role: "user",
+      createdAt: new Date(),
+      attachments: successfulUploads.map((file) => file.url),
+      filePaths: successfulUploads.map((file) => file.path),
+    });
+
+    // Send attachments to OpenAI using the AI SDK format
+    await handleSubmit(e, {
+      experimental_attachments: aiAttachments,
+    });
+
+    setInput("");
+    setFiles(undefined);
+    setFilesToUpload([]);
+    setPreviewImages([]);
+    setAttachments([]);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   return (
     <div className="flex h-full w-full flex-col">
       <div className="min-h-0 flex-1 overflow-y-auto px-1">
         <ChatMessages messages={formattedMessages} />
       </div>
       <div className="mt-auto w-full shrink-0 border-t border-gray-800/30 pt-3">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSubmit(e, {
-              experimental_attachments: files,
-            });
-            sendUserMessage({
-              id: `msg-${Math.random().toString(36).substring(2, 15)}`,
-              content: input,
-              role: "user",
-              attachments: files
-                ? Array.from(files).map((file) => URL.createObjectURL(file))
-                : [],
-            });
-            setFiles(undefined);
-            setFilesToUpload([]);
-            if (fileInputRef.current) {
-              fileInputRef.current.value = "";
-            }
-          }}
-          className="mx-auto w-full"
-        >
+        <form onSubmit={handleChatSubmit} className="mx-auto w-full">
           {previewImages.length > 0 && (
             <div className="mb-2 flex flex-wrap gap-2 rounded-lg bg-gray-800/20 p-2">
               {previewImages.map((src, index) => (
@@ -222,7 +296,7 @@ export default function ChatTool({
                 type="file"
                 accept="image/*"
                 onChange={(e) => {
-                  if (e.target.files) {
+                  if (e.target.files && e.target.files.length > 0) {
                     setFiles(e.target.files);
                   }
                 }}

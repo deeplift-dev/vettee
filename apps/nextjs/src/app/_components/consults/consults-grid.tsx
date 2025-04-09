@@ -37,15 +37,6 @@ const ConsultsGrid = async () => {
 
   return (
     <div className="w-full text-sm">
-      <div className="flex items-center justify-end">
-        <Link
-          href="/vetski/consultations"
-          className="text-sm text-white/70 hover:text-white"
-        >
-          View all
-        </Link>
-      </div>
-
       <div className="min-w-full rounded-lg border border-white/10 bg-white/5 shadow-sm backdrop-blur-sm">
         {/* Header */}
         <div className="sticky top-0 z-10 hidden border-b border-white/10 bg-white/5 backdrop-blur-sm md:grid md:grid-cols-5 md:gap-4 md:px-6 md:py-3">
@@ -97,7 +88,7 @@ const ConsultsGrid = async () => {
             <Link
               href={`/vetski/consultations/${consultation.id}`}
               key={consultation.id}
-              className={`grid grid-cols-5 gap-4 px-6 py-2 transition-colors hover:bg-white/5 items-center${
+              className={`grid grid-cols-5 items-center gap-4 px-6 py-2 transition-colors hover:bg-white/5 ${
                 index !== sortedConsultations.length - 1
                   ? "border-b border-white/10"
                   : ""
