@@ -33,7 +33,7 @@ export default async function DashboardNavigation() {
         <div className="flex items-center gap-4 md:gap-8">
           <Link href="/vetski">
             <h1 className="bg-gradient-to-bl from-white via-slate-100 to-white bg-clip-text font-vetski text-lg leading-normal text-transparent md:text-xl">
-              Vetski
+              Vetskii
             </h1>
           </Link>
 

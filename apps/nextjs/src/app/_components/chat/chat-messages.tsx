@@ -236,6 +236,14 @@ export default function ChatMessages({ messages }: ChatMessagesProps) {
                     ))}
                   </div>
                 )}
+                {message.experimental_attachments &&
+                  message.experimental_attachments.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {message.experimental_attachments.map((url, i) => (
+                        <ImageAttachment key={i} url={url} index={i} />
+                      ))}
+                    </div>
+                  )}
               </div>
             </motion.div>
           ),
