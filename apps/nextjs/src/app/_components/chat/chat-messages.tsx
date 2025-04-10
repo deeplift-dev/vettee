@@ -86,6 +86,8 @@ const ImageAttachment = ({ url, index }: { url: string; index: number }) => {
     document.body.removeChild(link);
   };
 
+  console.log("Image URL:", url);
+
   return (
     <>
       <div
@@ -316,19 +318,17 @@ export default function ChatMessages({ messages }: ChatMessagesProps) {
 
                 {message.attachments && message.attachments.length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-2">
-                    {message.attachments.map((url, i) => (
-                      <ImageAttachment key={i} url={url} index={i} />
-                    ))}
+                    {message.attachments.map((attachment, i) => {
+                      const imageUrl =
+                        typeof attachment === "string"
+                          ? attachment
+                          : attachment.url;
+                      return (
+                        <ImageAttachment key={i} url={imageUrl} index={i} />
+                      );
+                    })}
                   </div>
                 )}
-                {message.experimental_attachments &&
-                  message.experimental_attachments.length > 0 && (
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {message.experimental_attachments.map((url, i) => (
-                        <ImageAttachment key={i} url={url} index={i} />
-                      ))}
-                    </div>
-                  )}
               </div>
             </motion.div>
           ),

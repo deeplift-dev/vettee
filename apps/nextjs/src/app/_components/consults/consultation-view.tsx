@@ -95,7 +95,7 @@ export default function ConsultationView({
       {/* Chat section - optimized for vertical space */}
       <div className="relative overflow-hidden pb-1">
         <div className="mx-auto h-full w-full max-w-7xl">
-          <div className="flex h-full rounded-lg border border-white/10 bg-white/5 p-2 shadow-sm backdrop-blur-sm sm:p-4">
+          <div className="flex h-full rounded-lg border border-white/10 bg-white/5 px-2 pb-2 shadow-sm backdrop-blur-sm sm:px-4 sm:pb-4">
             <ChatTool
               consultationId={consultation.id}
               sendUserMessage={(message) => {

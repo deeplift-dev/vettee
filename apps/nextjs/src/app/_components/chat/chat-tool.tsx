@@ -59,6 +59,8 @@ export default function ChatTool({
       },
     });
 
+  console.log();
+
   const [files, setFiles] = useState<FileList | undefined>(undefined);
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
@@ -126,7 +128,8 @@ export default function ChatTool({
         },
         createdAt: message.createdAt || new Date(),
         role: message.role,
-        attachments: message.attachments || [],
+        attachments:
+          message.attachments || message.experimental_attachments || [],
         toolInvocations: message.toolInvocations,
         revisionId: message.revisionId,
       }));
