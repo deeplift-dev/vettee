@@ -51,7 +51,7 @@ const LoginForm = () => {
 
             try {
               const res = await signInWithPassword(email, password);
-              router.push("/vetski");
+              router.push("/app");
             } catch (error) {
               console.error("Error signing in:", error);
               if (

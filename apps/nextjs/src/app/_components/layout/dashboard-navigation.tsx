@@ -21,19 +21,17 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic";
 
 export default async function DashboardNavigation() {
   const supabase = createServerComponentClient({ cookies });
   const user = await supabase.auth.getUser();
 
-  console.log(`user`, user);
-
   return (
     <nav className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-[#0A0A0A]/80 p-2 backdrop-blur-md md:p-2">
       <div className="mx-auto flex w-full max-w-screen-xl items-center justify-between">
         <div className="flex items-center gap-4 md:gap-8">
-          <Link href="/vetski">
+          <Link href="/app">
             <h1 className="bg-gradient-to-bl from-white via-slate-100 to-white bg-clip-text font-vetski text-lg leading-normal text-transparent md:text-xl">
               Vetskii
             </h1>
@@ -83,7 +81,7 @@ const DashboarDropdown = () => {
           {" "}
           <Link
             className="flex flex-row items-center space-x-4"
-            href="/vetski/consultations"
+            href="/app/consultations"
           >
             <RowsIcon className="h-4 w-4" />
             <div>Consults</div>

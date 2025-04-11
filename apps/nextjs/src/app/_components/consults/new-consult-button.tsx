@@ -26,7 +26,7 @@ const NewConsultButton = () => {
   const { mutate: createConsultation, isPending } =
     api.consultation.create.useMutation({
       onSuccess: (data) => {
-        router.push(`/vetski/consultations/${data.id}`);
+        router.push(`/app/consultations/${data.id}`);
       },
       onError: (error) => {
         console.error("Error creating consultation:", error);

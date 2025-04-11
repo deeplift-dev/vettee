@@ -57,5 +57,5 @@ export const signInWithGoogle = async () => {
 export const signOut = async () => {
   const supabase = createServerActionClient({ cookies });
   await supabase.auth.signOut();
-  redirect("/vetski");
+  redirect("/app");
 };

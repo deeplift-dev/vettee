@@ -25,7 +25,7 @@ const ConsultsGrid = async () => {
             When you create consultations, they will appear here. Start by
             creating a new consultation.
           </div>
-          <Link href="/vetski/consults/new" className="mt-6">
+          <Link href="/app/consults/new" className="mt-6">
             <button className="flex items-center gap-2 rounded-md bg-white px-4 py-2 text-sm font-medium text-[#0A0A0A] shadow-sm transition-all duration-200 hover:shadow-md">
               Create your first consultation
             </button>
@@ -51,7 +51,7 @@ const ConsultsGrid = async () => {
         <div className="max-h-[calc(100vh-20rem)] space-y-2 overflow-y-auto p-4 md:hidden">
           {sortedConsultations.map((consultation) => (
             <Link
-              href={`/vetski/consultations/${consultation.id}`}
+              href={`/app/consultations/${consultation.id}`}
               key={consultation.id}
               className="block rounded-lg border border-white/10 bg-white/5 p-4 transition-all duration-200 hover:border-white/20 hover:shadow-md"
             >
@@ -86,7 +86,7 @@ const ConsultsGrid = async () => {
         <div className="hidden max-h-[calc(100vh-20rem)] overflow-y-auto md:block">
           {sortedConsultations.map((consultation, index) => (
             <Link
-              href={`/vetski/consultations/${consultation.id}`}
+              href={`/app/consultations/${consultation.id}`}
               key={consultation.id}
               className={`grid grid-cols-5 items-center gap-4 px-6 py-2 transition-colors hover:bg-white/5 ${
                 index !== sortedConsultations.length - 1
