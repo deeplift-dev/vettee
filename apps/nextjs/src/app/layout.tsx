@@ -59,19 +59,22 @@ const PacowFont = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Vettee | Your companion in pet care.",
-  description: "The ultimate companion for your companions.",
+  title: "Vetskii | Every vet's favourite sidekick.",
+  description: "Every vet's favourite sidekick.",
   openGraph: {
-    title: "Vettee",
-    description: "The ultimate companion for your companions.",
-    url: "https://vettee.vet",
-    siteName: "Vettee",
+    title: "Vetskii",
+    description: "Every vet's favourite sidekick.",
+    url: "https://vetskii.com",
+    siteName: "Vetskii",
   },
   twitter: {
     card: "summary_large_image",
-    site: "@vettee",
-    creator: "@vettee",
+    site: "@vetskii",
+    creator: "@vetskii",
   },
+  keywords: "veterinary, pets, support, Vetskii",
+  robots: "index, follow",
+  viewport: "width=device-width, initial-scale=1",
 };
 
 // Lazy load headers

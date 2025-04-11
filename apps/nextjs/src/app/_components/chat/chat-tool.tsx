@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Message, useChat } from "@ai-sdk/react";
 import { Attachment } from "@ai-sdk/ui-utils";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { motion } from "framer-motion";
-import { ArrowUp, ImageIcon, XCircle } from "lucide-react";
+import { ArrowUp, ImageIcon, Loader2, XCircle } from "lucide-react";
 
 import { api } from "~/trpc/react";
 import { formatTranscriptions } from "../consults/helpers/format-transcription";
@@ -17,6 +17,7 @@ interface ChatToolProps {
   initialMessages: Message[];
   sendUserMessage: (message: Message) => void;
   consultationId: string;
+  refreshConsultation?: () => void;
 }
 
 export default function ChatTool({
@@ -25,6 +26,7 @@ export default function ChatTool({
   initialMessages,
   sendUserMessage,
   consultationId,
+  refreshConsultation,
 }: ChatToolProps) {
   const { messages, input, handleInputChange, handleSubmit, append, setInput } =
     useChat({
@@ -57,6 +59,8 @@ export default function ChatTool({
       },
     });
 
+  console.log();
+
   const [files, setFiles] = useState<FileList | undefined>(undefined);
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
@@ -64,6 +68,8 @@ export default function ChatTool({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [hasProcessedTranscription, setHasProcessedTranscription] =
     useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<number[]>([]);
 
   useEffect(() => {
     if (
@@ -104,27 +110,32 @@ export default function ChatTool({
     syncTranscription,
   ]);
 
-  const formattedMessages = [...(initialMessages ?? []), ...(messages ?? [])]
-    .filter((message) => message.role !== "data")
-    .reduce((uniqueMessages, message) => {
-      if (!uniqueMessages.some((m) => m.id === message.id)) {
-        uniqueMessages.push(message);
-      }
-      return uniqueMessages;
-    }, [])
-    .map((message: ExtendedMessage) => ({
-      id: message.id,
-      content: message.content,
-      sender: {
-        firstName: message.role === "assistant" ? "Vetski" : "You",
-        lastName: "",
-      },
-      createdAt: message.createdAt || new Date(),
-      role: message.role,
-      attachments: message.attachments || [],
-      toolInvocations: message.toolInvocations,
-      revisionId: message.revisionId,
-    }));
+  const formattedMessages = useMemo(() => {
+    return [...(messages ?? [])]
+      .filter((message) => message.role !== "data")
+      .reduce((uniqueMessages, message) => {
+        if (!uniqueMessages.some((m) => m.id === message.id)) {
+          uniqueMessages.push(message);
+        }
+        return uniqueMessages;
+      }, [])
+      .map((message: ExtendedMessage) => ({
+        id: message.id,
+        content: message.content,
+        sender: {
+          firstName: message.role === "assistant" ? "Vetskii" : "You",
+          lastName: "",
+        },
+        createdAt: message.createdAt || new Date(),
+        role: message.role,
+        attachments:
+          message.attachments || message.experimental_attachments || [],
+        toolInvocations: message.toolInvocations,
+        revisionId: message.revisionId,
+      }));
+  }, [messages]);
+
+  console.log("Formatted messages:", formattedMessages);
 
   useEffect(() => {
     if (files) {
@@ -170,30 +181,51 @@ export default function ChatTool({
 
     const messageId = `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
+    // Initialize upload states
+    setIsUploading(true);
+    setUploadProgress(new Array(filesToUpload.length).fill(0));
+
     // For UI display we'll continue using the preview URLs temporarily
     const previewUrls = [...previewImages];
 
     // Upload files to Supabase bucket via our secure API route
     const fileUrls = await Promise.all(
-      filesToUpload.map(async (file) => {
+      filesToUpload.map(async (file, index) => {
         const formData = new FormData();
         formData.append("file", file);
         formData.append("consultationId", consultationId);
         formData.append("messageId", messageId);
 
         try {
-          const response = await fetch("/api/storage", {
-            method: "POST",
-            body: formData,
+          // Create a custom fetch with progress tracking
+          const xhr = new XMLHttpRequest();
+          const uploadPromise = new Promise<any>((resolve, reject) => {
+            xhr.open("POST", "/api/storage", true);
+
+            xhr.upload.onprogress = (event) => {
+              if (event.lengthComputable) {
+                const progress = Math.round((event.loaded / event.total) * 100);
+                setUploadProgress((prev) => {
+                  const newProgress = [...prev];
+                  newProgress[index] = progress;
+                  return newProgress;
+                });
+              }
+            };
+
+            xhr.onload = function () {
+              if (xhr.status >= 200 && xhr.status < 300) {
+                resolve(JSON.parse(xhr.responseText));
+              } else {
+                reject(new Error(`HTTP Error: ${xhr.status}`));
+              }
+            };
+
+            xhr.onerror = () => reject(new Error("Network Error"));
+            xhr.send(formData);
           });
 
-          if (!response.ok) {
-            const errorData = await response.json();
-            console.error("Error uploading file:", errorData);
-            return null;
-          }
-
-          const data = await response.json();
+          const data = await uploadPromise;
           return {
             name: data.name,
             type: data.type,
@@ -238,13 +270,22 @@ export default function ChatTool({
       experimental_attachments: aiAttachments,
     });
 
+    // Reset all upload-related states
     setInput("");
     setFiles(undefined);
     setFilesToUpload([]);
     setPreviewImages([]);
     setAttachments([]);
+    setIsUploading(false);
+    setUploadProgress([]);
+
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
+    }
+
+    // Refresh consultation data to get updated messages
+    if (refreshConsultation) {
+      refreshConsultation();
     }
   };
 
@@ -259,19 +300,73 @@ export default function ChatTool({
             <div className="mb-2 flex flex-wrap gap-2 rounded-lg bg-gray-800/20 p-2">
               {previewImages.map((src, index) => (
                 <div key={index} className="group relative">
-                  <img
-                    src={src}
-                    alt={`Preview ${index}`}
-                    className="h-16 w-16 rounded-md object-cover transition-all hover:brightness-90"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeImage(index)}
-                    className="absolute -right-2 -top-2 flex h-6 w-6 touch-manipulation items-center justify-center rounded-full bg-gray-900/90 text-gray-300 shadow-sm transition-all hover:bg-gray-800 hover:text-white md:opacity-0 md:group-hover:opacity-100"
-                    aria-label="Remove image"
-                  >
-                    <XCircle className="h-4 w-4" />
-                  </button>
+                  <div className="relative h-16 w-16 overflow-hidden rounded-md">
+                    <img
+                      src={src}
+                      alt={`Preview ${index}`}
+                      className={`h-16 w-16 rounded-md object-cover transition-all ${
+                        isUploading ? "brightness-50" : "hover:brightness-90"
+                      }`}
+                    />
+
+                    {isUploading && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        {uploadProgress[index] < 100 ? (
+                          <div className="h-10 w-10">
+                            <svg className="h-full w-full" viewBox="0 0 36 36">
+                              <path
+                                d="M18 2.0845
+                                  a 15.9155 15.9155 0 0 1 0 31.831
+                                  a 15.9155 15.9155 0 0 1 0 -31.831"
+                                fill="none"
+                                stroke="#ddd"
+                                strokeWidth="2"
+                                strokeDasharray="100, 100"
+                              />
+                              <path
+                                d="M18 2.0845
+                                  a 15.9155 15.9155 0 0 1 0 31.831
+                                  a 15.9155 15.9155 0 0 1 0 -31.831"
+                                fill="none"
+                                stroke="#3dd339"
+                                strokeWidth="2"
+                                strokeDasharray={`${uploadProgress[index]}, 100`}
+                              />
+                            </svg>
+                            <div className="absolute inset-0 flex items-center justify-center text-xs font-medium text-white">
+                              {uploadProgress[index]}%
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="rounded-full bg-lime-400/90 p-1">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-3 w-3 text-gray-900"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {!isUploading && (
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      className="absolute -right-2 -top-2 flex h-6 w-6 touch-manipulation items-center justify-center rounded-full bg-gray-900/90 text-gray-300 shadow-sm transition-all hover:bg-gray-800 hover:text-white md:opacity-0 md:group-hover:opacity-100"
+                      aria-label="Remove image"
+                    >
+                      <XCircle className="h-4 w-4" />
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
@@ -287,7 +382,7 @@ export default function ChatTool({
               }}
               placeholder="Type your message..."
               className="h-auto min-h-[40px] w-full resize-none bg-transparent px-3 py-2 text-gray-100 placeholder-gray-400 focus:outline-none"
-              disabled={isLoading}
+              disabled={isLoading || isUploading}
               autoFocus
               rows={1}
             />
@@ -304,23 +399,34 @@ export default function ChatTool({
                 ref={fileInputRef}
                 className="hidden"
                 id="image-upload"
+                disabled={isUploading}
               />
               <label
                 htmlFor="image-upload"
-                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-gray-700/50 text-gray-300 transition-colors hover:bg-gray-600/70 hover:text-gray-100"
+                className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-gray-700/50 text-gray-300 transition-colors ${
+                  isUploading
+                    ? "cursor-not-allowed opacity-50"
+                    : "hover:bg-gray-600/70 hover:text-gray-100"
+                }`}
               >
                 <ImageIcon className="h-4 w-4 text-lime-400" />
               </label>
               <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: isUploading ? 1 : 1.05 }}
+                whileTap={{ scale: isUploading ? 1 : 0.95 }}
                 type="submit"
                 disabled={
-                  isLoading || (!input.trim() && previewImages.length === 0)
+                  isLoading ||
+                  isUploading ||
+                  (!input.trim() && previewImages.length === 0)
                 }
                 className="flex h-8 w-8 items-center justify-center rounded-full bg-lime-400 text-black transition-all hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-40"
               >
-                <ArrowUp className="h-4 w-4" />
+                {isUploading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <ArrowUp className="h-4 w-4" />
+                )}
               </motion.button>
             </div>
           </div>

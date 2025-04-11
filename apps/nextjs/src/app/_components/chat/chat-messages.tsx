@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { motion } from "framer-motion";
-import { InfoIcon, Pill } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Download, InfoIcon, Pill, X, ZoomIn, ZoomOut } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
 import LogoText from "~/ui/logo-text";
@@ -63,15 +63,102 @@ const MedicationToolResult = ({ result }: { result: any }) => {
 };
 
 const ImageAttachment = ({ url, index }: { url: string; index: number }) => {
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [scale, setScale] = useState(1);
+
+  const handleZoomIn = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setScale((prev) => Math.min(prev + 0.25, 3));
+  };
+
+  const handleZoomOut = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setScale((prev) => Math.max(prev - 0.25, 0.5));
+  };
+
+  const handleDownload = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `attachment-${index + 1}.jpg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  console.log("Image URL:", url);
+
   return (
-    <a href={url} target="_blank" rel="noreferrer" className="group">
-      <img
-        src={url}
-        alt={`Attachment ${index + 1}`}
-        className="h-24 w-auto max-w-[200px] rounded-md object-cover shadow-md transition-all hover:brightness-110"
-        loading="lazy"
-      />
-    </a>
+    <>
+      <div
+        onClick={() => setIsFullscreen(true)}
+        className="group cursor-pointer"
+      >
+        <img
+          src={url}
+          alt={`Attachment ${index + 1}`}
+          className="h-24 w-auto max-w-[200px] rounded-md object-cover shadow-md transition-all hover:brightness-110"
+          loading="lazy"
+        />
+      </div>
+
+      <AnimatePresence>
+        {isFullscreen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
+            onClick={() => setIsFullscreen(false)}
+          >
+            <motion.div
+              className="relative flex h-full w-full flex-col items-center justify-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="absolute left-4 right-4 top-4 flex items-center justify-between">
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleZoomIn}
+                    className="rounded-full bg-gray-800/60 p-2 text-white/80 transition-colors hover:bg-gray-700/80 hover:text-white"
+                  >
+                    <ZoomIn className="h-5 w-5" />
+                  </button>
+                  <button
+                    onClick={handleZoomOut}
+                    className="rounded-full bg-gray-800/60 p-2 text-white/80 transition-colors hover:bg-gray-700/80 hover:text-white"
+                  >
+                    <ZoomOut className="h-5 w-5" />
+                  </button>
+                  <button
+                    onClick={handleDownload}
+                    className="rounded-full bg-gray-800/60 p-2 text-white/80 transition-colors hover:bg-gray-700/80 hover:text-white"
+                  >
+                    <Download className="h-5 w-5" />
+                  </button>
+                </div>
+                <button
+                  onClick={() => setIsFullscreen(false)}
+                  className="rounded-full bg-gray-800/60 p-2 text-white/80 transition-colors hover:bg-gray-700/80 hover:text-white"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <div
+                className="relative max-h-[80vh] max-w-[90vw] overflow-auto"
+                style={{ transform: `scale(${scale})` }}
+              >
+                <img
+                  src={url}
+                  alt={`Attachment ${index + 1}`}
+                  className="max-h-full max-w-full object-contain transition-transform duration-200"
+                />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 
@@ -124,7 +211,7 @@ export default function ChatMessages({ messages }: ChatMessagesProps) {
                 <div className="flex items-center space-x-1.5">
                   {message.role === "assistant" && (
                     <h1 className="bg-gradient-to-bl from-white via-slate-100 to-white bg-clip-text font-vetski text-xs leading-normal text-transparent">
-                      Vetski
+                      Vetskii
                     </h1>
                   )}
                   {message.role === "user" && (
@@ -231,9 +318,15 @@ export default function ChatMessages({ messages }: ChatMessagesProps) {
 
                 {message.attachments && message.attachments.length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-2">
-                    {message.attachments.map((url, i) => (
-                      <ImageAttachment key={i} url={url} index={i} />
-                    ))}
+                    {message.attachments.map((attachment, i) => {
+                      const imageUrl =
+                        typeof attachment === "string"
+                          ? attachment
+                          : attachment.url;
+                      return (
+                        <ImageAttachment key={i} url={imageUrl} index={i} />
+                      );
+                    })}
                   </div>
                 )}
               </div>
