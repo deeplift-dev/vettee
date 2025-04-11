@@ -32,7 +32,7 @@ const NewConsultForm = () => {
     api.consultation.create.useMutation({
       onSuccess: (data) => {
         // Redirect to the consultation detail page
-        router.push(`/vetski/consultations/${data.id}`);
+        router.push(`/app/consultations/${data.id}`);
       },
       onError: (error) => {
         console.error("Error creating consultation:", error);

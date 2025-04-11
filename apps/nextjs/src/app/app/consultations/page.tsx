@@ -24,7 +24,7 @@ export default async function DashboardPage() {
                 </p>
               </div>
 
-              <Link href="/vetski">
+              <Link href="/app">
                 <button className="group flex items-center justify-center gap-2 rounded-md bg-white px-4 py-2 text-sm font-medium text-[#0A0A0A] shadow-sm transition-all duration-200 hover:shadow-md">
                   <PlusCircleIcon
                     size={18}
