@@ -13,7 +13,7 @@ export default function LoginPage() {
       <div className="w-full">
         <div className="flex w-full flex-col items-center justify-center gap-6">
           <div className="bg-gradient-to-bl from-white via-slate-200 to-white bg-clip-text font-vetski text-3xl leading-normal text-transparent">
-            Vetski
+            Vetskii
           </div>
           <LoginForm />
         </div>

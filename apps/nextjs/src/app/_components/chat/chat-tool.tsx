@@ -123,7 +123,7 @@ export default function ChatTool({
         id: message.id,
         content: message.content,
         sender: {
-          firstName: message.role === "assistant" ? "Vetski" : "You",
+          firstName: message.role === "assistant" ? "Vetskii" : "You",
           lastName: "",
         },
         createdAt: message.createdAt || new Date(),

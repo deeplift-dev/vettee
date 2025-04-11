@@ -52,7 +52,7 @@ export default async function DashboardPage() {
             <div className="flex h-[calc(100vh-10rem)] w-full items-center justify-center">
               <div className="flex flex-col items-center gap-4 rounded-lg border border-white/10 bg-white/5 p-8 text-center shadow-md backdrop-blur-sm">
                 <h2 className="text-2xl font-medium text-white">
-                  Welcome to Vetski
+                  Welcome to Vetskii
                 </h2>
                 <p className="max-w-md text-white/70">
                   Sign in to start managing your veterinary practice with our

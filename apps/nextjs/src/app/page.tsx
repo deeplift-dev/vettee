@@ -47,7 +47,7 @@ export default function HomePage() {
                 </p>
                 <p className="mt-2 max-w-lg text-base/6 text-gray-300 max-lg:text-center">
                   Get instant support for diagnoses, treatment plans, and
-                  complex cases. Vetski helps you make informed decisions
+                  complex cases. Vetskii helps you make informed decisions
                   faster.
                 </p>
               </div>
@@ -76,7 +76,7 @@ export default function HomePage() {
                   Early access
                 </p>
                 <p className="mt-2 max-w-lg text-base/6 text-gray-300 max-lg:text-center">
-                  Vetski is currently in private beta. Sign up to join our
+                  Vetskii is currently in private beta. Sign up to join our
                   waitlist for exclusive early access.
                 </p>
               </div>
@@ -115,7 +115,7 @@ export default function HomePage() {
                 </p>
                 <p className="mt-2 max-w-lg text-base/6 text-gray-300 max-lg:text-center">
                   Whether you're a small animal vet, equine specialist, or
-                  exotic pet expert, Vetski adapts to your specialty needs.
+                  exotic pet expert, Vetskii adapts to your specialty needs.
                 </p>
               </div>
               <div className="relative flex flex-1 items-center [container-type:inline-size] max-lg:py-6 lg:pb-2">
