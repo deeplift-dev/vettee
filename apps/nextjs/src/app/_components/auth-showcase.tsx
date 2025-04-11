@@ -4,8 +4,6 @@ import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 
 import { signOut } from "../auth/actions";
 
-export const dynamic = "force-dynamic";
-
 export async function AuthShowcase() {
   const supabase = createServerComponentClient({ cookies });
   const user = await supabase.auth.getUser();
