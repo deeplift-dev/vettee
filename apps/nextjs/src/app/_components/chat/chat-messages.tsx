@@ -211,7 +211,7 @@ export default function ChatMessages({ messages }: ChatMessagesProps) {
                 <div className="flex items-center space-x-1.5">
                   {message.role === "assistant" && (
                     <h1 className="bg-gradient-to-bl from-white via-slate-100 to-white bg-clip-text font-vetski text-xs leading-normal text-transparent">
-                      Vetski
+                      Vetskii
                     </h1>
                   )}
                   {message.role === "user" && (

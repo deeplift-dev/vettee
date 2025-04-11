@@ -21,6 +21,8 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 
+export const dynamic = 'force-dynamic'
+
 export default async function DashboardNavigation() {
   const supabase = createServerComponentClient({ cookies });
   const user = await supabase.auth.getUser();

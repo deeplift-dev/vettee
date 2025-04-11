@@ -6,6 +6,8 @@ import { ArrowRight, PlusCircleIcon } from "lucide-react";
 import ConsultsGrid from "~/app/_components/consults/consults-grid";
 import SafeArea from "~/app/_components/layout/safe-area";
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
   const supabase = createServerComponentClient({ cookies });
   const user = await supabase.auth.getUser();

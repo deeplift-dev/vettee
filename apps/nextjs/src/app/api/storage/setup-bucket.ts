@@ -1,6 +1,8 @@
 import { cookies } from "next/headers";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 
+export const dynamic = "force-dynamic";
+
 // This function ensures the chat-attachments bucket exists and has proper public access policies
 export async function setupChatAttachmentsBucket() {
   const supabase = createRouteHandlerClient({ cookies });
