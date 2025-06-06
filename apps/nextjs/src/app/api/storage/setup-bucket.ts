@@ -1,9 +1,9 @@
 import { cookies } from "next/headers";
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 
 // This function ensures the chat-attachments bucket exists and has proper public access policies
 export async function setupChatAttachmentsBucket() {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = createServerComponentClient({ cookies });
 
   // Check if the bucket exists already
   const { data: buckets } = await supabase.storage.listBuckets();

@@ -28,6 +28,11 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+    --color-1: 0 100% 63%;
+    --color-2: 270 100% 63%;
+    --color-3: 210 100% 63%;
+    --color-4: 195 100% 63%;
+    --color-5: 90 100% 63%;
   }
   .dark {
     --background: 20 14.3% 4.1%;
@@ -74,4 +79,25 @@
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
   }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Override browser autofill background so it matches our dark inputs         */
+/* -------------------------------------------------------------------------- */
+
+/* Using a huge inset box-shadow trick to paint over the user-agent fill. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  /* Same translucent white we use for inputs → bg-white/10 (#ffffff1a) */
+  -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.06) inset !important;
+  box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.06) inset !important;
+
+  -webkit-text-fill-color: #ffffff !important; /* keep text white */
+  caret-color: #ffffff;
+
+  transition:
+    background-color 600000s 0s,
+    color 600000s 0s; /* prevent flash */
 }

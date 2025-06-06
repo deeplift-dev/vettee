@@ -4,7 +4,6 @@ import { NextResponse } from "next/server";
 import { api } from "~/trpc/server";
 import { TranscriptionPrediction } from "~/types/prediction";
 
-export const runtime = "edge";
 export const PREDICTION_MODELS = {
   transcribe: "thomasmol/whisper-diarization",
 } as const;

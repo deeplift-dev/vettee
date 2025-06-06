@@ -6,8 +6,8 @@ export default {
     extend: {
       fontFamily: {
         sans: ["system-ui"],
-        logo: ["var(--font-oddval)"],
-        vetski: ["var(--font-pacow)"],
+        logo: ["var(--font-covered-by-your-grace)"],
+        vetski: ["var(--font-covered-by-your-grace)"],
       },
     },
   },

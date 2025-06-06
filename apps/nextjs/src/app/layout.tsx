@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Covered_By_Your_Grace } from "next/font/google";
 import localFont from "next/font/local";
 
 import "~/styles/globals.css";
@@ -36,15 +37,10 @@ const SaansFont = localFont({
   variable: "--font-saans",
 });
 
-const OddvalFont = localFont({
-  src: [
-    {
-      path: "../../assets/fonts/Oddval/Oddval-Medium.woff2",
-      weight: "500",
-      style: "normal",
-    },
-  ],
-  variable: "--font-oddval",
+const CoveredByYourGraceFont = Covered_By_Your_Grace({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-covered-by-your-grace",
 });
 
 const PacowFont = localFont({
@@ -91,7 +87,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${OddvalFont.variable} ${SaansFont.variable} ${PacowFont.variable}`}
+      className={`${CoveredByYourGraceFont.variable} ${SaansFont.variable} ${PacowFont.variable}`}
     >
       <body className="bg-gray-50 font-sans">
         <TRPCReactProvider headersPromise={getHeaders()}>

@@ -40,6 +40,7 @@
     "@trpc/next": "11.0.0-alpha-next-2023-11-24-13-58-38.113",
     "@trpc/react-query": "11.0.0-alpha-next-2023-11-24-13-58-38.113",
     "@trpc/server": "11.0.0-alpha-next-2023-11-24-13-58-38.113",
+    "@types/three": "^0.177.0",
     "ai": "^4.1.2",
     "axios": "^1.7.9",
     "class-variance-authority": "^0.7.1",
@@ -61,6 +62,7 @@
     "superjson": "2.2.1",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
+    "three": "^0.177.0",
     "zod": "^3.24.1"
   },
   "devDependencies": {
