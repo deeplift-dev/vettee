@@ -474,7 +474,11 @@ export default function InteractiveDemo() {
     }
   }, [phase]);
 
+  // Prevent `window` from being accessed during server-side rendering.
   const isDialog = useMemo(() => {
+    if (typeof window === "undefined") {
+      return false;
+    }
     return window.innerWidth < 640 && phase !== "idle";
   }, [phase]);
 
@@ -497,7 +501,7 @@ export default function InteractiveDemo() {
           <div className="absolute right-0 top-0">
             <button
               onClick={() => setPhase("idle")}
-              className="rounded bg-gradient-to-br from-black/50 to-black/0 px-2 py-1 font-sans text-sm font-medium uppercase text-white hover:bg-black/10"
+              className="m-4 rounded border border-gray-700 bg-gradient-to-br from-gray-900 via-gray-800 to-slate-900 px-2 py-1 font-sans text-sm font-medium uppercase text-white transition-colors hover:from-gray-900 hover:to-gray-800"
             >
               Close
             </button>

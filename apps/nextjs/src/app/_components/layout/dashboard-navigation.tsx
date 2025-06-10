@@ -1,23 +1,14 @@
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import {
-  Bell,
-  CircleUserRoundIcon,
-  LogOutIcon,
-  RowsIcon,
-  Search,
-} from "lucide-react";
+import { CircleUserRoundIcon, LogOutIcon, RowsIcon } from "lucide-react";
 
 import { signOut } from "~/app/auth/actions";
 import NewConsultButton from "../consults/new-consult-button";
-import { Button } from "../ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 

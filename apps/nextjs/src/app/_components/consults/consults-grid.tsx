@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { CheckCircle, ChevronRight, XCircle } from "lucide-react";
 
 import { api } from "~/trpc/server";
 import { EmptyConsultationIllustration } from "../illustrations/empty-consultation";
@@ -37,18 +37,19 @@ const ConsultsGrid = async () => {
 
   return (
     <div className="w-full text-sm">
-      <div className="min-w-full rounded-lg border border-white/10 bg-white/5 shadow-sm backdrop-blur-sm">
+      <div className="min-w-full rounded-lg border border-white/10 bg-black/40 shadow-lg backdrop-blur-sm">
         {/* Header */}
-        <div className="sticky top-0 z-10 hidden border-b border-white/10 bg-white/5 backdrop-blur-sm md:grid md:grid-cols-5 md:gap-4 md:px-6 md:py-3">
+        <div className="sticky top-0 z-10 hidden border-b border-white/10 bg-black/60 backdrop-blur-sm md:grid md:grid-cols-6 md:gap-4 md:px-6 md:py-3">
           <div className="text-sm font-medium text-white/70">Title</div>
           <div className="text-sm font-medium text-white/70">Owner</div>
           <div className="text-sm font-medium text-white/70">Veterinarian</div>
+          <div className="text-sm font-medium text-white/70">Consent</div>
           <div className="text-sm font-medium text-white/70">Date</div>
           <div className="text-sm font-medium text-white/70"></div>
         </div>
 
         {/* Mobile view */}
-        <div className="max-h-[calc(100vh-20rem)] space-y-2 overflow-y-auto p-4 md:hidden">
+        <div className="scrollbar-hide max-h-[calc(100vh-20rem)] space-y-2 overflow-y-auto p-4 md:hidden">
           {sortedConsultations.map((consultation) => (
             <Link
               href={`/app/consultations/${consultation.id}`}
@@ -83,16 +84,16 @@ const ConsultsGrid = async () => {
         </div>
 
         {/* Desktop view */}
-        <div className="hidden max-h-[calc(100vh-20rem)] overflow-y-auto md:block">
+        <div className="scrollbar-hide hidden max-h-[calc(100vh-20rem)] overflow-y-auto [-ms-overflow-style:none] [scrollbar-width:none] md:block">
           {sortedConsultations.map((consultation, index) => (
             <Link
               href={`/app/consultations/${consultation.id}`}
               key={consultation.id}
-              className={`grid grid-cols-5 items-center gap-4 px-6 py-2 transition-colors hover:bg-white/5 ${
+              className={`grid transform grid-cols-6 items-center gap-4 px-6 py-2 transition-all duration-150 ease-out hover:scale-[1.01] hover:bg-white/10 ${
                 index !== sortedConsultations.length - 1
                   ? "border-b border-white/10"
                   : ""
-              }`}
+              } ${index % 2 === 0 ? "bg-black/30" : "bg-black/20"}`}
             >
               <div className="truncate font-medium text-white">
                 {consultation.title}
@@ -111,6 +112,16 @@ const ConsultsGrid = async () => {
                 <span className="text-white/70">
                   {consultation.veterinarian?.firstName}{" "}
                   {consultation.veterinarian?.lastName}
+                </span>
+              </div>
+              <div className="flex items-center gap-1">
+                {consultation.consentedAt ? (
+                  <CheckCircle className="h-4 w-4 text-emerald-500" />
+                ) : (
+                  <XCircle className="h-4 w-4 text-red-500" />
+                )}
+                <span className="text-xs text-white/70 md:text-sm">
+                  {consultation.consentedAt ? "Yes" : "No"}
                 </span>
               </div>
               <div className="text-white/70">

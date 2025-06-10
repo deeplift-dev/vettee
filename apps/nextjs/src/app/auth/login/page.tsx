@@ -10,8 +10,6 @@ import { useToast } from "~/hooks/use-toast";
 import { signInWithGoogle, signInWithPassword } from "../actions";
 
 export default function LoginPage() {
-  const router = useRouter();
-
   return (
     <div className="relative ">
       {/* Back button */}
