@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Message, useChat } from "@ai-sdk/react";
 import { Attachment } from "@ai-sdk/ui-utils";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { motion } from "framer-motion";
 import { ArrowUp, ImageIcon, Loader2, XCircle } from "lucide-react";
 
