@@ -1,6 +1,5 @@
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "~/utils/supabase/server";
 
 import ConsultsGrid from "~/app/_components/consults/consults-grid";
 import SafeArea from "~/app/_components/layout/safe-area";
@@ -8,7 +7,7 @@ import SafeArea from "~/app/_components/layout/safe-area";
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
-  const supabase = createServerComponentClient({ cookies });
+  const supabase = await createClient();
   const user = await supabase.auth.getUser();
 
   if (!user.data.user) {

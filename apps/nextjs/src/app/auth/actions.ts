@@ -2,11 +2,30 @@
 
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
+import { createServerClient } from "@supabase/ssr";
+
+function createSupabaseServerClient() {
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookies().getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookies().set(name, value, options);
+          });
+        },
+      },
+    },
+  );
+}
 
 export const signInWithPassword = async (email: string, password: string) => {
   try {
-    const supabase = createServerActionClient({ cookies });
+    const supabase = createSupabaseServerClient();
 
     const { error, data } = await supabase.auth.signInWithPassword({
       email,
@@ -26,7 +45,7 @@ export const signInWithPassword = async (email: string, password: string) => {
 };
 
 export const signUp = async (email: string, password: string) => {
-  const supabase = createServerActionClient({ cookies });
+  const supabase = createSupabaseServerClient();
   const origin = headers().get("origin");
 
   const { error, data } = await supabase.auth.signUp({
@@ -43,7 +62,7 @@ export const signUp = async (email: string, password: string) => {
 
 export const signInWithGoogle = async () => {
   const origin = headers().get("origin");
-  const supabase = createServerActionClient({ cookies });
+  const supabase = createSupabaseServerClient();
 
   const res = await supabase.auth.signInWithOAuth({
     provider: "google",
@@ -55,7 +74,7 @@ export const signInWithGoogle = async () => {
 };
 
 export const signOut = async () => {
-  const supabase = createServerActionClient({ cookies });
+  const supabase = createSupabaseServerClient();
   await supabase.auth.signOut();
   redirect("/app");
 };

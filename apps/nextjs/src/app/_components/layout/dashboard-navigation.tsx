@@ -1,6 +1,5 @@
-import { cookies } from "next/headers";
 import Link from "next/link";
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "~/utils/supabase/server";
 import { CircleUserRoundIcon, LogOutIcon, RowsIcon } from "lucide-react";
 
 import { signOut } from "~/app/auth/actions";
@@ -15,7 +14,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function DashboardNavigation() {
-  const supabase = createServerComponentClient({ cookies });
+  const supabase = await createClient();
   const user = await supabase.auth.getUser();
 
   return (

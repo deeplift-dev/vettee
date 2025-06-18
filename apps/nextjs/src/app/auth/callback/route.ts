@@ -1,4 +1,8 @@
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { createServerClient } from "@supabase/ssr";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -6,6 +10,23 @@ export async function GET(request: Request) {
   const next = searchParams.get("next") ?? "/app";
 
   if (code) {
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookies().getAll();
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookies().set(name, value, options);
+            });
+          },
+        },
+      },
+    );
+
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
       const forwardedHost = request.headers.get("x-forwarded-host");

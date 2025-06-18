@@ -1,7 +1,7 @@
 import type { TRPCErrorResponse } from "@trpc/server/rpc";
 import { cache } from "react";
-import { cookies, headers } from "next/headers";
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+import { headers } from "next/headers";
+import { createClient } from "~/utils/supabase/server";
 import { createTRPCClient, loggerLink, TRPCClientError } from "@trpc/client";
 import { callProcedure } from "@trpc/server";
 import { observable } from "@trpc/server/observable";
@@ -17,7 +17,7 @@ const createContext = cache(async () => {
   const heads = new Headers(headers());
   heads.set("x-trpc-source", "rsc");
 
-  const supabase = createServerComponentClient({ cookies });
+  const supabase = await createClient();
 
   return createTRPCContext({
     supabase,

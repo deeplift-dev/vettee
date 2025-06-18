@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "~/utils/supabase/client";
 import { LogIn } from "lucide-react";
 
 import { is } from "@acme/db";
@@ -16,7 +16,7 @@ import { Button } from "../ui/button";
 
 const NewConsultForm = () => {
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   useEffect(() => {

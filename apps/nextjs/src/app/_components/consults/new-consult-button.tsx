@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "~/utils/supabase/client";
 import { LogIn, Plus } from "lucide-react";
 
 import { api } from "~/trpc/react";
@@ -11,7 +11,7 @@ import { Button } from "../ui/button";
 
 const NewConsultButton = () => {
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   useEffect(() => {
