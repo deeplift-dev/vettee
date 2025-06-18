@@ -8,10 +8,16 @@ import { Button } from "~/app/_components/ui/button";
 import { Input } from "~/app/_components/ui/input";
 import { useToast } from "~/hooks/use-toast";
 import { signInWithGoogle, signInWithPassword } from "../actions";
+import { Suspense } from "react";
+import OAuthHandler from "./oauth-handler";
 
 export default function LoginPage() {
   return (
     <div className="relative ">
+      <Suspense fallback={null}>
+        <OAuthHandler />
+      </Suspense>
+      
       {/* Back button */}
       <div className="absolute left-4">
         <Link
