@@ -52,7 +52,7 @@ export const signUp = async (email: string, password: string) => {
     email,
     password,
     options: {
-      emailRedirectTo: `${origin}/auth/callback`,
+      emailRedirectTo: `${origin}/api/auth/callback`,
     },
   });
 
@@ -66,7 +66,7 @@ export const signInWithGoogle = async () => {
 
   const res = await supabase.auth.signInWithOAuth({
     provider: "google",
-    options: { redirectTo: `${origin}/auth/callback` },
+    options: { redirectTo: `${origin}/api/auth/callback` },
   });
 
   if (res.data.url) redirect(res.data.url);
