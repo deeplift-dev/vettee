@@ -9,7 +9,6 @@ import { headers } from "next/headers";
 
 import { TRPCReactProvider } from "~/trpc/react";
 import { Toaster } from "./_components/ui/toaster";
-import { setupChatAttachmentsBucket } from "./api/storage/setup-bucket";
 
 const SaansFont = localFont({
   src: [
@@ -70,7 +69,11 @@ export const metadata: Metadata = {
   },
   keywords: "veterinary, pets, support, Vetskii",
   robots: "index, follow",
-  viewport: "width=device-width, initial-scale=1",
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 // Lazy load headers
@@ -81,9 +84,6 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Ensure the bucket exists with proper permissions
-  await setupChatAttachmentsBucket();
-
   return (
     <html
       lang="en"

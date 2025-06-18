@@ -5,6 +5,8 @@ import ConsultsGrid from "~/app/_components/consults/consults-grid";
 import SafeArea from "~/app/_components/layout/safe-area";
 import LandingHero from "~/app/_components/marketing/landing-hero";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const supabase = createServerComponentClient({ cookies });
   const user = await supabase.auth.getUser();
