@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 
-import InteractiveDemo from "~/app/_components/marketing/interactive-demo";
+import ImprovedDemo from "~/app/_components/marketing/improved-demo";
 import EmailSignupForm from "./email-signup-form";
+import AnimatedBackground from "./animated-background";
 
 // Staggered entrance variants for hero copy
 const heroContainer = {
@@ -37,8 +38,8 @@ export default function LandingHero() {
             Sign In
           </Link>
         </div>
-        {/* Subtle gradient background */}
-        <div className="pointer-events-none absolute inset-0 -z-20 bg-gradient-to-br from-[#0A0A0A] to-[#1A1A1A]" />
+        {/* Animated background */}
+        <AnimatedBackground />
 
         {/* Two-column layout */}
         <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-8 p-6 md:grid-cols-2">
@@ -61,11 +62,11 @@ export default function LandingHero() {
             >
               Treat with confidence.
               <br />
-              Your AI-powered veterinary assistant.
+              Your intelligent veterinary assistant.
             </motion.h1>
             <motion.p variants={heroItem} className="text-s mt-4 text-lg">
-              Vetskii is a veterinary assistant that listens passively to your
-              conversations and answers your questions.
+              Vetskii is an intelligent veterinary assistant that listens passively to your
+              conversations and provides expert guidance when you need it.
             </motion.p>
             <motion.div variants={heroItem} className="mt-4 w-full max-w-lg">
               <EmailSignupForm />
@@ -74,7 +75,7 @@ export default function LandingHero() {
 
           {/* Right: Interactive demo */}
           <div className="flex w-full justify-center">
-            <InteractiveDemo />
+            <ImprovedDemo />
           </div>
         </div>
       </section>

@@ -3,6 +3,9 @@ import { createClient } from "~/utils/supabase/server";
 import ConsultsGrid from "~/app/_components/consults/consults-grid";
 import SafeArea from "~/app/_components/layout/safe-area";
 import LandingHero from "~/app/_components/marketing/landing-hero";
+import FeaturesSection from "~/app/_components/marketing/features-section";
+import PricingSection from "~/app/_components/marketing/pricing-section";
+import Footer from "~/app/_components/marketing/footer";
 
 export const dynamic = "force-dynamic";
 
@@ -31,7 +34,12 @@ export default async function HomePage() {
           </div>
         </div>
       ) : (
-        <LandingHero />
+        <div className="min-h-screen bg-[#0A0A0A]">
+          <LandingHero />
+          <FeaturesSection />
+          <PricingSection />
+          <Footer />
+        </div>
       )}
     </SafeArea>
   );

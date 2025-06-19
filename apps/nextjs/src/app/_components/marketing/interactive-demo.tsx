@@ -8,7 +8,7 @@ import { RotateCcwIcon } from "lucide-react";
 import { RainbowButton } from "../ui/rainbow-button";
 
 interface Message {
-  role: "vet" | "ai";
+  role: "vet" | "assistant";
   text: string;
 }
 
@@ -17,7 +17,7 @@ interface AnimalDemo {
   label: string;
   icon: string; // Could be replaced with svg later
   conversation: Message[];
-  tip?: string; // Optional proactive tip from the AI
+  tip?: string; // Optional proactive tip from the assistant
 }
 
 interface TranscriptLine {
@@ -36,7 +36,7 @@ const demos: AnimalDemo[] = [
         text: "Recommended long-term therapy for canine atopic dermatitis in a 28 kg Labrador?",
       },
       {
-        role: "ai",
+        role: "assistant",
         text: "Start oclacitinib 0.4–0.6 mg/kg PO BID, strict flea control, medicated shampoos; consider allergen-specific immunotherapy for sustained relief.\nTip: run a serum IgE panel first – if food allergens dominate, an elimination diet can reduce drug reliance.",
       },
     ],
@@ -52,7 +52,7 @@ const demos: AnimalDemo[] = [
         text: "Initial glargine insulin dose for a newly diagnosed 4 kg diabetic cat?",
       },
       {
-        role: "ai",
+        role: "assistant",
         text: "0.25 U/kg every 12 h → round to 1 U q12h; feed consistent low-carb diet and re-check a BG curve in 7–10 days.",
       },
     ],
@@ -67,7 +67,7 @@ const demos: AnimalDemo[] = [
         text: "Safe anaesthetic protocol for a 1.4 kg rabbit requiring dental burring?",
       },
       {
-        role: "ai",
+        role: "assistant",
         text: "Premed midazolam 0.5 mg/kg + buprenorphine 0.05 mg/kg IM, induce alfaxalone 5 mg/kg IV, maintain 1.5–2 % isoflurane with oxygen; provide active warming & oxygenation.\nTip: place an intranasal oxygen cannula before induction – rabbits desaturate quickly during apnoea.",
       },
     ],
@@ -83,7 +83,7 @@ const demos: AnimalDemo[] = [
         text: "Core vaccination schedule for a 7-year-old competition horse in the UK?",
       },
       {
-        role: "ai",
+        role: "assistant",
         text: "Influenza–tetanus: day 0, 4–6 weeks, 5 months then annual boosters; booster within 6 months + 21 days before FEI events. Add EHV & strangles as risk-based.",
       },
     ],
@@ -726,7 +726,7 @@ export default function InteractiveDemo() {
             {/* Proactive tip */}
             {showTip && (
               <>
-                <SectionLabel>AI Tip</SectionLabel>
+                <SectionLabel>Assistant Tip</SectionLabel>
                 <motion.div
                   initial={{ opacity: 0, y: 4 }}
                   animate={{ opacity: 1, y: 0 }}

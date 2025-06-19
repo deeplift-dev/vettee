@@ -40,13 +40,51 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Define public routes that don't require authentication
+  const publicRoutes = [
+    "/",
+    "/privacy",
+    "/terms",
+    "/about",
+    "/contact",
+    "/blog",
+    "/help",
+    "/pricing",
+  ];
+
+  // Define protected routes that require authentication
+  const protectedRoutes = [
+    "/app",
+    "/consultations",
+    "/dashboard",
+    "/profile",
+    "/settings",
+  ];
+
+  const pathname = request.nextUrl.pathname;
+
+  // Check if the current path is a protected route
+  const isProtectedRoute = protectedRoutes.some(route => 
+    pathname.startsWith(route)
+  );
+
+  // Check if the current path is a public route or auth-related
+  const isPublicRoute = publicRoutes.includes(pathname) ||
+    pathname.startsWith("/auth") ||
+    pathname.startsWith("/api") ||
+    pathname.startsWith("/_next") ||
+    pathname.includes(".");
+
+  // Only redirect to login if:
+  // 1. User is not authenticated AND
+  // 2. Trying to access a protected route AND  
+  // 3. Not already on an auth page
   if (
     !user &&
-    !request.nextUrl.pathname.startsWith("/login") &&
-    !request.nextUrl.pathname.startsWith("/auth") &&
-    !request.nextUrl.pathname.startsWith("/api/auth")
+    isProtectedRoute &&
+    !pathname.startsWith("/auth") &&
+    !pathname.startsWith("/api")
   ) {
-    // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
     return NextResponse.redirect(url);

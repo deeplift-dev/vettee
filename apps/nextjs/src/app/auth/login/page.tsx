@@ -12,7 +12,6 @@ import { signInWithGoogle, signInWithPassword } from "../actions";
 export default function LoginPage() {
   return (
     <div className="relative ">
-      
       {/* Back button */}
       <div className="absolute left-4">
         <Link
@@ -97,8 +96,8 @@ const LoginForm = () => {
       </div>
 
       <Button
+        className="flex flex-row gap-2"
         variant="outline"
-        className="flex w-full items-center justify-center gap-2 rounded-lg border-white/20 bg-transparent px-4 py-3 text-zinc-50 transition-colors hover:bg-white/10"
         onClick={() => signInWithGoogle()}
       >
         <FcGoogle size={20} />
