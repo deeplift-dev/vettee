@@ -100,47 +100,70 @@ export default function AnimatedBackground() {
         className="pointer-events-none absolute inset-0 -z-10"
       />
       
-      {/* Gradient overlays */}
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-br from-[#0A0A0A] via-[#1A1A1A] to-[#0A0A0A]" />
-      
-      {/* Animated gradient orbs */}
-      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+      {/* WorkOS-style gradient background */}
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#030520] via-[#0A0A1A] to-[#030520]" />
         <motion.div
           animate={{
-            x: [0, 100, 0],
-            y: [0, -50, 0],
+            backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
           }}
           transition={{
-            duration: 20,
+            duration: 8,
             repeat: Infinity,
             ease: "linear",
           }}
-          className="absolute -top-20 -left-20 h-96 w-96 rounded-full bg-gradient-to-r from-lime-500/10 to-emerald-500/10 blur-3xl"
+          className="absolute inset-0 bg-gradient-to-r from-[#6363f1]/20 via-[#23F0C3]/15 to-[#a163f1]/20 bg-[length:200%_200%]"
+          style={{
+            backgroundSize: "200% 200%",
+          }}
         />
+      </div>
+      
+      {/* WorkOS-inspired animated gradient orbs */}
+      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
         <motion.div
           animate={{
-            x: [0, -80, 0],
-            y: [0, 60, 0],
+            x: [0, 150, 0],
+            y: [0, -75, 0],
+            scale: [1, 1.2, 1],
           }}
           transition={{
             duration: 25,
             repeat: Infinity,
-            ease: "linear",
+            ease: "easeInOut",
           }}
-          className="absolute -bottom-20 -right-20 h-96 w-96 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 blur-3xl"
+          className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-gradient-to-r from-[#6363f1]/25 to-[#a163f1]/20 blur-3xl"
         />
         <motion.div
           animate={{
-            x: [0, 60, 0],
-            y: [0, -80, 0],
+            x: [0, -120, 0],
+            y: [0, 90, 0],
+            scale: [1, 1.1, 1],
           }}
           transition={{
             duration: 30,
             repeat: Infinity,
-            ease: "linear",
+            ease: "easeInOut",
           }}
-          className="absolute top-1/2 left-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-r from-rose-500/5 to-orange-500/5 blur-3xl"
+          className="absolute -bottom-32 -right-32 h-[500px] w-[500px] rounded-full bg-gradient-to-r from-[#23F0C3]/20 to-[#6363f1]/15 blur-3xl"
         />
+        <motion.div
+          animate={{
+            x: [0, 80, 0],
+            y: [0, -60, 0],
+            scale: [1, 1.3, 1],
+          }}
+          transition={{
+            duration: 35,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          className="absolute top-1/3 right-1/4 h-72 w-72 rounded-full bg-gradient-to-r from-[#a163f1]/15 to-[#23F0C3]/10 blur-3xl"
+        />
+        
+        {/* Additional subtle gradient layers for depth */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#030520]/50 via-transparent to-[#030520]/30" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#030520]/20 via-transparent to-[#030520]/20" />
       </div>
     </>
   );

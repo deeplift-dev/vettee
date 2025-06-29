@@ -33,9 +33,10 @@ export default function LandingHero() {
         <div className="absolute right-0 top-0 flex items-center justify-center p-4">
           <Link
             href="/auth/login"
-            className="rounded border border-gray-700 bg-gradient-to-br from-gray-900 via-gray-800 to-slate-900 px-2 py-1 font-sans text-sm font-medium uppercase text-white transition-colors hover:from-gray-900 hover:to-gray-800"
+            className="group relative overflow-hidden rounded px-4 py-2 font-sans text-sm font-medium text-white transition-all duration-300 bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-[#6363f1]/20 hover:scale-[1.02] active:scale-[0.98]"
           >
-            Sign In
+            <div className="absolute inset-0 bg-gradient-to-r from-[#6363f1]/20 to-[#23F0C3]/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+            <span className="relative z-10">Sign In</span>
           </Link>
         </div>
         {/* Animated background */}
@@ -48,27 +49,31 @@ export default function LandingHero() {
             variants={heroContainer}
             initial="hidden"
             animate="show"
-            className="flex w-full flex-col text-white"
+            className="flex w-full flex-col text-white relative"
           >
+            {/* Subtle backdrop for text content */}
+            <div className="absolute inset-0 -inset-4 bg-gradient-to-br from-white/[0.02] to-transparent rounded-2xl backdrop-blur-sm border border-white/[0.05] shadow-2xl shadow-black/20" />
             <motion.div
               variants={heroItem}
-              className="mb-4 font-vetski text-4xl font-bold"
+              className="mb-4 font-vetski text-4xl font-bold relative z-10"
             >
-              Vetskii
+              <span className="bg-gradient-to-r from-[#23F0C3] to-[#6363f1] bg-clip-text text-transparent">
+                Vetskii
+              </span>
             </motion.div>
             <motion.h1
               variants={heroItem}
-              className="text-4xl font-medium md:text-5xl"
+              className="text-4xl font-medium md:text-5xl relative z-10"
             >
               Treat with confidence.
               <br />
-              Your intelligent veterinary assistant.
+              <span className="text-[#23F0C3]">Your intelligent</span> veterinary assistant.
             </motion.h1>
-            <motion.p variants={heroItem} className="text-s mt-4 text-lg">
+            <motion.p variants={heroItem} className="text-s mt-4 text-lg text-white/80 relative z-10">
               Vetskii is an intelligent veterinary assistant that listens passively to your
               conversations and provides expert guidance when you need it.
             </motion.p>
-            <motion.div variants={heroItem} className="mt-4 w-full max-w-lg">
+            <motion.div variants={heroItem} className="mt-4 w-full max-w-lg relative z-10">
               <EmailSignupForm />
             </motion.div>
           </motion.div>
